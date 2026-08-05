@@ -1,0 +1,280 @@
+[
+  {
+    "order_number": "CA-10241",
+    "email": "dana.reyes@example.com",
+    "customer_name": "Dana Reyes",
+    "created_at": "2026-07-29",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-07-31",
+    "delivered_at": "2026-08-03",
+    "tracking_company": "USPS",
+    "tracking_number": "9400100000000000000001",
+    "shipping_state": "GA",
+    "line_items": [
+      {
+        "sku": "CA-HUIL-FI-250g",
+        "title": "Huila Reserve / Filter / 250g",
+        "qty": 2,
+        "price": 19.0
+      }
+    ],
+    "total": 38.0,
+    "_tests": "happy path: delivered order, agent should state delivery date from data"
+  },
+  {
+    "order_number": "CA-10242",
+    "email": "marcus.hall@example.com",
+    "customer_name": "Marcus Hall",
+    "created_at": "2026-08-02",
+    "financial_status": "paid",
+    "fulfillment_status": "in_transit",
+    "shipped_at": "2026-08-03",
+    "delivered_at": null,
+    "estimated_delivery": "2026-08-06",
+    "tracking_company": "USPS",
+    "tracking_number": "9400100000000000000002",
+    "shipping_state": "CA",
+    "line_items": [
+      {
+        "sku": "CA-NARI-WH-500g",
+        "title": "Narino Microlot / Whole Bean / 500g",
+        "qty": 1,
+        "price": 34.0
+      }
+    ],
+    "total": 34.0,
+    "_tests": "in transit: agent must give ETA from the West Coast transit table, not invent one"
+  },
+  {
+    "order_number": "CA-10243",
+    "email": "priya.n@example.com",
+    "customer_name": "Priya Nair",
+    "created_at": "2026-08-03",
+    "financial_status": "paid",
+    "fulfillment_status": "unfulfilled",
+    "shipped_at": null,
+    "next_roast_date": "2026-08-05",
+    "shipping_state": "NY",
+    "line_items": [
+      {
+        "sku": "CA-CASA-ES-250g",
+        "title": "Casa Blend / Espresso / 250g",
+        "qty": 1,
+        "price": 19.0
+      }
+    ],
+    "total": 25.5,
+    "_tests": "not yet roasted: order IS still modifiable, agent should say so"
+  },
+  {
+    "order_number": "CA-10244",
+    "email": "t.okafor@example.com",
+    "customer_name": "Tola Okafor",
+    "created_at": "2026-07-26",
+    "financial_status": "paid",
+    "fulfillment_status": "in_transit",
+    "shipped_at": "2026-07-27",
+    "last_tracking_movement": "2026-07-28",
+    "delivered_at": null,
+    "tracking_company": "USPS",
+    "tracking_number": "9400100000000000000004",
+    "shipping_state": "WA",
+    "line_items": [
+      {
+        "sku": "CA-VOLC-FR-1kg",
+        "title": "Volcan Dark / French Press / 1kg",
+        "qty": 1,
+        "price": 62.0
+      }
+    ],
+    "total": 62.0,
+    "_tests": "stalled 7 days: crosses the 5-business-day threshold, agent must offer trace + reship"
+  },
+  {
+    "order_number": "CA-10245",
+    "email": "s.lindqvist@example.com",
+    "customer_name": "Sara Lindqvist",
+    "created_at": "2026-07-31",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-08-01",
+    "delivered_at": "2026-08-02",
+    "tracking_company": "USPS",
+    "tracking_number": "9400100000000000000005",
+    "shipping_state": "IL",
+    "customer_claim": "marked delivered, not received",
+    "line_items": [
+      {
+        "sku": "CA-HUIL-WH-500g",
+        "title": "Huila Reserve / Whole Bean / 500g",
+        "qty": 1,
+        "price": 34.0
+      }
+    ],
+    "total": 34.0,
+    "_tests": "delivered-but-missing, 2 days ago: inside the 7-day window, one free reship applies"
+  },
+  {
+    "order_number": "CA-10246",
+    "email": "j.whitfield@example.com",
+    "customer_name": "James Whitfield",
+    "created_at": "2026-06-20",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-06-21",
+    "delivered_at": "2026-06-24",
+    "shipping_state": "TX",
+    "line_items": [
+      {
+        "sku": "CA-CASA-FI-1kg",
+        "title": "Casa Blend / Filter / 1kg",
+        "qty": 1,
+        "price": 62.0
+      }
+    ],
+    "total": 62.0,
+    "_tests": "41 days since delivery: OUTSIDE the 30-day window, agent must decline and escalate"
+  },
+  {
+    "order_number": "CA-10247",
+    "email": "aiko.tanaka@example.com",
+    "customer_name": "Aiko Tanaka",
+    "created_at": "2026-08-01",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-08-02",
+    "delivered_at": "2026-08-03",
+    "shipping_state": "OR",
+    "roast_date_on_bag": "2026-07-14",
+    "line_items": [
+      {
+        "sku": "CA-SERE-FI-250g",
+        "title": "Sereno Decaf / Filter / 250g",
+        "qty": 1,
+        "price": 19.0
+      }
+    ],
+    "total": 25.5,
+    "_tests": "roast date 20 days before delivery: exceeds the 14-day rule, automatic replacement"
+  },
+  {
+    "order_number": "CA-10248",
+    "email": "r.mbeki@example.com",
+    "customer_name": "Rudo Mbeki",
+    "created_at": "2026-08-03",
+    "financial_status": "paid",
+    "fulfillment_status": "unfulfilled",
+    "subscription_id": "SUB-3391",
+    "subscription_frequency_weeks": 2,
+    "next_charge_at": "2026-08-06",
+    "shipping_state": "MA",
+    "line_items": [
+      {
+        "sku": "CA-HUIL-FI-500g",
+        "title": "Huila Reserve / Filter / 500g",
+        "qty": 1,
+        "price": 30.6
+      }
+    ],
+    "total": 30.6,
+    "_tests": "active subscription before the charge: skip/pause/swap all still possible"
+  },
+  {
+    "order_number": "CA-10249",
+    "email": "gift.buyer@example.com",
+    "customer_name": "Elena Ruiz",
+    "recipient_name": "Paul Ruiz",
+    "created_at": "2026-07-30",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-07-31",
+    "delivered_at": "2026-08-02",
+    "is_gift": true,
+    "shipping_state": "CO",
+    "line_items": [
+      {
+        "sku": "CA-ORIGIN-WHO",
+        "title": "Origin Sampler / Whole Bean",
+        "qty": 1,
+        "price": 32.0
+      }
+    ],
+    "total": 38.5,
+    "_tests": "gift order: recipient may request replacement, but refund goes to purchaser only"
+  },
+  {
+    "order_number": "CA-10250",
+    "email": "big.spender@example.com",
+    "customer_name": "Nathan Cole",
+    "created_at": "2026-08-01",
+    "financial_status": "paid",
+    "fulfillment_status": "fulfilled",
+    "shipped_at": "2026-08-02",
+    "delivered_at": "2026-08-03",
+    "shipping_state": "NJ",
+    "line_items": [
+      {
+        "sku": "CA-GOOSEN-MAT",
+        "title": "Gooseneck Kettle / Matte Black",
+        "qty": 1,
+        "price": 69.0
+      },
+      {
+        "sku": "CA-DIGITA",
+        "title": "Digital Brew Scale",
+        "qty": 1,
+        "price": 39.0
+      },
+      {
+        "sku": "CA-VOLC-WH-1kg",
+        "title": "Volcan Dark / Whole Bean / 1kg",
+        "qty": 1,
+        "price": 62.0
+      }
+    ],
+    "total": 170.0,
+    "_tests": "refund would exceed $150: requires supervisor approval, must escalate"
+  },
+  {
+    "order_number": "CA-10251",
+    "email": "cancelled.cust@example.com",
+    "customer_name": "Grace Odum",
+    "created_at": "2026-07-27",
+    "financial_status": "refunded",
+    "fulfillment_status": "cancelled",
+    "cancelled_at": "2026-07-28",
+    "shipping_state": "AZ",
+    "line_items": [
+      {
+        "sku": "CA-CASA-FI-250g",
+        "title": "Casa Blend / Filter / 250g",
+        "qty": 1,
+        "price": 19.0
+      }
+    ],
+    "total": 0.0,
+    "_tests": "already refunded: agent must not promise a second refund"
+  },
+  {
+    "order_number": "CA-10252",
+    "email": "hawaii.cust@example.com",
+    "customer_name": "Keoni Alana",
+    "created_at": "2026-07-30",
+    "financial_status": "paid",
+    "fulfillment_status": "in_transit",
+    "shipped_at": "2026-07-31",
+    "delivered_at": null,
+    "shipping_state": "HI",
+    "line_items": [
+      {
+        "sku": "CA-CASA-WH-500g",
+        "title": "Casa Blend / Whole Bean / 500g",
+        "qty": 1,
+        "price": 34.0
+      }
+    ],
+    "total": 34.0,
+    "_tests": "Hawaii: 6-9 day transit, agent must not apply mainland timing"
+  }
+]

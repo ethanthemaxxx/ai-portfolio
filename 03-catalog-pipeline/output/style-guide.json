@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0+acceea92",
+  "locale": "en",
+  "derivedFrom": {
+    "exemplarIds": [
+      "ex-01-tolima-sunrise",
+      "ex-02-huila-late-harvest",
+      "ex-03-steel-tamper",
+      "ex-04-holiday-pair",
+      "ex-05-subscription-blurb"
+    ],
+    "brandDoc": "00-brand-demo/brand.md"
+  },
+  "metrics": {
+    "exemplarCount": 5,
+    "sentenceCount": 23,
+    "wordCount": 261,
+    "meanSentenceWords": 11.35,
+    "medianSentenceWords": 10,
+    "maxSentenceWords": 18,
+    "meanReadingGrade": 3.15,
+    "maxReadingGrade": 4.36,
+    "secondPersonPer100Words": 4.98,
+    "exclamationCount": 0,
+    "minParagraphs": 3,
+    "maxParagraphs": 4,
+    "tasteBeforeOriginRate": 1
+  },
+  "constraints": {
+    "maxSentenceWords": 18,
+    "readingGradeMax": 8,
+    "requiresSecondPerson": true,
+    "allowsExclamation": false,
+    "bodyParagraphRange": [
+      3,
+      4
+    ],
+    "metaTitleMaxChars": 60,
+    "metaDescriptionRange": [
+      140,
+      160
+    ],
+    "altTextRange": [
+      40,
+      125
+    ]
+  },
+  "openingMove": "taste-first",
+  "observedVocabulary": [
+    "roast",
+    "grind",
+    "brew",
+    "washed",
+    "subscription",
+    "shipment",
+    "bag"
+  ]
+}

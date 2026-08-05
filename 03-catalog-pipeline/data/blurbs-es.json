@@ -1,0 +1,17 @@
+{
+  "_note": "Spanish versions of each product's merchant-written short_blurb. These are INPUT, not generated output: in a real engagement the merchant (or their translator) signs these off once, exactly as they signed off the English blurbs. Every figure and every product claim they contain is the same one the English blurb makes, so they pass the same fact-traceability gate. See README.md, 'What is generated and what is not'.",
+  "blurbs": {
+    "huila-reserve": "El que le damos a quien dice que no le gusta el café negro.",
+    "narino-microlot": "Fuerte, frutal y sin perdón. Mejor en filtro.",
+    "volcan-dark": "Hecho para atravesar la leche sin volverse amargo.",
+    "casa-blend": "La bolsa de todos los días. Funciona en cualquier método.",
+    "sereno-decaf": "Descafeinado que sabe a café, sin cloruro de metileno.",
+    "v60-dripper": "Cerámica, tamaño 02. Guarda el calor mejor que el plástico.",
+    "paper-filters-100": "Blanqueados, tamaño 02. Enjuágalos antes de preparar.",
+    "gooseneck-kettle": "Temperatura variable, 60-100 C. Garantía del fabricante: 2 años.",
+    "digital-scale": "Resolución de 0.1 g con temporizador. La mejora más barata del café.",
+    "ceramic-mug": "Paredes gruesas, apta para lavavajillas.",
+    "origin-sampler": "Huila, Nariño, Volcán y Casa en bolsas de 100 g. El regalo más fácil que vendemos.",
+    "gift-card": "Digital, llega por correo, no vence."
+  }
+}

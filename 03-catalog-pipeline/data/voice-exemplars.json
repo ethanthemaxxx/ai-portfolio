@@ -1,0 +1,40 @@
+{
+  "_note": "SYNTHETIC. These five descriptions stand in for 'copy the merchant already wrote and likes'. They were authored for this project, in the voice defined by 00-brand-demo/brand.md. Every one of them describes a PAST lot or a product that is NOT in the current 12-product catalog, so no product in the before/after comparison is enriched from copy that already existed for it.",
+  "exemplars": [
+    {
+      "id": "ex-01-tolima-sunrise",
+      "title": "Tolima Sunrise (2025 harvest, sold out)",
+      "kind": "coffee",
+      "note": "Retired lot. The merchant's favourite piece of their own copy.",
+      "body": "Tolima Sunrise tastes like red grape and cocoa. It is the bag we reached for on a slow morning.\n\nMedium roast, washed, and forgiving if your grind is a little coarse.\n\nYou can brew it in a dripper or a French press and it holds up either way.\n\nWe roasted it Monday and shipped it the same day."
+    },
+    {
+      "id": "ex-02-huila-late-harvest",
+      "title": "Huila Late Harvest (2025, sold out)",
+      "kind": "coffee",
+      "note": "Retired lot. Shows how the brand says 'this one is not for everyone'.",
+      "body": "Huila Late Harvest is bright without being sharp. Think green apple, honey and a little black tea.\n\nIt is a light roast, so grind finer than you think and use water just off the boil. If you want a mellow cup, this is not your bag.\n\nWe paid $7.10 per kilo for the green coffee."
+    },
+    {
+      "id": "ex-03-steel-tamper",
+      "title": "Steel Tamper 58 mm (discontinued)",
+      "kind": "equipment",
+      "note": "Discontinued accessory. Shows the voice with no coffee facts to lean on.",
+      "body": "This is a plain steel tamper, 58 mm across. It fits most home espresso baskets.\n\nThe handle is walnut, so it warms up in your hand instead of staying cold.\n\nNothing here is clever. It presses coffee flat, which is the whole job."
+    },
+    {
+      "id": "ex-04-holiday-pair",
+      "title": "Holiday Pair (seasonal, 2025)",
+      "kind": "gift",
+      "note": "Seasonal box. Shows how the brand writes for the gift buyer.",
+      "body": "The Holiday Pair is two 250 g bags in one box, with a card you can write on.\n\nPick any two coffees on the site and we grind them the way you ask.\n\nIt ships in one parcel, so you pay shipping once. If they end up hating one bag, tell us and we swap it."
+    },
+    {
+      "id": "ex-05-subscription-blurb",
+      "title": "Subscription (evergreen page copy)",
+      "kind": "subscription",
+      "note": "Page copy, not a product. Included because it is the clearest example of the voice.",
+      "body": "A subscription means we roast for you first. You pick the size, the grind and how often.\n\nEvery shipment is roasted the morning it goes out, and you can skip or cancel from your account.\n\nMost people start with one bag every two weeks and adjust after a month."
+    }
+  ]
+}

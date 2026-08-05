@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confidence layer — three directions, side by side</title>
+<meta name="description" content="Process piece: the two discarded directions for the confidence layer, drawn properly, next to the one that shipped.">
+<style>
+/* ============================================================================
+   PROCESS PIECE — the confidence layer, three directions side by side.
+
+   The rule that governs this page: the discarded directions are drawn as a
+   competent team would ship them, not as straw men. The argument against the
+   87% badge has to beat the good version of the 87% badge, or it has proven
+   nothing. Same tokens, same care, same instrument-panel language as the
+   prototype — the only thing that varies between the three mocks is the
+   design decision under test.
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --bg:        #eceef0;
+  --surface:   #ffffff;
+  --surface-2: #f4f6f7;
+  --line:      #d6dbde;
+  --line-2:    #b4bcc1;
+  --text:      #12181b;
+  --dim:       #566065;
+  --faint:     #7d888d;
+
+  --accent:    #0d6a62;
+  --accent-bg: #e2f0ee;
+
+  --ok:        #2c6f47;
+  --ok-bg:     #e4efe8;
+  --hold:      #8c5a0e;
+  --hold-bg:   #f7eddc;
+  --block:     #a33c2c;
+  --block-bg:  #f8e7e3;
+
+  --radius: 3px;
+}
+
+:root[data-theme="dark"] {
+  --bg:        #0c1012;
+  --surface:   #141a1d;
+  --surface-2: #1a2225;
+  --line:      #263135;
+  --line-2:    #3a494e;
+  --text:      #e7edef;
+  --dim:       #97a5aa;
+  --faint:     #74838a;
+
+  --accent:    #46b9ad;
+  --accent-bg: #102b2a;
+
+  --ok:        #5cb47c;
+  --ok-bg:     #12251a;
+  --hold:      #d6a244;
+  --hold-bg:   #2a2113;
+  --block:     #e07a63;
+  --block-bg:  #2d1815;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0c1012;
+    --surface:   #141a1d;
+    --surface-2: #1a2225;
+    --line:      #263135;
+    --line-2:    #3a494e;
+    --text:      #e7edef;
+    --dim:       #97a5aa;
+    --faint:     #74838a;
+
+    --accent:    #46b9ad;
+    --accent-bg: #102b2a;
+
+    --ok:        #5cb47c;
+    --ok-bg:     #12251a;
+    --hold:      #d6a244;
+    --hold-bg:   #2a2113;
+    --block:     #e07a63;
+    --block-bg:  #2d1815;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { background: var(--bg); }
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- disclosure banner: first line on the page ---------- */
+
+.disclaimer {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  padding: 9px 16px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+.disclaimer strong { color: var(--text); font-weight: 600; }
+
+/* ---------- shell ---------- */
+
+.shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+.masthead {
+  margin: 8px 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+.masthead h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 620;
+  letter-spacing: -0.012em;
+}
+.masthead .spacer { flex: 1 1 auto; }
+
+.lede {
+  margin: 0 0 6px;
+  max-width: 74ch;
+  font-size: 13.5px;
+  color: var(--dim);
+}
+.lede strong { color: var(--text); font-weight: 600; }
+
+/* ---------- the shared test ---------- */
+
+.test {
+  margin: 16px 0 22px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  padding: 12px 14px;
+  max-width: 74ch;
+}
+.test .label { display: block; margin-bottom: 4px; }
+.test p { margin: 0; font-size: 13px; }
+.test p + p { margin-top: 6px; }
+.test .false-claim { color: var(--block); font-weight: 560; }
+
+/* ---------- micro-labels ---------- */
+
+.label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- layout: stacked at 375, three-up wide ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+}
+
+/* ---------- direction card ---------- */
+
+.dir {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+
+.dir__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.dir__name { font-size: 13.5px; font-weight: 600; letter-spacing: -0.005em; }
+.dir__head .spacer { flex: 1 1 auto; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.pill--dead { color: var(--block); border-color: var(--block); background: var(--block-bg); }
+.pill--ship { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
+
+.dir__body { padding: 14px; }
+
+/* ---------- the mock frame ----------
+   Each direction renders the same run output inside this frame. The frame is
+   identical on purpose: the only variable is the decision under test. */
+
+.mock {
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.mock__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.mock__title { font-size: 12.5px; font-weight: 600; }
+.mock__meta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mock__bar .spacer { flex: 1 1 auto; }
+.mock__body { padding: 12px; }
+
+.mock .prose {
+  margin: 0;
+  font-size: 13px;
+  max-width: 58ch;
+}
+.mock .prose s { color: var(--block); text-decoration-thickness: 1.5px; }
+
+/* ---------- Direction A: the confidence score, done properly ---------- */
+
+.conf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.conf__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--ok) 45%, transparent);
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 12px;
+  font-weight: 600;
+}
+.conf__dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.conf__pct { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.conf__bar {
+  flex: 1 1 90px;
+  max-width: 150px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.conf__fill {
+  /* block, not inline — an inline span ignores width, and a confidence bar
+     whose fill does not match its number would be lying twice over. */
+  display: block;
+  width: 87%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ok);
+}
+.conf__sub {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--faint);
+  margin: 2px 0 0;
+}
+
+/* ---------- Direction B: the disclaimer banner, done properly ---------- */
+
+.banner {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 12px -12px -12px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 11px;
+  color: var(--faint);
+}
+.banner__glyph {
+  flex: 0 0 auto;
+  width: 14px; height: 14px;
+  border: 1px solid var(--faint);
+  border-radius: 50%;
+  font-size: 9.5px;
+  line-height: 13px;
+  text-align: center;
+  font-family: var(--mono);
+}
+.banner a { color: var(--dim); }
+
+/* ---------- Direction C: provenance rows (condensed from the prototype) ---------- */
+
+.rows { margin: 10px 0 0; border: 1px solid var(--line); border-radius: var(--radius); }
+.row { padding: 9px 11px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row--flag  { background: var(--hold-bg); }
+.row--block { background: var(--block-bg); }
+
+.row__top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.row__name { font-size: 12.5px; font-weight: 560; }
+.row__qty {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.row--block .row__qty { color: var(--block); text-decoration: line-through; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 5px;
+}
+.tag--verified { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.tag--assumed  { color: var(--hold); border-color: var(--hold); background: var(--hold-bg); font-weight: 600; }
+.tag--contra   { color: var(--block); border-color: var(--block); background: var(--block-bg); font-weight: 600; }
+
+.row__why {
+  margin: 5px 0 0;
+  font-size: 11px;
+  color: var(--dim);
+}
+.row__why .mono, .mono { font-family: var(--mono); }
+.row__pair {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 6px 0 0;
+}
+.row__cell {
+  flex: 1 1 120px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 5px 8px;
+}
+.row__cell .label { display: block; font-size: 9.5px; margin-bottom: 1px; }
+.row__cell .mono { font-size: 11.5px; }
+.row__cell--claim .mono { color: var(--block); }
+.row__cell--rec   .mono { color: var(--ok); }
+
+/* ---------- verdict strip: the same question asked of all three ---------- */
+
+.verdict {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-size: 12px;
+}
+.verdict__mark {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.verdict--no  .verdict__mark { color: var(--block); }
+.verdict--yes .verdict__mark { color: var(--ok); }
+.verdict p { margin: 0; color: var(--dim); }
+
+/* ---------- the obituary / rationale ---------- */
+
+.note {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-left: 2px dashed var(--accent);
+  background: var(--accent-bg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.note b {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 3px;
+}
+.note p { margin: 0 0 7px; }
+.note p:last-child { margin-bottom: 0; }
+
+/* ---------- theme button ---------- */
+
+.btn-quiet {
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.btn-quiet:hover { color: var(--accent); border-color: var(--line); }
+
+/* ---------- footer ---------- */
+
+.foot {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 22px 16px 40px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--faint);
+  border-top: 1px solid var(--line);
+}
+.foot p { margin: 0 0 6px; max-width: 76ch; }
+</style>
+</head>
+<body>
+
+<!-- FIRST LINE ON THE PAGE. -->
+<p class="disclaimer">
+  <strong>Speculative redesign — unaffiliated, unsolicited, not commissioned by anyone.</strong>
+  Process piece for an independent UX concept. No company&rsquo;s logo, brand or product assets are
+  used; not a product of, or endorsed by, anyone. All data is synthetic.
+</p>
+
+<main class="shell">
+
+  <header class="masthead">
+    <h1>Confidence layer — three directions</h1>
+    <span class="spacer"></span>
+    <button class="btn-quiet" id="theme-btn">Theme</button>
+  </header>
+
+  <p class="lede">
+    The two directions I discarded for the confidence system, drawn out next to the one that
+    shipped in the prototype. <strong>The discarded directions are drawn as a competent team would
+    ship them, not as straw men</strong> — the argument against the score has to beat the good
+    version of the score, or it has proven nothing.
+  </p>
+
+  <div class="test">
+    <span class="label">the test — identical for all three</span>
+    <p>
+      The same run, containing the same sentence: <span class="false-claim">&ldquo;Volcán Dark ships
+      from Cooperativa Tolima in 14 days.&rdquo;</span> Fluent, specific, and false — the supplier
+      record the run read says 28. The model was not hedging; there is no signal inside its output
+      that marks this sentence as different from the correct ones around it.
+    </p>
+    <p>One question, asked of each direction: <strong>does it give the operator a reason to catch this?</strong></p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ================= DIRECTION A ================= -->
+    <section class="dir" data-dir="a" aria-label="Direction A: confidence score">
+      <div class="dir__head">
+        <span class="dir__name">A · Message-level confidence score</span>
+        <span class="spacer"></span>
+        <span class="pill pill--dead">discarded</span>
+      </div>
+      <div class="dir__body">
+
+        <div class="mock">
+          <div class="mock__bar">
+            <span class="mock__title">Reorder draft</span>
+            <span class="spacer"></span>
+            <span class="mock__meta">run r_4d91c7</span>
+          </div>
+          <div class="mock__body">
+            <div class="conf" aria-label="Confidence: high, 87 percent">
+              <span class="conf__chip"><span class="conf__dot"></span>High
+                <span class="conf__pct">87%</span></span>
+              <span class="conf__bar"><span class="conf__fill"></span></span>
+              <span class="conf__sub">Based on model certainty across 4 claims &middot; source coverage 4/4</span>
+            </div>
+            <p class="prose" style="margin-top:10px">
+              Sereno Decaf has no sales history, so I ordered the supplier minimum of 30&nbsp;kg.
+              Volcán Dark ships from Cooperativa Tolima in 14 days, so the 120&nbsp;kg lands before
+              you run dry on day 17.
+            </p>
+          </div>
+        </div>
+
+        <div class="verdict verdict--no">
+          <span class="verdict__mark">NO</span>
+          <p>Worse than no — the false sentence sits <em>inside</em> the 87%. The score endorses
+          the exact claim it exists to flag.</p>
+        </div>
+
+        <aside class="note">
+          <b>why it died</b>
+          <p>
+            This is the good version: calibrated colour ramp, a real denominator in the subtext, an
+            honest-looking bar. It still fails on three counts, any one of which is disqualifying.
+            The number is <em>uncalibrated</em> — it comes from a model with no reliable access to
+            its own reliability, so 87 and 62 do not mean what the reader thinks they mean. It is
+            <em>message-level</em>, so it dilutes: three solid facts and one invention average to
+            something comfortable, and the invention is in there, invisible. And it is
+            <em>unactionable</em> — nobody has ever known what to do differently at 87 versus 62.
+          </p>
+          <p>
+            It survives in products because it is trivial to render and looks like rigour. That is
+            a reason to ship it, not a reason it works.
+          </p>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ================= DIRECTION B ================= -->
+    <section class="dir" data-dir="b" aria-label="Direction B: persistent disclaimer">
+      <div class="dir__head">
+        <span class="dir__name">B · The persistent disclaimer</span>
+        <span class="spacer"></span>
+        <span class="pill pill--dead">discarded</span>
+      </div>
+      <div class="dir__body">
+
+        <div class="mock">
+          <div class="mock__bar">
+            <span class="mock__title">Reorder draft</span>
+            <span class="spacer"></span>
+            <span class="mock__meta">run r_4d91c7</span>
+          </div>
+          <div class="mock__body">
+            <p class="prose">
+              Sereno Decaf has no sales history, so I ordered the supplier minimum of 30&nbsp;kg.
+              Volcán Dark ships from Cooperativa Tolima in 14 days, so the 120&nbsp;kg lands before
+              you run dry on day 17.
+            </p>
+            <div class="banner">
+              <span class="banner__glyph">i</span>
+              <span>AI-generated. May contain mistakes — verify important information.
+                <a href="#" onclick="return false">Learn&nbsp;more</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="verdict verdict--no">
+          <span class="verdict__mark">NO</span>
+          <p>The warning on this run is identical to the warning on a perfect run. A warning that
+          never varies carries no information.</p>
+        </div>
+
+        <aside class="note">
+          <b>why it died</b>
+          <p>
+            Again the good version: small, quiet, correctly worded, exactly as the major assistants
+            ship it — and shipped for defensible reasons, because at zero cost it is legally
+            prudent and never overclaims. But it is on every screen, so it is read on none. It is
+            liability text wearing an interface&rsquo;s clothes: it transfers responsibility to the
+            operator without giving them one specific thing to check.
+          </p>
+          <p>
+            The disqualifying property is that it is <em>constant</em>. The run that is fine and
+            the run with the false lead time carry the same sentence, so the sentence
+            distinguishes nothing — which is the one job a confidence layer has.
+          </p>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ================= DIRECTION C ================= -->
+    <section class="dir" data-dir="c" aria-label="Direction C: provenance per claim">
+      <div class="dir__head">
+        <span class="dir__name">C · Provenance per claim</span>
+        <span class="spacer"></span>
+        <span class="pill pill--ship">shipped</span>
+      </div>
+      <div class="dir__body">
+
+        <div class="mock">
+          <div class="mock__bar">
+            <span class="mock__title">Reorder draft</span>
+            <span class="spacer"></span>
+            <span class="mock__meta">run r_4d91c7</span>
+          </div>
+          <div class="mock__body">
+            <p class="prose">
+              Sereno Decaf has no sales history, so I ordered the supplier minimum of 30&nbsp;kg.
+              Volcán Dark ships from Cooperativa Tolima in <s>14 days</s>, so the 120&nbsp;kg lands
+              before you run dry on day 17.
+            </p>
+            <div class="rows">
+              <div class="row">
+                <div class="row__top">
+                  <span class="row__name">Huila Reserve</span>
+                  <span class="row__qty">60 kg</span>
+                </div>
+                <span class="tag tag--verified">verified</span>
+              </div>
+              <div class="row row--flag">
+                <div class="row__top">
+                  <span class="row__name">Sereno Decaf</span>
+                  <span class="row__qty">30 kg</span>
+                </div>
+                <span class="tag tag--assumed">assumed · velocity</span>
+                <p class="row__why"><span class="mono">kg_per_week</span> not in data — 19 days of
+                history. Used the mean of the other 340&nbsp;g bags; if decaf sells slower, this is
+                over-ordered by roughly a month.</p>
+              </div>
+              <div class="row row--block">
+                <div class="row__top">
+                  <span class="row__name">Volcán Dark</span>
+                  <span class="row__qty">120 kg</span>
+                </div>
+                <span class="tag tag--contra">contradicted · lead time</span>
+                <div class="row__pair">
+                  <span class="row__cell row__cell--claim"><span class="label">the run wrote</span>
+                    <span class="mono">lead_time_days = 14</span></span>
+                  <span class="row__cell row__cell--rec"><span class="label">the record says</span>
+                    <span class="mono">lead_time_days = 28</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="verdict verdict--yes">
+          <span class="verdict__mark">FLAGGED</span>
+          <p>The claim is checked against the record it cites, both values are shown, and the two
+          clean items stay clean.</p>
+        </div>
+
+        <aside class="note">
+          <b>why it shipped</b>
+          <p>
+            Uncertainty attaches to the claim, never to the message. Every value is one of three
+            things — <em>verified</em>, from a record; <em>derived</em>, computed from verified
+            numbers; <em>assumed</em>, a gap the model filled — and only the states that need a
+            human get colour. The false claim is caught not by asking the model how it feels but by
+            a deterministic check that re-reads the record the run read.
+          </p>
+          <p>
+            The cost, named: provenance has to be plumbed. The runtime must tag output fields with
+            the tool result they came from, which is real engineering and assumes structured
+            output. That price is why teams ship A and B instead — and it is the whole difference.
+          </p>
+        </aside>
+
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<footer class="foot">
+  <p>
+    <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
+    commissioned by any company. Not client work, not paid work, never presented as either.
+    All data is synthetic. No usability testing has been run on any of these directions; this page
+    is design reasoning, not evidence of outcomes.
+  </p>
+  <p>
+    Part of the <em>Agent Run Inspector</em> case study — see <span class="mono">README.md</span>,
+    <span class="mono">decisions.md</span> §2, and the interactive
+    <span class="mono">prototype.html</span>. Self-contained: no network requests, no external
+    fonts, no build step.
+  </p>
+</footer>
+
+<script>
+"use strict";
+
+function setTheme(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  var cur = document.documentElement.getAttribute("data-theme");
+  document.getElementById("theme-btn").textContent =
+    cur === "dark" ? "Theme: dark" : cur === "light" ? "Theme: light" : "Theme";
+}
+
+document.getElementById("theme-btn").addEventListener("click", function () {
+  var cur = document.documentElement.getAttribute("data-theme");
+  if (!cur) {
+    cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  setTheme(cur === "dark" ? "light" : "dark");
+});
+
+(function () {
+  var t = new URLSearchParams(location.search).get("theme");
+  if (t) setTheme(t);
+})();
+</script>
+</body>
+</html>

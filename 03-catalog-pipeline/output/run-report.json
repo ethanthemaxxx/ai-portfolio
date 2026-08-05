@@ -1,0 +1,365 @@
+{
+  "anchorDate": "2026-08-04",
+  "locale": "en",
+  "generatorId": "offline-template-v1",
+  "styleGuideVersion": "1.0.0+acceea92",
+  "products": [
+    {
+      "handle": "huila-reserve",
+      "title": "Huila Reserve",
+      "status": "publishable",
+      "copy": {
+        "handle": "huila-reserve",
+        "locale": "en",
+        "bodyHtml": "<p>Huila Reserve tastes like ripe plum, brown sugar and orange.</p>\n<p>The one we hand people who say they don't like black coffee.</p>\n<p>Medium roast, washed, from Huila, Colombia. Grown at 1,750 meters above sea level. We paid $6.40 per kilo for the green coffee.</p>\n<p>You can pick Whole Bean, Filter, Espresso or French Press, in 250g, 500g or 1kg. We roast Monday and Thursday and ship the same day.</p>",
+        "metaTitle": "Huila Reserve — Medium Roast Coffee from Colombia",
+        "metaDescription": "Huila Reserve is a medium roast washed coffee from Huila, Colombia. You get ripe plum, brown sugar and orange. You can order it in 250g, 500g or 1kg.",
+        "imageAlt": "Cerro Alto Huila Reserve coffee bag, 250g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "huila-reserve:attributes.altitude_masl",
+          "huila-reserve:attributes.green_price_per_kg_usd",
+          "huila-reserve:attributes.origin",
+          "huila-reserve:attributes.process",
+          "huila-reserve:attributes.roast_level",
+          "huila-reserve:attributes.tasting_notes[0]",
+          "huila-reserve:attributes.tasting_notes[1]",
+          "huila-reserve:attributes.tasting_notes[2]",
+          "huila-reserve:short_blurb",
+          "huila-reserve:title",
+          "huila-reserve:variants[].option1_grind",
+          "huila-reserve:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "narino-microlot",
+      "title": "Nariño Microlot",
+      "status": "publishable",
+      "copy": {
+        "handle": "narino-microlot",
+        "locale": "en",
+        "bodyHtml": "<p>Nariño Microlot tastes like raspberry, hibiscus and cane sugar.</p>\n<p>Loud, fruity, and unforgiving. Best in a pour-over.</p>\n<p>Light roast, natural, from Nariño, Colombia. Grown at 2,100 meters above sea level. We paid $9.10 per kilo for the green coffee.</p>\n<p>You can pick Whole Bean, Filter, Espresso or French Press, in 250g, 500g or 1kg. We roast Monday and Thursday and ship the same day.</p>",
+        "metaTitle": "Nariño Microlot — Light Roast Coffee from Colombia",
+        "metaDescription": "Nariño Microlot is a light roast natural coffee from Nariño, Colombia. You get raspberry, hibiscus and cane sugar. You can order it in 250g, 500g or 1kg.",
+        "imageAlt": "Cerro Alto Nariño Microlot coffee bag, 250g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "narino-microlot:attributes.altitude_masl",
+          "narino-microlot:attributes.green_price_per_kg_usd",
+          "narino-microlot:attributes.origin",
+          "narino-microlot:attributes.process",
+          "narino-microlot:attributes.roast_level",
+          "narino-microlot:attributes.tasting_notes[0]",
+          "narino-microlot:attributes.tasting_notes[1]",
+          "narino-microlot:attributes.tasting_notes[2]",
+          "narino-microlot:short_blurb",
+          "narino-microlot:title",
+          "narino-microlot:variants[].option1_grind",
+          "narino-microlot:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 26
+    },
+    {
+      "handle": "volcan-dark",
+      "title": "Volcán Dark",
+      "status": "publishable",
+      "copy": {
+        "handle": "volcan-dark",
+        "locale": "en",
+        "bodyHtml": "<p>Volcán Dark tastes like dark chocolate, molasses and toasted walnut.</p>\n<p>Built to cut through milk without turning bitter.</p>\n<p>Dark roast, washed, from Tolima, Colombia. Grown at 1,600 meters above sea level. We paid $5.80 per kilo for the green coffee.</p>\n<p>You can pick Whole Bean, Filter, Espresso or French Press, in 250g, 500g or 1kg. We roast Monday and Thursday and ship the same day.</p>",
+        "metaTitle": "Volcán Dark — Dark Roast Coffee from Colombia",
+        "metaDescription": "Volcán Dark is a dark roast washed coffee from Tolima, Colombia. You get dark chocolate, molasses and toasted walnut. You can order it in 250g, 500g or 1kg.",
+        "imageAlt": "Cerro Alto Volcán Dark coffee bag, 250g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "volcan-dark:attributes.altitude_masl",
+          "volcan-dark:attributes.green_price_per_kg_usd",
+          "volcan-dark:attributes.origin",
+          "volcan-dark:attributes.process",
+          "volcan-dark:attributes.roast_level",
+          "volcan-dark:attributes.tasting_notes[0]",
+          "volcan-dark:attributes.tasting_notes[1]",
+          "volcan-dark:attributes.tasting_notes[2]",
+          "volcan-dark:short_blurb",
+          "volcan-dark:title",
+          "volcan-dark:variants[].option1_grind",
+          "volcan-dark:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "casa-blend",
+      "title": "Casa Blend",
+      "status": "publishable",
+      "copy": {
+        "handle": "casa-blend",
+        "locale": "en",
+        "bodyHtml": "<p>Casa Blend tastes like milk chocolate, almond and red apple.</p>\n<p>The everyday bag. Works in anything, hard to ruin.</p>\n<p>Medium roast, washed, from Huila and Tolima, Colombia. Grown at 1,680 meters above sea level. We paid $5.50 per kilo for the green coffee.</p>\n<p>You can pick Whole Bean, Filter, Espresso or French Press, in 250g, 500g or 1kg. We roast Monday and Thursday and ship the same day.</p>",
+        "metaTitle": "Casa Blend — Medium Roast Coffee from Colombia",
+        "metaDescription": "Casa Blend is a medium roast washed coffee from Huila and Tolima, Colombia. You get milk chocolate, almond and red apple. You can order it in 250g, 500g or 1kg.",
+        "imageAlt": "Cerro Alto Casa Blend coffee bag, 250g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "casa-blend:attributes.altitude_masl",
+          "casa-blend:attributes.green_price_per_kg_usd",
+          "casa-blend:attributes.origin",
+          "casa-blend:attributes.process",
+          "casa-blend:attributes.roast_level",
+          "casa-blend:attributes.tasting_notes[0]",
+          "casa-blend:attributes.tasting_notes[1]",
+          "casa-blend:attributes.tasting_notes[2]",
+          "casa-blend:short_blurb",
+          "casa-blend:title",
+          "casa-blend:variants[].option1_grind",
+          "casa-blend:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "sereno-decaf",
+      "title": "Sereno Decaf",
+      "status": "publishable",
+      "copy": {
+        "handle": "sereno-decaf",
+        "locale": "en",
+        "bodyHtml": "<p>Sereno Decaf tastes like caramel, baked pear and cocoa.</p>\n<p>Decaf that tastes like coffee. Sugarcane process, no methylene chloride.</p>\n<p>Medium roast, Sugarcane EA decaf, from Huila, Colombia. Grown at 1,700 meters above sea level. We paid $7.20 per kilo for the green coffee.</p>\n<p>You can pick Whole Bean, Filter, Espresso or French Press, in 250g, 500g or 1kg. We roast Monday and Thursday and ship the same day.</p>",
+        "metaTitle": "Sereno Decaf — Medium Roast Coffee from Colombia",
+        "metaDescription": "Sereno Decaf is a medium roast Sugarcane EA decaf coffee from Huila, Colombia. You get caramel, baked pear and cocoa. You can order it in 250g, 500g or 1kg.",
+        "imageAlt": "Cerro Alto Sereno Decaf coffee bag, 250g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "sereno-decaf:attributes.altitude_masl",
+          "sereno-decaf:attributes.green_price_per_kg_usd",
+          "sereno-decaf:attributes.origin",
+          "sereno-decaf:attributes.process",
+          "sereno-decaf:attributes.roast_level",
+          "sereno-decaf:attributes.tasting_notes[0]",
+          "sereno-decaf:attributes.tasting_notes[1]",
+          "sereno-decaf:attributes.tasting_notes[2]",
+          "sereno-decaf:short_blurb",
+          "sereno-decaf:title",
+          "sereno-decaf:variants[].option1_grind",
+          "sereno-decaf:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "v60-dripper",
+      "title": "Cerro Alto V60 Dripper",
+      "status": "publishable",
+      "copy": {
+        "handle": "v60-dripper",
+        "locale": "en",
+        "bodyHtml": "<p>Ceramic, size 02. Holds heat better than plastic.</p>\n<p>Pick color: White or Black. Each one is $24.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Cerro Alto V60 Dripper — Ceramic, size 02",
+        "metaDescription": "Cerro Alto V60 Dripper: Ceramic, size 02. Holds heat better than plastic. Pick color: White, Black. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Cerro Alto V60 Dripper, Ceramic, size 02, White",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "v60-dripper:short_blurb",
+          "v60-dripper:title",
+          "v60-dripper:variants[].option1",
+          "v60-dripper:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 16
+    },
+    {
+      "handle": "paper-filters-100",
+      "title": "V60 Paper Filters (100 ct)",
+      "status": "publishable",
+      "copy": {
+        "handle": "paper-filters-100",
+        "locale": "en",
+        "bodyHtml": "<p>Bleached, size 02. Rinse before brewing.</p>\n<p>It is $9.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "V60 Paper Filters (100 ct) — Bleached, size 02",
+        "metaDescription": "V60 Paper Filters (100 ct): Bleached, size 02. Rinse before brewing. You pay $9. Free shipping over $45. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "V60 Paper Filters (100 ct), Bleached, size 02",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "paper-filters-100:short_blurb",
+          "paper-filters-100:title",
+          "paper-filters-100:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 15
+    },
+    {
+      "handle": "gooseneck-kettle",
+      "title": "Gooseneck Kettle 1L",
+      "status": "publishable",
+      "copy": {
+        "handle": "gooseneck-kettle",
+        "locale": "en",
+        "bodyHtml": "<p>Variable temperature, 60-100 C. Manufacturer warranty: 2 years.</p>\n<p>Pick finish: Matte Black or Brushed Steel. Each one is $69.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Gooseneck Kettle 1L — Variable temperature, 60-100 C",
+        "metaDescription": "Gooseneck Kettle 1L: Variable temperature, 60-100 C. Manufacturer warranty: 2 years. You pay $69. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Gooseneck Kettle 1L, Variable temperature, 60-100 C, Matte Black",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "gooseneck-kettle:short_blurb",
+          "gooseneck-kettle:title",
+          "gooseneck-kettle:variants[].option1",
+          "gooseneck-kettle:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 18
+    },
+    {
+      "handle": "digital-scale",
+      "title": "Digital Brew Scale",
+      "status": "publishable",
+      "copy": {
+        "handle": "digital-scale",
+        "locale": "en",
+        "bodyHtml": "<p>0.1 g resolution with a built-in timer. The cheapest upgrade in coffee.</p>\n<p>It is $39.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Digital Brew Scale — 0.1 g resolution with a built-in timer",
+        "metaDescription": "Digital Brew Scale: 0.1 g resolution with a built-in timer. The cheapest upgrade in coffee. You pay $39. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Digital Brew Scale, 0.1 g resolution with a built-in timer",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "digital-scale:short_blurb",
+          "digital-scale:title",
+          "digital-scale:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 13
+    },
+    {
+      "handle": "ceramic-mug",
+      "title": "Cerro Alto Mug 10 oz",
+      "status": "publishable",
+      "copy": {
+        "handle": "ceramic-mug",
+        "locale": "en",
+        "bodyHtml": "<p>Thick walled, dishwasher safe.</p>\n<p>Pick glaze: Clay or Cream. Each one is $18.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Cerro Alto Mug 10 oz — Thick walled, dishwasher safe",
+        "metaDescription": "Cerro Alto Mug 10 oz: Thick walled, dishwasher safe. Pick glaze: Clay, Cream. You pay $18. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Cerro Alto Mug 10 oz, Thick walled, dishwasher safe, Clay",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "ceramic-mug:short_blurb",
+          "ceramic-mug:title",
+          "ceramic-mug:variants[].option1",
+          "ceramic-mug:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 15
+    },
+    {
+      "handle": "origin-sampler",
+      "title": "Origin Sampler (4 x 100g)",
+      "status": "publishable",
+      "copy": {
+        "handle": "origin-sampler",
+        "locale": "en",
+        "bodyHtml": "<p>Huila, Narino, Volcan and Casa in 100 g bags. The easiest gift we sell.</p>\n<p>Pick grind: Whole Bean, Filter, Espresso or French Press. Each one is $32.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Origin Sampler (4 x 100g) | Cerro Alto",
+        "metaDescription": "Origin Sampler (4 x 100g): Huila, Narino, Volcan and Casa in 100 g bags. The easiest gift we sell. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Origin Sampler (4 x 100g), Huila, Narino, Volcan and Casa in 100 g bags, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "origin-sampler:short_blurb",
+          "origin-sampler:title",
+          "origin-sampler:variants[].option1",
+          "origin-sampler:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 17
+    },
+    {
+      "handle": "gift-card",
+      "title": "Gift Card",
+      "status": "publishable",
+      "copy": {
+        "handle": "gift-card",
+        "locale": "en",
+        "bodyHtml": "<p>Digital, delivered by email, never expires.</p>\n<p>Pick value: $25, $50 or $100.</p>\n<p>You get free shipping over $45, and we ship from Miami.</p>",
+        "metaTitle": "Gift Card — Digital, delivered by email, never expires",
+        "metaDescription": "Gift Card: Digital, delivered by email, never expires. Pick value: $25, $50, $100. Free shipping over $45. We ship from Miami, and you can add it to any order.",
+        "imageAlt": "Gift Card, Digital, delivered by email, never expires, $25",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "gift-card:short_blurb",
+          "gift-card:title",
+          "gift-card:variants[].option1",
+          "gift-card:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 14
+    }
+  ],
+  "publishable": 12,
+  "quarantined": 0,
+  "timing": {
+    "stages": [
+      {
+        "stage": "ledger",
+        "ms": 9.202
+      },
+      {
+        "stage": "generate",
+        "ms": 2.678
+      },
+      {
+        "stage": "validate",
+        "ms": 95.54
+      }
+    ],
+    "totalMs": 107.69
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "locale": "es",
+  "generatorId": "offline-template-v1",
+  "anchorDate": "2026-08-04",
+  "entries": [
+    {
+      "handle": "huila-reserve",
+      "title": "Huila Reserve",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "narino-microlot",
+      "title": "Nariño Microlot",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "volcan-dark",
+      "title": "Volcán Dark",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "casa-blend",
+      "title": "Casa Blend",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "sereno-decaf",
+      "title": "Sereno Decaf",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "v60-dripper",
+      "title": "Cerro Alto V60 Dripper",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "paper-filters-100",
+      "title": "V60 Paper Filters (100 ct)",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "gooseneck-kettle",
+      "title": "Gooseneck Kettle 1L",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "digital-scale",
+      "title": "Digital Brew Scale",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "ceramic-mug",
+      "title": "Cerro Alto Mug 10 oz",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "origin-sampler",
+      "title": "Origin Sampler (4 x 100g)",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    },
+    {
+      "handle": "gift-card",
+      "title": "Gift Card",
+      "approved": false,
+      "approvedBy": null,
+      "status": "publishable",
+      "note": "Read the copy, then set approved: true to allow this product to be pushed."
+    }
+  ]
+}

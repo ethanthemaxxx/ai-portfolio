@@ -1,0 +1,30 @@
+{
+  "name": "cerro-alto-support-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RAG support agent for a DTC coffee store — grounded answers, live order lookup, deterministic escalation.",
+  "scripts": {
+    "ingest": "tsx src/ingest/build-index.ts",
+    "eval": "tsx evals/run.ts",
+    "eval:offline": "tsx evals/run.ts --retrieval-only",
+    "test": "node --test --experimental-strip-types 'src/**/*.test.ts' 'evals/**/*.test.ts'",
+    "dev": "next dev",
+    "build": "next build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}

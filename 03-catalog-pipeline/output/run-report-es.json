@@ -1,0 +1,360 @@
+{
+  "anchorDate": "2026-08-04",
+  "locale": "es",
+  "generatorId": "offline-template-v1",
+  "styleGuideVersion": "1.0.0+acceea92",
+  "products": [
+    {
+      "handle": "huila-reserve",
+      "title": "Huila Reserve",
+      "status": "publishable",
+      "copy": {
+        "handle": "huila-reserve",
+        "locale": "es",
+        "bodyHtml": "<p>Huila Reserve sabe a ciruela madura, azúcar moreno y naranja.</p>\n<p>El que le damos a quien dice que no le gusta el café negro.</p>\n<p>Tueste medio, lavado, de Huila, Colombia. Cultivado a 1750 metros sobre el nivel del mar. Pagamos $6.40 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+        "metaTitle": "Huila Reserve — Café de tueste medio de Colombia",
+        "metaDescription": "Huila Reserve es un tueste medio lavado de Huila, Colombia. Sabe a ciruela madura, azúcar moreno y naranja. Puedes pedirlo en 250g, 500g o 1kg.",
+        "imageAlt": "Bolsa de café Cerro Alto Huila Reserve, 250g, grano entero",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "huila-reserve:attributes.altitude_masl",
+          "huila-reserve:attributes.green_price_per_kg_usd",
+          "huila-reserve:attributes.origin",
+          "huila-reserve:attributes.process",
+          "huila-reserve:attributes.roast_level",
+          "huila-reserve:attributes.tasting_notes[0]",
+          "huila-reserve:attributes.tasting_notes[1]",
+          "huila-reserve:attributes.tasting_notes[2]",
+          "huila-reserve:title",
+          "huila-reserve:variants[].option1_grind",
+          "huila-reserve:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "narino-microlot",
+      "title": "Nariño Microlot",
+      "status": "publishable",
+      "copy": {
+        "handle": "narino-microlot",
+        "locale": "es",
+        "bodyHtml": "<p>Nariño Microlot sabe a frambuesa, hibisco y azúcar de caña.</p>\n<p>Fuerte, frutal y sin perdón. Mejor en filtro.</p>\n<p>Tueste claro, natural, de Nariño, Colombia. Cultivado a 2100 metros sobre el nivel del mar. Pagamos $9.10 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+        "metaTitle": "Nariño Microlot — Café de tueste claro de Colombia",
+        "metaDescription": "Nariño Microlot es un tueste claro natural de Nariño, Colombia. Sabe a frambuesa, hibisco y azúcar de caña. Puedes pedirlo en 250g, 500g o 1kg.",
+        "imageAlt": "Bolsa de café Cerro Alto Nariño Microlot, 250g, grano entero",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "narino-microlot:attributes.altitude_masl",
+          "narino-microlot:attributes.green_price_per_kg_usd",
+          "narino-microlot:attributes.origin",
+          "narino-microlot:attributes.process",
+          "narino-microlot:attributes.roast_level",
+          "narino-microlot:attributes.tasting_notes[0]",
+          "narino-microlot:attributes.tasting_notes[1]",
+          "narino-microlot:attributes.tasting_notes[2]",
+          "narino-microlot:title",
+          "narino-microlot:variants[].option1_grind",
+          "narino-microlot:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 26
+    },
+    {
+      "handle": "volcan-dark",
+      "title": "Volcán Dark",
+      "status": "publishable",
+      "copy": {
+        "handle": "volcan-dark",
+        "locale": "es",
+        "bodyHtml": "<p>Volcán Dark sabe a chocolate negro, melaza y nuez tostada.</p>\n<p>Hecho para atravesar la leche sin volverse amargo.</p>\n<p>Tueste oscuro, lavado, de Tolima, Colombia. Cultivado a 1600 metros sobre el nivel del mar. Pagamos $5.80 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+        "metaTitle": "Volcán Dark — Café de tueste oscuro de Colombia",
+        "metaDescription": "Volcán Dark es un tueste oscuro lavado de Tolima, Colombia. Sabe a chocolate negro, melaza y nuez tostada. Puedes pedirlo en 250g, 500g o 1kg.",
+        "imageAlt": "Bolsa de café Cerro Alto Volcán Dark, 250g, grano entero",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "volcan-dark:attributes.altitude_masl",
+          "volcan-dark:attributes.green_price_per_kg_usd",
+          "volcan-dark:attributes.origin",
+          "volcan-dark:attributes.process",
+          "volcan-dark:attributes.roast_level",
+          "volcan-dark:attributes.tasting_notes[0]",
+          "volcan-dark:attributes.tasting_notes[1]",
+          "volcan-dark:attributes.tasting_notes[2]",
+          "volcan-dark:title",
+          "volcan-dark:variants[].option1_grind",
+          "volcan-dark:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "casa-blend",
+      "title": "Casa Blend",
+      "status": "publishable",
+      "copy": {
+        "handle": "casa-blend",
+        "locale": "es",
+        "bodyHtml": "<p>Casa Blend sabe a chocolate con leche, almendra y manzana roja.</p>\n<p>La bolsa de todos los días. Funciona en cualquier método.</p>\n<p>Tueste medio, lavado, de Huila and Tolima, Colombia. Cultivado a 1680 metros sobre el nivel del mar. Pagamos $5.50 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+        "metaTitle": "Casa Blend — Café de tueste medio de Colombia",
+        "metaDescription": "Casa Blend es un tueste medio lavado de Huila and Tolima, Colombia. Sabe a chocolate con leche, almendra y manzana roja. Puedes pedirlo en 250g, 500g o 1kg.",
+        "imageAlt": "Bolsa de café Cerro Alto Casa Blend, 250g, grano entero",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "casa-blend:attributes.altitude_masl",
+          "casa-blend:attributes.green_price_per_kg_usd",
+          "casa-blend:attributes.origin",
+          "casa-blend:attributes.process",
+          "casa-blend:attributes.roast_level",
+          "casa-blend:attributes.tasting_notes[0]",
+          "casa-blend:attributes.tasting_notes[1]",
+          "casa-blend:attributes.tasting_notes[2]",
+          "casa-blend:title",
+          "casa-blend:variants[].option1_grind",
+          "casa-blend:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "sereno-decaf",
+      "title": "Sereno Decaf",
+      "status": "publishable",
+      "copy": {
+        "handle": "sereno-decaf",
+        "locale": "es",
+        "bodyHtml": "<p>Sereno Decaf sabe a caramelo, pera al horno y cacao.</p>\n<p>Descafeinado que sabe a café, sin cloruro de metileno.</p>\n<p>Tueste medio, descafeinado con caña (EA), de Huila, Colombia. Cultivado a 1700 metros sobre el nivel del mar. Pagamos $7.20 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+        "metaTitle": "Sereno Decaf — Café de tueste medio de Colombia",
+        "metaDescription": "Sereno Decaf es un tueste medio descafeinado con caña (EA) de Huila, Colombia. Sabe a caramelo, pera al horno y cacao. Puedes pedirlo en 250g, 500g o 1kg.",
+        "imageAlt": "Bolsa de café Cerro Alto Sereno Decaf, 250g, grano entero",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.roast_days",
+          "brand.ship_same_day",
+          "sereno-decaf:attributes.altitude_masl",
+          "sereno-decaf:attributes.green_price_per_kg_usd",
+          "sereno-decaf:attributes.origin",
+          "sereno-decaf:attributes.process",
+          "sereno-decaf:attributes.roast_level",
+          "sereno-decaf:attributes.tasting_notes[0]",
+          "sereno-decaf:attributes.tasting_notes[1]",
+          "sereno-decaf:attributes.tasting_notes[2]",
+          "sereno-decaf:title",
+          "sereno-decaf:variants[].option1_grind",
+          "sereno-decaf:variants[].option2_size"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 28
+    },
+    {
+      "handle": "v60-dripper",
+      "title": "Cerro Alto V60 Dripper",
+      "status": "publishable",
+      "copy": {
+        "handle": "v60-dripper",
+        "locale": "es",
+        "bodyHtml": "<p>Cerámica, tamaño 02. Guarda el calor mejor que el plástico.</p>\n<p>Puedes elegir color: White o Black. Cada uno cuesta $24.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Cerro Alto V60 Dripper — Cerámica, tamaño 02",
+        "metaDescription": "Cerro Alto V60 Dripper: Cerámica, tamaño 02. Guarda el calor mejor que el plástico. Puedes elegir color: White, Black. Pagas $24. Envío gratis desde $45.",
+        "imageAlt": "Cerro Alto V60 Dripper, Cerámica, tamaño 02, White",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "v60-dripper:short_blurb",
+          "v60-dripper:title",
+          "v60-dripper:variants[].option1",
+          "v60-dripper:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 16
+    },
+    {
+      "handle": "paper-filters-100",
+      "title": "V60 Paper Filters (100 ct)",
+      "status": "publishable",
+      "copy": {
+        "handle": "paper-filters-100",
+        "locale": "es",
+        "bodyHtml": "<p>Blanqueados, tamaño 02. Enjuágalos antes de preparar.</p>\n<p>Cuesta $9.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "V60 Paper Filters (100 ct) — Blanqueados, tamaño 02",
+        "metaDescription": "V60 Paper Filters (100 ct): Blanqueados, tamaño 02. Enjuágalos antes de preparar. Pagas $9. Enviamos desde Miami y puedes añadirlo a cualquier pedido.",
+        "imageAlt": "V60 Paper Filters (100 ct), Blanqueados, tamaño 02",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "paper-filters-100:short_blurb",
+          "paper-filters-100:title",
+          "paper-filters-100:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 15
+    },
+    {
+      "handle": "gooseneck-kettle",
+      "title": "Gooseneck Kettle 1L",
+      "status": "publishable",
+      "copy": {
+        "handle": "gooseneck-kettle",
+        "locale": "es",
+        "bodyHtml": "<p>Temperatura variable, 60-100 C. Garantía del fabricante: 2 años.</p>\n<p>Puedes elegir acabado: Matte Black o Brushed Steel. Cada uno cuesta $69.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Gooseneck Kettle 1L — Temperatura variable, 60-100 C",
+        "metaDescription": "Gooseneck Kettle 1L: Temperatura variable, 60-100 C. Garantía del fabricante: 2 años. Puedes elegir acabado: Matte Black, Brushed Steel. Pagas $69.",
+        "imageAlt": "Gooseneck Kettle 1L, Temperatura variable, 60-100 C, Matte Black",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "gooseneck-kettle:short_blurb",
+          "gooseneck-kettle:title",
+          "gooseneck-kettle:variants[].option1",
+          "gooseneck-kettle:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 18
+    },
+    {
+      "handle": "digital-scale",
+      "title": "Digital Brew Scale",
+      "status": "publishable",
+      "copy": {
+        "handle": "digital-scale",
+        "locale": "es",
+        "bodyHtml": "<p>Resolución de 0.1 g con temporizador. La mejora más barata del café.</p>\n<p>Cuesta $39.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Digital Brew Scale — Resolución de 0.1 g con temporizador",
+        "metaDescription": "Digital Brew Scale: Resolución de 0.1 g con temporizador. La mejora más barata del café. Pagas $39. Enviamos desde Miami y puedes añadirlo a cualquier pedido.",
+        "imageAlt": "Digital Brew Scale, Resolución de 0.1 g con temporizador",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "digital-scale:short_blurb",
+          "digital-scale:title",
+          "digital-scale:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 13
+    },
+    {
+      "handle": "ceramic-mug",
+      "title": "Cerro Alto Mug 10 oz",
+      "status": "publishable",
+      "copy": {
+        "handle": "ceramic-mug",
+        "locale": "es",
+        "bodyHtml": "<p>Paredes gruesas, apta para lavavajillas.</p>\n<p>Puedes elegir esmalte: Clay o Cream. Cada uno cuesta $18.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Cerro Alto Mug 10 oz | Cerro Alto",
+        "metaDescription": "Cerro Alto Mug 10 oz: Paredes gruesas, apta para lavavajillas. Puedes elegir esmalte: Clay, Cream. Enviamos desde Miami y puedes añadirlo a cualquier pedido.",
+        "imageAlt": "Cerro Alto Mug 10 oz, Paredes gruesas, apta para lavavajillas, Clay",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "ceramic-mug:short_blurb",
+          "ceramic-mug:title",
+          "ceramic-mug:variants[].option1",
+          "ceramic-mug:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 15
+    },
+    {
+      "handle": "origin-sampler",
+      "title": "Origin Sampler (4 x 100g)",
+      "status": "publishable",
+      "copy": {
+        "handle": "origin-sampler",
+        "locale": "es",
+        "bodyHtml": "<p>Huila, Nariño, Volcán y Casa en bolsas de 100 g. El regalo más fácil que vendemos.</p>\n<p>Puedes elegir molienda: Whole Bean, Filter, Espresso o French Press. Cada uno cuesta $32.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Origin Sampler (4 x 100g) | Cerro Alto",
+        "metaDescription": "Origin Sampler (4 x 100g): Huila, Nariño, Volcán y Casa en bolsas de 100 g. El regalo más fácil que vendemos. Pagas $32. Envío gratis desde $45.",
+        "imageAlt": "Origin Sampler (4 x 100g), Huila, Nariño, Volcán y Casa en bolsas de 100 g, Whole Bean",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "origin-sampler:short_blurb",
+          "origin-sampler:title",
+          "origin-sampler:variants[].option1",
+          "origin-sampler:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 17
+    },
+    {
+      "handle": "gift-card",
+      "title": "Gift Card",
+      "status": "publishable",
+      "copy": {
+        "handle": "gift-card",
+        "locale": "es",
+        "bodyHtml": "<p>Digital, llega por correo, no vence.</p>\n<p>Puedes elegir valor: $25, $50 o $100.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+        "metaTitle": "Gift Card — Digital, llega por correo, no vence",
+        "metaDescription": "Gift Card: Digital, llega por correo, no vence. Puedes elegir valor: $25, $50, $100. Enviamos desde Miami y puedes añadirlo a cualquier pedido.",
+        "imageAlt": "Gift Card, Digital, llega por correo, no vence, $25",
+        "generator": "offline-template-v1",
+        "usedFactIds": [
+          "brand.free_shipping_threshold_usd",
+          "brand.location",
+          "gift-card:short_blurb",
+          "gift-card:title",
+          "gift-card:variants[].option1",
+          "gift-card:variants[].price"
+        ]
+      },
+      "violations": [],
+      "attempts": 1,
+      "ledgerEntryCount": 14
+    }
+  ],
+  "publishable": 12,
+  "quarantined": 0,
+  "timing": {
+    "stages": [
+      {
+        "stage": "ledger",
+        "ms": 9.905
+      },
+      {
+        "stage": "generate",
+        "ms": 4.632
+      },
+      {
+        "stage": "validate",
+        "ms": 110.424
+      }
+    ],
+    "totalMs": 125.312
+  }
+}

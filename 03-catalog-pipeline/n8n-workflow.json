@@ -1,0 +1,494 @@
+{
+  "name": "Cerro Alto — catalog enrichment",
+  "nodes": [
+    {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Manual trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -520,
+        300
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"anchorDate\": \"2026-08-04\",\n  \"locale\": \"en\",\n  \"catalogPath\": \"/data/products.json\",\n  \"outputPath\": \"/data/enriched.json\",\n  \"shopifyShop\": \"cerro-alto.myshopify.com\",\n  \"shopifyApiVersion\": \"2026-07\",\n  \"styleGuide\": {\n    \"version\": \"1.0.0+acceea92\",\n    \"maxSentenceWords\": 18,\n    \"readingGradeMax\": 8,\n    \"metaTitleMaxChars\": 60,\n    \"metaDescriptionMin\": 140,\n    \"metaDescriptionMax\": 160,\n    \"bodyParagraphMin\": 3,\n    \"bodyParagraphMax\": 4\n  }\n}",
+        "options": {}
+      },
+      "notes": "The style guide is measured from the merchant’s own descriptions by src/brand/voice-extract.ts. Paste the values from output/style-guide.json here."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Read catalog file",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        300
+      ],
+      "parameters": {
+        "fileSelector": "={{ $json.catalogPath }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Parse catalog JSON",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        300
+      ],
+      "parameters": {
+        "operation": "fromJson",
+        "destinationKey": "catalog",
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "One item per product",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        80,
+        300
+      ],
+      "parameters": {
+        "fieldToSplitOut": "catalog",
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Build fact ledger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build the fact ledger for each product. This mirrors src/ledger/fact-ledger.ts.\n// Nothing downstream may state a fact that is not in this list.\nconst BRAND_FACTS = [\n  { id: 'brand.roast_days', label: 'Roasting days', value: 'Monday and Thursday' },\n  { id: 'brand.ship_same_day', label: 'Ships the day it is roasted', value: 'same day' },\n  { id: 'brand.location', label: 'Roastery location', value: 'Miami, FL' },\n  { id: 'brand.free_shipping_threshold_usd', label: 'Free shipping threshold', value: 45 },\n];\n\nfunction numberSurfaces(value) {\n  const out = [String(value)];\n  if (Number.isInteger(value) && value >= 1000) out.push(value.toLocaleString('en-US'));\n  return out;\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const p = item.json;\n  const h = p.handle;\n  const entries = [];\n  const add = (sourceClass, source, label, value, surfaces) =>\n    entries.push({ id: h + ':' + source, sourceClass, source, label, value, surfaces });\n\n  const a = p.attributes || {};\n  if (a.roast_level) add('attributes', 'attributes.roast_level', 'Roast level', a.roast_level, [a.roast_level]);\n  if (a.origin) add('attributes', 'attributes.origin', 'Origin', a.origin, [a.origin, ...a.origin.split(/[,+]/).map(s => s.trim())]);\n  if (a.process) add('attributes', 'attributes.process', 'Process', a.process, [a.process]);\n  if (typeof a.altitude_masl === 'number') add('attributes', 'attributes.altitude_masl', 'Altitude (masl)', a.altitude_masl, numberSurfaces(a.altitude_masl));\n  (a.tasting_notes || []).forEach((note, i) => add('attributes', 'attributes.tasting_notes[' + i + ']', 'Tasting note', note, [note]));\n  if (typeof a.green_price_per_kg_usd === 'number') add('attributes', 'attributes.green_price_per_kg_usd', 'Green price per kilo (USD)', a.green_price_per_kg_usd, numberSurfaces(a.green_price_per_kg_usd));\n  if (p.short_blurb) add('blurb', 'short_blurb', 'Merchant blurb', p.short_blurb, [p.short_blurb]);\n  add('identity', 'title', 'Title', p.title, [p.title]);\n  add('identity', 'vendor', 'Vendor', p.vendor, [p.vendor]);\n\n  const grinds = [...new Set((p.variants || []).map(v => v.option1_grind).filter(Boolean))];\n  const sizes = [...new Set((p.variants || []).map(v => v.option2_size).filter(Boolean))];\n  const options = [...new Set((p.variants || []).map(v => v.option1).filter(Boolean))];\n  const prices = [...new Set((p.variants || []).map(v => v.price))];\n  if (grinds.length) add('variants', 'variants[].option1_grind', 'Grind options', grinds.join(', '), grinds);\n  if (sizes.length) add('variants', 'variants[].option2_size', 'Size options', sizes.join(', '), sizes);\n  if (options.length) add('variants', 'variants[].option1', 'Options', options.join(', '), options);\n  if (prices.length) add('variants', 'variants[].price', 'Prices', prices.join(', '), prices.flatMap(numberSurfaces));\n\n  for (const f of BRAND_FACTS) entries.push({ ...f, sourceClass: 'brand', source: f.id, surfaces: numberSurfaces(f.value).concat(String(f.value)) });\n\n  out.push({ json: { handle: h, title: p.title, product: p, ledger: { handle: h, entries } } });\n}\nreturn out;"
+      },
+      "notes": "Every sayable fact, with its source path. Nothing downstream may exceed this list."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Loop over products",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Build prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        440
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Assemble the Messages API request. Mirrors src/generate/prompt.ts.\n// NOTE: no temperature / top_p / top_k — those are removed on claude-opus-5 and\n// sending one is a 400. Thinking is left on; the latency lever is output_config.effort.\nconst styleGuide = $('Config').first().json.styleGuide;\nconst item = $input.first().json;\nconst ledgerText = item.ledger.entries\n  .map(e => '- id: ' + e.id + '\\n  source: ' + e.source + '\\n  ' + e.label + ': ' + e.value)\n  .join('\\n');\n\nconst system = [\n  'You are the copywriter for Cerro Alto Coffee, a small direct-to-consumer roaster.',\n  'You write catalog copy that sounds like the person behind the counter: plain words,',\n  'second person, specific before reassuring. You never write anything you cannot point',\n  'to a source for.',\n  '',\n  '<rules>',\n  '1. Use ONLY the facts in <fact_ledger>. If a fact is not there, it does not exist.',\n  '2. Never state or imply a certification. Cerro Alto is not organic, not Fair Trade,',\n  '   not carbon neutral, not direct trade. Not even in passing.',\n  '3. Never use: artisanal, curated, elevated, journey, passion, handcrafted, liquid gold,',\n  '   exquisite, unlock.',\n  '4. metaTitle at most ' + styleGuide.metaTitleMaxChars + ' characters.',\n  '5. metaDescription between ' + styleGuide.metaDescriptionMin + ' and ' + styleGuide.metaDescriptionMax + ' characters, second person, no exclamation marks.',\n  '6. imageAlt describes what is in the frame and never begins with \"image of\".',\n  '7. Sentences of at most ' + styleGuide.maxSentenceWords + ' words.',\n  '</rules>',\n  '',\n  '<example label=\"violation: invented fact\">',\n  'Grown at 2,100 meters on a smallholder farm, this Gesha lot is picked by hand.',\n  'Why it fails: the ledger says 1,750 meters. Gesha, smallholder farm and picked by hand',\n  'appear nowhere in the data.',\n  '</example>',\n  '',\n  '<example label=\"violation: implied certification\">',\n  'Sustainably sourced from farms that care about the land.',\n  'Why it fails: that reads as a certification claim, and Cerro Alto holds none.',\n  '</example>',\n].join('\\n');\n\nconst user = [\n  '<product>', 'handle: ' + item.handle, 'title: ' + item.title, '</product>', '',\n  '<fact_ledger>', ledgerText, '</fact_ledger>', '',\n  'Write the description, meta title, meta description and image alt text for this product.',\n].join('\\n');\n\nreturn [{ json: {\n  handle: item.handle,\n  ledger: item.ledger,\n  body: {\n    model: 'claude-opus-5',\n    max_tokens: 4096,\n    system: system,\n    messages: [{ role: 'user', content: user }],\n    thinking: { type: 'adaptive' },\n    output_config: {\n      effort: 'medium',\n      format: {\n        type: 'json_schema',\n        schema: {\n          type: 'object',\n          properties: {\n            bodyHtml: { type: 'string' },\n            metaTitle: { type: 'string' },\n            metaDescription: { type: 'string' },\n            imageAlt: { type: 'string' },\n            claims: { type: 'array', items: { type: 'object', properties: { text: { type: 'string' }, factId: { type: 'string' } }, required: ['text', 'factId'], additionalProperties: false } },\n          },\n          required: ['bodyHtml', 'metaTitle', 'metaDescription', 'imageAlt', 'claims'],\n          additionalProperties: false,\n        },\n      },\n    },\n  },\n} }];"
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Anthropic Messages API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        440
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {}
+      },
+      "notes": "Credential: HTTP Header Auth with name \"x-api-key\". No temperature / top_p / top_k — removed on claude-opus-5, sending one is a 400."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000010",
+      "name": "Validate hard rules",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        440
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The gate. Mirrors src/validate/rules.ts + src/validate/provenance.ts.\n// A product that fails here publishes nothing at all.\nconst styleGuide = $('Config').first().json.styleGuide;\nconst BANNED = ['artisanal','curated','elevated','journey','passion','handcrafted','liquid gold','game-changing','exquisite','unlock'];\nconst CERTIFICATION = ['organic','certified','certification','fair trade','fairtrade','carbon neutral','direct trade','rainforest alliance','bird friendly','sustainably sourced','ethically sourced','responsibly sourced','eco friendly','pesticide free','regenerative','biodynamic'];\nconst DOMAIN = ['washed','natural','honey','anaerobic','sugarcane','decaf','geisha','gesha','caturra','castillo','bourbon','typica','colombia','huila','narino','tolima','ethiopia','kenya','light','medium','dark','plum','brown sugar','cane sugar','orange','raspberry','hibiscus','chocolate','dark chocolate','milk chocolate','molasses','walnut','almond','red apple','caramel','pear','cocoa','blueberry','cherry','peach','jasmine','bergamot','citrus','black tea','single origin','microlot','smallholder','estate','shade grown','hand picked','sun dried','small batch','espresso','filter','french press','whole bean','ceramic','steel','plastic','bleached'];\nconst SECOND_PERSON = ['you','your','yours','yourself'];\n\nconst norm = s => ' ' + String(s).normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';\nconst has = (term, text) => norm(text).indexOf(norm(term)) !== -1;\nconst canonical = raw => {\n  const cleaned = String(raw).replace(/,/g, '').replace(/[^0-9.]/g, '').replace(/^\\.+|\\.+$/g, '');\n  return /^\\d+(\\.\\d+)?$/.test(cleaned) ? String(parseFloat(cleaned)) : null;\n};\n\nconst item = $input.first().json;\nconst raw = item.content && item.content[0] && item.content[0].text ? item.content[0].text : item.text;\nlet copy;\ntry { copy = JSON.parse(raw); } catch (e) {\n  return [{ json: { handle: item.handle, passed: false, violations: [{ ruleId: 'GEN', message: 'model did not return JSON' }] } }];\n}\n\nconst ledger = $('Build fact ledger').all().find(x => x.json.handle === item.handle).json.ledger;\nconst ledgerText = norm(ledger.entries.flatMap(e => [...(e.surfaces || []), String(e.value)]).join(' | '));\nconst ledgerNumbers = new Set();\nfor (const e of ledger.entries) {\n  for (const s of [...(e.surfaces || []), String(e.value)]) {\n    const m = String(s).match(/\\d[\\d.,]*/g) || [];\n    for (const token of m) { const c = canonical(token); if (c) ledgerNumbers.add(c); }\n  }\n}\n\nconst fields = { bodyHtml: copy.bodyHtml, metaTitle: copy.metaTitle, metaDescription: copy.metaDescription, imageAlt: copy.imageAlt };\nconst violations = [];\nconst plain = s => String(s || '').replace(/<[^>]+>/g, ' ');\n\nfor (const [field, value] of Object.entries(fields)) {\n  const text = plain(value);\n  for (const term of BANNED) if (has(term, text)) violations.push({ ruleId: 'AC-01', field, message: 'banned brand word \"' + term + '\"' });\n  for (const term of CERTIFICATION) if (has(term, text)) violations.push({ ruleId: 'AC-02', field, message: 'certification claim \"' + term + '\"' });\n  if (/[!\\u00a1]/.test(text)) violations.push({ ruleId: 'AC-07a', field, message: 'exclamation mark' });\n  for (const token of text.match(/\\d[\\d.,]*/g) || []) {\n    const c = canonical(token);\n    if (c && !ledgerNumbers.has(c)) violations.push({ ruleId: 'AC-06a', field, message: 'figure \"' + token + '\" is not in the fact ledger' });\n  }\n  for (const term of DOMAIN) if (has(term, text) && ledgerText.indexOf(norm(term)) === -1) {\n    violations.push({ ruleId: 'AC-06b', field, message: '\"' + term + '\" is a claim nothing in the ledger supports' });\n  }\n}\nif (copy.metaTitle.length > styleGuide.metaTitleMaxChars) violations.push({ ruleId: 'AC-03', field: 'metaTitle', message: 'meta title is ' + copy.metaTitle.length + ' characters' });\nif (copy.metaDescription.length < styleGuide.metaDescriptionMin || copy.metaDescription.length > styleGuide.metaDescriptionMax) violations.push({ ruleId: 'AC-04', field: 'metaDescription', message: 'meta description is ' + copy.metaDescription.length + ' characters' });\nif (/^(image|photo|picture) of/i.test(copy.imageAlt.trim())) violations.push({ ruleId: 'AC-05', field: 'imageAlt', message: 'alt text announces that it is an image' });\nfor (const field of ['bodyHtml', 'metaDescription']) {\n  if (!SECOND_PERSON.some(m => has(m, plain(fields[field])))) violations.push({ ruleId: 'AC-07b', field, message: 'no second-person address' });\n}\nfor (const sentence of plain(copy.bodyHtml).split(/(?<=[.!?])\\s+/)) {\n  const words = sentence.trim().split(/\\s+/).filter(Boolean).length;\n  if (words > styleGuide.maxSentenceWords) violations.push({ ruleId: 'AC-08a', field: 'bodyHtml', message: 'sentence runs to ' + words + ' words' });\n}\n\nreturn [{ json: { handle: item.handle, copy, violations, passed: violations.length === 0 } }];"
+      },
+      "notes": "The gate: banned words, certification claims, SEO lengths, second person, and fact traceability."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000011",
+      "name": "Passed every rule?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        440
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-passed",
+              "leftValue": "={{ $json.passed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000012",
+      "name": "Human review gate",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        340
+      ],
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "webhookId": "b2000000-0000-4000-8000-000000000012",
+      "notes": "Nothing reaches the store without a person. The workflow pauses here and resumes on the webhook a reviewer calls after reading the copy."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000013",
+      "name": "Shopify productUpdate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        340
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Config').first().json.shopifyShop }}/admin/api/{{ $('Config').first().json.shopifyApiVersion }}/graphql.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: \"mutation productUpdate($input: ProductInput!) { productUpdate(input: $input) { product { id } userErrors { field message } } }\", variables: { input: { id: $json.shopifyProductId, descriptionHtml: $json.copy.bodyHtml, seo: { title: $json.copy.metaTitle, description: $json.copy.metaDescription } } } }) }}",
+        "options": {}
+      },
+      "notes": "Credential: HTTP Header Auth with name \"X-Shopify-Access-Token\". Never executed against a real store in this project."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000014",
+      "name": "Quarantine",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        560
+      ],
+      "parameters": {},
+      "notes": "Fail closed: a product that fails any rule publishes nothing, and is reported with its violations."
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000015",
+      "name": "Build run report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        160
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Collect the run into one artifact. Quarantined products carry no copy forward.\nconst results = $input.all().map(i => i.json);\nconst publishable = results.filter(r => r.passed);\nreturn [{ json: {\n  anchorDate: $('Config').first().json.anchorDate,\n  locale: $('Config').first().json.locale,\n  generator: 'claude-opus-5',\n  total: results.length,\n  publishable: publishable.length,\n  quarantined: results.length - publishable.length,\n  products: results.map(r => ({ handle: r.handle, status: r.passed ? 'publishable' : 'quarantined', copy: r.passed ? r.copy : null, violations: r.violations })),\n} }];"
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000016",
+      "name": "Report to file",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        160
+      ],
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "enriched.json"
+        }
+      }
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000017",
+      "name": "Write enriched catalog",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        160
+      ],
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $('Config').first().json.outputPath }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Manual trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Read catalog file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read catalog file": {
+      "main": [
+        [
+          {
+            "node": "Parse catalog JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse catalog JSON": {
+      "main": [
+        [
+          {
+            "node": "One item per product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per product": {
+      "main": [
+        [
+          {
+            "node": "Build fact ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build fact ledger": {
+      "main": [
+        [
+          {
+            "node": "Loop over products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over products": {
+      "main": [
+        [
+          {
+            "node": "Build run report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build prompt": {
+      "main": [
+        [
+          {
+            "node": "Anthropic Messages API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Messages API": {
+      "main": [
+        [
+          {
+            "node": "Validate hard rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate hard rules": {
+      "main": [
+        [
+          {
+            "node": "Passed every rule?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passed every rule?": {
+      "main": [
+        [
+          {
+            "node": "Human review gate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Quarantine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human review gate": {
+      "main": [
+        [
+          {
+            "node": "Shopify productUpdate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify productUpdate": {
+      "main": [
+        [
+          {
+            "node": "Loop over products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quarantine": {
+      "main": [
+        [
+          {
+            "node": "Loop over products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build run report": {
+      "main": [
+        [
+          {
+            "node": "Report to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report to file": {
+      "main": [
+        [
+          {
+            "node": "Write enriched catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "c3000000-0000-4000-8000-000000000001",
+  "meta": {
+    "instanceId": "cerro-alto-catalog-pipeline",
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

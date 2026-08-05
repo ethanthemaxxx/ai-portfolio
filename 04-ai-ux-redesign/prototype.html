@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en" data-notes="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Run Inspector — speculative redesign</title>
+<meta name="description" content="Speculative UX redesign of an AI agent run inspector. Interactive prototype, no dependencies.">
+<style>
+/* ============================================================================
+   AGENT RUN INSPECTOR — speculative redesign, unaffiliated prototype.
+
+   The design thesis, in one sentence: the screen an operator opens after an AI
+   agent runs is not a data viewer, it is a decision surface. Everything below
+   follows from that.
+
+   Two rules govern the CSS, same as any panel that shows a live process:
+
+     1. Nothing above moving text may move. The timeline grows downward only.
+        A panel that reflows while it streams cannot be read while it streams.
+     2. Usable at 375px. Approvals get done from a phone, at the worst possible
+        moment. If the approval surface is desktop-only, the approval gets
+        rubber-stamped from a notification instead — which is the failure mode
+        the whole design exists to prevent.
+
+   Visual language: an instrument panel, not a chat app. Hairlines, square
+   corners, no shadows, no gradients. Human words are set in sans; every value
+   the machine emitted is set in mono. That split is the type system — you can
+   tell at a glance what a person wrote and what a program produced.
+   ========================================================================== */
+
+/* ---------- tokens ---------- */
+
+:root {
+  color-scheme: light dark;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Cool neutral graphite. Deliberately not the cream/terracotta of the
+     support-widget piece, and deliberately not the violet gradient every AI
+     product ships with. */
+  --bg:        #eceef0;
+  --surface:   #ffffff;
+  --surface-2: #f4f6f7;
+  --line:      #d6dbde;
+  --line-2:    #b4bcc1;
+  --text:      #12181b;
+  --dim:       #566065;
+  --faint:     #7d888d;
+
+  --accent:    #0d6a62;
+  --accent-bg: #e2f0ee;
+  --on-accent: #ffffff;
+
+  --ok:        #2c6f47;
+  --ok-bg:     #e4efe8;
+  --hold:      #8c5a0e;
+  --hold-bg:   #f7eddc;
+  --block:     #a33c2c;
+  --block-bg:  #f8e7e3;
+
+  --radius: 3px;
+}
+
+:root[data-theme="dark"] {
+  --bg:        #0c1012;
+  --surface:   #141a1d;
+  --surface-2: #1a2225;
+  --line:      #263135;
+  --line-2:    #3a494e;
+  --text:      #e7edef;
+  --dim:       #97a5aa;
+  --faint:     #74838a;
+
+  --accent:    #46b9ad;
+  --accent-bg: #102b2a;
+  --on-accent: #06201e;
+
+  --ok:        #5cb47c;
+  --ok-bg:     #12251a;
+  --hold:      #d6a244;
+  --hold-bg:   #2a2113;
+  --block:     #e07a63;
+  --block-bg:  #2d1815;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0c1012;
+    --surface:   #141a1d;
+    --surface-2: #1a2225;
+    --line:      #263135;
+    --line-2:    #3a494e;
+    --text:      #e7edef;
+    --dim:       #97a5aa;
+    --faint:     #74838a;
+
+    --accent:    #46b9ad;
+    --accent-bg: #102b2a;
+    --on-accent: #06201e;
+
+    --ok:        #5cb47c;
+    --ok-bg:     #12251a;
+    --hold:      #d6a244;
+    --hold-bg:   #2a2113;
+    --block:     #e07a63;
+    --block-bg:  #2d1815;
+  }
+}
+
+/* ---------- base ---------- */
+
+* { box-sizing: border-box; }
+
+html, body { background: var(--bg); }
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+/* Visible focus everywhere. An approval screen that cannot be driven from the
+   keyboard is an approval screen that excludes people from the decision. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- disclosure banner (must be the first line on the page) ---------- */
+
+.disclaimer {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  padding: 9px 16px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+.disclaimer strong { color: var(--text); font-weight: 600; }
+
+/* ---------- shell ---------- */
+
+.shell {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 140px;
+}
+
+.masthead { margin: 8px 0 22px; }
+.masthead h1 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 620;
+  letter-spacing: -0.012em;
+}
+.masthead p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 13.5px;
+  color: var(--dim);
+}
+
+/* ---------- panel chrome ---------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.panel__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+/* Flexible and allowed to shrink, so the long run identifier truncates instead
+   of shoving the status pill onto a second row. */
+.panel__id { flex: 1 1 190px; min-width: 0; }
+.panel__name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.panel__meta {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel__spacer { flex: 1 1 auto; }
+
+.panel__body { padding: 16px 14px 6px; }
+
+/* ---------- micro-labels: mono, uppercase, tracked ---------- */
+
+.label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- status pill ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.pill--run   { color: var(--accent); border-color: var(--accent); background: var(--accent-bg); }
+.pill--hold  { color: var(--hold);   border-color: var(--hold);   background: var(--hold-bg); }
+.pill--ok    { color: var(--ok);     border-color: var(--ok);     background: var(--ok-bg); }
+.pill--block { color: var(--block);  border-color: var(--block);  background: var(--block-bg); }
+
+.pill__led {
+  width: 6px; height: 6px;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+.pill--run .pill__led { animation: led 1.1s ease-in-out infinite; }
+@keyframes led { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 13px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .4; cursor: default; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 560;
+}
+.btn--primary:hover:not(:disabled) { color: var(--on-accent); filter: brightness(1.07); }
+
+.btn--danger { color: var(--block); border-color: var(--line-2); }
+.btn--danger:hover:not(:disabled) { border-color: var(--block); color: var(--block); }
+
+.btn--quiet {
+  min-height: 28px;
+  padding: 3px 8px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+.btn--quiet:hover:not(:disabled) { color: var(--accent); border-color: var(--line); }
+
+/* ============================================================================
+   THE TIMELINE RAIL
+
+   A run is a sequence of things that happened, in order, each at a known time.
+   The rail says so literally: mono timestamps on the left, a hairline spine,
+   square ticks. It is kept at 375px rather than collapsed, because the ordering
+   of events is the content — drop the rail and you are back to a wall of text.
+   ========================================================================== */
+
+.step {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  column-gap: 0;
+}
+
+.step__t {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  padding-top: 3px;
+  text-align: right;
+  padding-right: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.step__b {
+  position: relative;
+  border-left: 1px solid var(--line);
+  padding: 0 0 18px 16px;
+  min-width: 0;
+}
+.step:last-child .step__b { border-left-color: transparent; padding-bottom: 4px; }
+
+.step__b::before {
+  content: "";
+  position: absolute;
+  left: -4px; top: 6px;
+  width: 7px; height: 7px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+}
+.step--live  .step__b::before { border-color: var(--accent); background: var(--accent); animation: led 1.1s ease-in-out infinite; }
+.step--ok    .step__b::before { border-color: var(--ok);    background: var(--ok); }
+.step--hold  .step__b::before { border-color: var(--hold);  background: var(--hold); }
+.step--block .step__b::before { border-color: var(--block); background: var(--block); }
+
+.step__head {
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.step__sub { font-size: 12.5px; color: var(--dim); margin: 3px 0 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pill--run .pill__led,
+  .step--live .step__b::before,
+  .caret { animation: none; }
+}
+
+/* ---------- plan block ---------- */
+
+.plan {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.plan ol { margin: 6px 0 0; padding-left: 18px; }
+.plan li { font-size: 13px; margin: 0 0 3px; color: var(--text); }
+.plan li:last-child { margin-bottom: 0; }
+.plan li.plan__stop { color: var(--hold); font-weight: 560; }
+
+/* ---------- tool call rows ---------- */
+
+.tool {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  width: 100%;
+  padding: 4px 6px 4px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  min-height: 30px;
+}
+.tool:hover .tool__name { color: var(--accent); }
+.tool__name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.tool__what { font-size: 12.5px; color: var(--dim); }
+.tool__num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tool__chev {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--faint);
+  margin-left: auto;
+}
+
+.payload {
+  margin: 2px 0 6px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+.payload__h {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.payload pre {
+  margin: 0;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  overflow-x: auto;
+  color: var(--dim);
+  -webkit-overflow-scrolling: touch;
+}
+.payload mark {
+  background: var(--hold-bg);
+  color: var(--hold);
+  padding: 0 2px;
+}
+
+/* ---------- streamed prose ---------- */
+
+.prose {
+  margin: 6px 0 0;
+  font-size: 14px;
+  max-width: 60ch;
+  /* Reserve the height the finished paragraph needs, so the items below it do
+     not get pushed down line by line as it types. */
+  min-height: 3.6em;
+}
+.caret {
+  display: inline-block;
+  width: 2px; height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink { to { visibility: hidden; } }
+
+/* ---------- line items (the draft purchase order) ---------- */
+
+.items { margin: 10px 0 0; border: 1px solid var(--line); border-radius: var(--radius); }
+
+.item { border-bottom: 1px solid var(--line); }
+.item:last-child { border-bottom: 0; }
+.item--flag  { background: var(--hold-bg); }
+.item--block { background: var(--block-bg); }
+
+.item__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: start;
+  padding: 10px 12px;
+}
+
+.item__name { font-size: 13.5px; font-weight: 560; }
+.item__sku {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  letter-spacing: 0.02em;
+  margin-top: 1px;
+}
+.item__qty {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+.item--block .item__qty { color: var(--block); text-decoration: line-through; }
+
+.item__tags {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ---------- provenance tags: the confidence system ----------
+   No percentage. A number is either traceable to a record, computed from
+   traceable numbers, or a gap the model filled in. Only the last one gets
+   visual weight, because only the last one needs a human. */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dim);
+  cursor: pointer;
+}
+.tag:hover { border-color: var(--accent); color: var(--accent); }
+.tag--verified { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.tag--derived  { color: var(--dim); }
+.tag--assumed  { color: var(--hold); border-color: var(--hold); background: var(--hold-bg); font-weight: 600; }
+.tag--contra   { color: var(--block); border-color: var(--block); background: var(--block-bg); font-weight: 600; }
+
+.tag--static { cursor: default; }
+.tag--static:hover { border-color: var(--line-2); color: inherit; }
+
+/* ---------- evidence drawer ---------- */
+
+.ev {
+  padding: 0 12px 12px;
+  font-size: 12.5px;
+}
+.ev__eq {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--dim);
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: pre;
+}
+.ev__list { margin: 8px 0 0; padding: 0; list-style: none; }
+.ev__list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 6px 0;
+  border-top: 1px dotted var(--line-2);
+}
+.ev__k { font-family: var(--mono); font-size: 11.5px; }
+.ev__v { font-size: 12px; color: var(--dim); }
+.ev__src {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- the check report (model-independent validation) ---------- */
+
+.checks { margin: 10px 0 0; border: 1px solid var(--line); border-radius: var(--radius); }
+.checks__h {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.checks ul { margin: 0; padding: 6px 12px 10px; list-style: none; }
+.checks li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 0;
+  font-size: 12.5px;
+}
+.checks li .mark { font-family: var(--mono); font-size: 12px; flex: 0 0 auto; }
+.mark--pass { color: var(--ok); }
+.mark--fail { color: var(--block); }
+
+.contra {
+  margin: 8px 12px 12px;
+  border: 1px solid var(--block);
+  border-left-width: 2px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+}
+.contra__h {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--block);
+}
+.contra__b { padding: 10px; font-size: 12.5px; }
+.contra__quote {
+  margin: 0 0 8px;
+  padding-left: 10px;
+  border-left: 2px solid var(--line-2);
+  color: var(--text);
+}
+.contra__quote s { color: var(--block); }
+.contra__pair {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 8px 0;
+}
+.contra__cell {
+  border: 1px solid var(--line);
+  padding: 7px 9px;
+  background: var(--surface-2);
+}
+.contra__cell .label { display: block; margin-bottom: 2px; }
+.contra__val { font-family: var(--mono); font-size: 13px; }
+.contra__cell--claim .contra__val { color: var(--block); }
+.contra__cell--rec   .contra__val { color: var(--ok); }
+.contra__so { margin: 8px 0 0; font-size: 12.5px; color: var(--text); }
+
+/* ---------- the gate: the step that did not run ---------- */
+
+.gate {
+  margin: 8px 0 0;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+.gate__t { font-family: var(--mono); font-size: 12px; color: var(--hold); }
+.gate p { margin: 4px 0 0; font-size: 12.5px; color: var(--dim); }
+
+/* ---------- the approval bar ---------- */
+
+.approve {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 18px 0 0;
+  border: 1px solid var(--line-2);
+  border-top-width: 2px;
+  border-top-color: var(--hold);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 12px 14px;
+}
+.approve__lead { font-size: 13.5px; font-weight: 560; margin: 0 0 3px; }
+.approve__sub  { font-size: 12.5px; color: var(--dim); margin: 0 0 10px; }
+.approve__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.approve__acts .btn { flex: 1 1 auto; }
+.approve__who {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px dotted var(--line-2);
+  font-size: 11.5px;
+  color: var(--faint);
+}
+.approve__who b { color: var(--dim); font-weight: 560; }
+
+/* ---------- edit mode ---------- */
+
+.qty-input {
+  width: 74px;
+  padding: 4px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  background: var(--surface);
+  font-family: var(--mono);
+  /* 16px, or iOS zooms the page on focus and the operator loses the panel. */
+  font-size: 16px;
+  text-align: right;
+}
+.edited {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--accent);
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* ---------- receipt ---------- */
+
+.receipt {
+  margin: 18px 0 0;
+  border: 1px solid var(--line-2);
+  border-left-width: 2px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+}
+.receipt--ok    { border-left-color: var(--ok); }
+.receipt--block { border-left-color: var(--block); }
+.receipt--queue { border-left-color: var(--hold); }
+
+.receipt__h {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.receipt__b { padding: 10px 12px; font-size: 12.5px; }
+.receipt__b p { margin: 0 0 6px; }
+.receipt__b p:last-child { margin-bottom: 0; }
+.receipt__line {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--dim);
+  padding: 3px 0;
+  overflow-wrap: anywhere;
+}
+.countdown {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--hold);
+}
+
+.reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+
+/* ============================================================================
+   DESIGN NOTES
+
+   Annotations for whoever is reviewing this as a portfolio piece. They are part
+   of the presentation, not part of the product — hence a toggle, and hence a
+   visual treatment that could never be mistaken for UI.
+   ========================================================================== */
+
+.note {
+  display: block;
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  border-left: 2px dashed var(--accent);
+  background: var(--accent-bg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.note b {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 2px;
+}
+:root[data-notes="off"] .note { display: none; }
+
+/* ---------- footer ---------- */
+
+.foot {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 26px 16px 40px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--faint);
+  border-top: 1px solid var(--line);
+}
+.foot p { margin: 0 0 6px; max-width: 70ch; }
+
+/* ---------- wider viewports ---------- */
+
+@media (min-width: 640px) {
+  .step { grid-template-columns: 62px 1fr; }
+  .step__t { font-size: 11px; padding-right: 14px; }
+  .ev__list li { grid-template-columns: 150px 90px minmax(0, 1fr); align-items: baseline; gap: 10px; }
+  .contra__pair { grid-template-columns: 1fr 1fr; }
+  .approve { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px; align-items: center; }
+  .approve__lead, .approve__sub { grid-column: 1; }
+  .approve__sub { margin-bottom: 0; }
+  .approve__acts { grid-column: 2; grid-row: 1 / 3; }
+  .approve__acts .btn { flex: 0 0 auto; }
+  .approve__who { grid-column: 1 / -1; }
+  .panel__body { padding: 20px 18px 8px; }
+  .shell { padding: 24px 20px 120px; }
+}
+</style>
+</head>
+<body>
+
+<!-- FIRST LINE ON THE PAGE. Non-negotiable: this is speculative work. -->
+<p class="disclaimer">
+  <strong>Speculative redesign — unaffiliated, unsolicited, not commissioned by anyone.</strong>
+  This is an independent UX concept for the run-inspection screen of AI agent nodes in workflow
+  automation tools (n8n, Make, Zapier and similar). It uses no company&rsquo;s logo, brand or product
+  assets, and it is not a product of, or endorsed by, any of them. Every number, order, supplier and
+  person shown is synthetic.
+</p>
+
+<main class="shell">
+
+  <header class="masthead">
+    <h1>Agent Run Inspector</h1>
+    <p>
+      The screen an operator opens when an AI agent has just run against their real business data
+      and something now has to leave the building. Redesigned as a decision surface rather than a
+      data viewer. Press <em>Run workflow</em> — the streaming, the uncertainty, the tool calls, the
+      failure and the human gate are all live, not screenshots.
+    </p>
+  </header>
+
+  <section class="panel" aria-label="Agent run inspector">
+
+    <div class="panel__bar">
+      <div class="panel__id">
+        <span class="panel__name">Reorder Planner</span>
+        <span class="panel__meta" id="run-meta">run &mdash; &middot; not started</span>
+      </div>
+      <div class="panel__spacer"></div>
+      <span id="status-pill" class="pill"><span class="pill__led"></span><span id="status-text">Idle</span></span>
+      <button class="btn btn--quiet" id="notes-btn" aria-pressed="true">Design notes: on</button>
+      <button class="btn btn--quiet" id="theme-btn">Theme</button>
+    </div>
+
+    <div class="panel__body">
+      <!-- Screen-reader announcements. Deliberately terse: the streaming text is
+           marked busy and only the phase changes get announced, so a screen
+           reader is not read a paragraph one character at a time. -->
+      <p class="sr" role="status" aria-live="polite" id="live-region"></p>
+
+      <div id="run"></div>
+
+      <div id="gate-zone"></div>
+    </div>
+  </section>
+
+  <div id="controls" style="margin-top:14px; display:flex; flex-wrap:wrap; gap:8px;">
+    <button class="btn btn--primary" id="run-btn">Run workflow</button>
+    <button class="btn" id="skip-btn" disabled>Skip to result</button>
+    <button class="btn" id="reset-btn" disabled>Reset</button>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <p>
+    <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
+    commissioned by any company. Not client work, not paid work, never presented as either.
+  </p>
+  <p>
+    Synthetic data throughout: the brand, suppliers, SKUs, quantities, order references and the
+    approver are invented for this prototype. No real business data appears anywhere.
+  </p>
+  <p>
+    No usability testing has been run on this design. There are no measured numbers here, because
+    none were measured &mdash; the argument is design reasoning, not evidence of outcomes.
+  </p>
+  <p style="margin-top:12px;">
+    Self-contained: no network requests, no external fonts, no CDN, no build step. View source &mdash;
+    the reasoning is commented in place.
+  </p>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================================
+   THE RUN
+
+   Everything the panel renders comes from this object. It is shaped like a real
+   agent run trace on purpose (events with timestamps, tool calls with payloads,
+   an output with per-field provenance), because the design only holds up if the
+   data a real runtime emits can actually feed it.
+
+   Scenario: a weekly reorder agent for a small coffee roaster. It reads stock,
+   reads sales velocity, reads supplier terms, and drafts a purchase order.
+   Sending the purchase order is the irreversible act, and the agent is not
+   allowed to do it.
+   ========================================================================== */
+
+var RUN = {
+  id: "r_4d91c7",
+  trigger: "Schedule · Mondays 06:00 America/Bogotá",
+  model: "claude-opus-5",
+
+  plan: [
+    "Read on-hand green-coffee stock for every roasting SKU.",
+    "Pull 90-day sales velocity and compute weeks of cover.",
+    "For anything under 4 weeks of cover, size an order against the supplier's lead time and minimum.",
+    "Draft one purchase order per supplier — and stop there. Do not send."
+  ],
+
+  tools: [
+    {
+      id: "t1",
+      name: "shopify.inventory_levels",
+      what: "on-hand stock, all green lots",
+      ms: 310, count: "12 records",
+      payload:
+'[\n  { "sku": "CA-HUI-GRN", "lot": "Huila Reserve",   "on_hand_kg": 18 },\n' +
+'  { "sku": "CA-NAR-GRN", "lot": "Nariño Microlot", "on_hand_kg": 11 },\n' +
+'  { "sku": "CA-SER-GRN", "lot": "Sereno Decaf",    "on_hand_kg": 4  },\n' +
+'  { "sku": "CA-VOL-GRN", "lot": "Volcán Dark",     "on_hand_kg": 26 },\n' +
+'  … 8 more\n]'
+    },
+    {
+      id: "t2",
+      name: "sheets.sales_velocity",
+      what: "90-day mean, kg roasted per week",
+      ms: 180, count: "12 rows",
+      payload:
+'[\n  { "sku": "CA-HUI-GRN", "kg_per_week": 9.2,  "days_of_history": 90 },\n' +
+'  { "sku": "CA-NAR-GRN", "kg_per_week": 4.4,  "days_of_history": 90 },\n' +
+'  { "sku": "CA-SER-GRN", "kg_per_week": null, "days_of_history": 19 },\n' +
+'  { "sku": "CA-VOL-GRN", "kg_per_week": 7.8,  "days_of_history": 90 },\n' +
+'  … 8 more\n]'
+    },
+    {
+      id: "t3",
+      name: "supplier.lead_times",
+      what: "lead time, minimum order, unit price",
+      ms: 240, count: "4 rows",
+      /* The record that the model will contradict two steps later is right
+         here, in a payload the operator can open. That adjacency is the point:
+         the evidence that the answer is wrong was on screen the whole time. */
+      payload:
+'[\n  { "supplier": "Finca La Esperanza", "lead_time_days": 21, "moq_kg": 60,  "usd_per_kg": 8.40 },\n' +
+'  { "supplier": "Asoc. Nariño Sur",     "lead_time_days": 24, "moq_kg": 30,  "usd_per_kg": 9.10 },\n' +
+'  { "supplier": "Descafecol",           "lead_time_days": 30, "moq_kg": 30,  "usd_per_kg": 11.75 },\n' +
+'  { "supplier": "Cooperativa Tolima",   "lead_time_days": <mark>28</mark>, "moq_kg": 120, "usd_per_kg": 7.60 }\n]'
+    }
+  ],
+
+  prose:
+    "Four lots fall under four weeks of cover before the next roast cycle. I have sized each " +
+    "order to the supplier's minimum and rounded up to whole bags. Nothing has been sent — " +
+    "what follows is a draft.",
+
+  items: [
+    {
+      id: "i1",
+      lot: "Huila Reserve",
+      sku: "CA-HUI-GRN · Finca La Esperanza",
+      qty: 60, unit: "kg", usd: 504,
+      state: "verified",
+      tagText: "verified",
+      eq: "ceil( 6.0 wk × 9.2 kg/wk ) − 18 kg on hand = 37 kg\n→ rounded up to supplier minimum 60 kg",
+      ev: [
+        ["kg_per_week", "9.2", "sheets.sales_velocity → CA-HUI-GRN → 90 days of history"],
+        ["on_hand_kg", "18", "shopify.inventory_levels → CA-HUI-GRN"],
+        ["lead_time_days", "21", "supplier.lead_times → Finca La Esperanza"],
+        ["moq_kg", "60", "supplier.lead_times → Finca La Esperanza"]
+      ]
+    },
+    {
+      id: "i2",
+      lot: "Nariño Microlot",
+      sku: "CA-NAR-GRN · Asoc. Nariño Sur",
+      qty: 30, unit: "kg", usd: 273,
+      state: "derived",
+      tagText: "derived",
+      eq: "ceil( 6.4 wk × 4.4 kg/wk ) − 11 kg on hand = 17 kg\n→ rounded up to supplier minimum 30 kg",
+      ev: [
+        ["kg_per_week", "4.4", "sheets.sales_velocity → CA-NAR-GRN → 90 days of history"],
+        ["on_hand_kg", "11", "shopify.inventory_levels → CA-NAR-GRN"],
+        ["weeks_to_cover", "6.4", "computed: lead_time 24 d ÷ 7 + 3 wk safety stock"]
+      ]
+    },
+    {
+      id: "i3",
+      lot: "Sereno Decaf",
+      sku: "CA-SER-GRN · Descafecol",
+      qty: 30, unit: "kg", usd: 353,
+      state: "assumed",
+      tagText: "assumed · velocity",
+      /* The only item on the screen that carries visual weight for uncertainty.
+         If everything is flagged, nothing is. */
+      eq: "no velocity available → ordered the supplier minimum, 30 kg",
+      ev: [
+        ["kg_per_week", "assumed 5.1", "NOT IN DATA. Only 19 days of history for this SKU. I used the mean velocity of the other 340 g bags. If decaf sells slower than regular, this is over-ordered by roughly a month."],
+        ["on_hand_kg", "4", "shopify.inventory_levels → CA-SER-GRN"],
+        ["moq_kg", "30", "supplier.lead_times → Descafecol"]
+      ]
+    },
+    {
+      id: "i4",
+      lot: "Volcán Dark",
+      sku: "CA-VOL-GRN · Cooperativa Tolima",
+      qty: 120, unit: "kg", usd: 912,
+      state: "contradicted",
+      tagText: "contradicted · lead time",
+      eq: "ceil( 5.0 wk × 7.8 kg/wk ) − 26 kg on hand = 13 kg\n→ rounded up to supplier minimum 120 kg",
+      ev: [
+        ["kg_per_week", "7.8", "sheets.sales_velocity → CA-VOL-GRN → 90 days of history"],
+        ["on_hand_kg", "26", "shopify.inventory_levels → CA-VOL-GRN"],
+        ["lead_time_days", "14 — contradicted", "The run asserted 14. supplier.lead_times → Cooperativa Tolima → lead_time_days = 28, in the same record the run read at 1.8 s."]
+      ]
+    }
+  ],
+
+  /* Deterministic checks. They do not ask the model whether it was right — they
+     re-read the records the model read and compare. A model that is confidently
+     wrong will pass any self-assessment; it cannot pass this. */
+  checks: [
+    { pass: true,  text: "Every cited SKU exists and is active — 4 of 4." },
+    { pass: true,  text: "Unit prices within 25% of the last three purchase orders — 4 of 4." },
+    { pass: true,  text: "Run total $2,042 is under the $4,000 unattended ceiling." },
+    { pass: false, text: "Every stated fact traces to a record read this run — 3 of 4. One claim contradicts its source." }
+  ],
+
+  contradiction: {
+    claimSentence: "Volcán Dark ships from Cooperativa Tolima in ",
+    claimBad: "14 days",
+    claimTail: ", so the 120 kg lands before you run dry on day 17.",
+    claimVal: "lead_time_days = 14",
+    recordVal: "lead_time_days = 28",
+    recordSrc: "supplier.lead_times → Cooperativa Tolima · read at 1.8 s",
+    consequence: "The order arrives on day 28. Stock runs out on day 17. Eleven days of the house dark roast, unroastable."
+  },
+
+  approver: "Ana R. · Operations",
+  expiry: "Tue 06:00"
+};
+
+/* ============================================================================
+   STATE
+   ========================================================================== */
+
+var S = {
+  phase: "idle",        // idle | running | review | queued | sent | blocked
+  step: 0,              // how far through the timeline we have got
+  proseChars: 0,
+  open: {},             // which drawers the operator has opened
+  editing: false,
+  qty: {},              // operator overrides
+  blockReason: null,
+  secondsLeft: 300
+};
+
+var TIMERS = [];
+function clearTimers() { TIMERS.forEach(clearTimeout); TIMERS.forEach(clearInterval); TIMERS = []; }
+function later(fn, ms) { var id = setTimeout(fn, ms); TIMERS.push(id); return id; }
+
+/* The timeline. `step` is an index into this: everything with a lower index has
+   happened. Making the run a plain ordered list is what lets the prototype jump
+   straight to any state (used by ?state= for screenshots) instead of only ever
+   playing forward. Kept separate from RUN so the renderer can ask "has this
+   happened yet?" without inspecting the data. */
+var STEPS = [
+  { at: 0.0, key: "start" },
+  { at: 0.2, key: "plan" },
+  { at: 0.9, key: "t1" },
+  { at: 1.3, key: "t2" },
+  { at: 1.6, key: "t3" },
+  { at: 2.0, key: "compose" },
+  { at: 2.4, key: "firstToken" },
+  { at: 5.1, key: "items" },
+  { at: 5.6, key: "checking" },
+  { at: 6.4, key: "checked" },
+  { at: 6.6, key: "gate" }
+];
+var STEP_INDEX = {};
+STEPS.forEach(function (s, i) { STEP_INDEX[s.key] = i; });
+
+function reached(key) { return S.step > STEP_INDEX[key]; }
+
+/* ============================================================================
+   HELPERS
+   ========================================================================== */
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+/* Payloads are authored here, not user input, and one of them carries a <mark>
+   on purpose. Escape everything, then let that single tag back through. */
+function escPayload(s) {
+  return esc(s).replace(/&lt;mark&gt;/g, "<mark>").replace(/&lt;\/mark&gt;/g, "</mark>");
+}
+function el(id) { return document.getElementById(id); }
+function money(n) { return "$" + n.toLocaleString("en-US"); }
+
+function qtyOf(item) {
+  return Object.prototype.hasOwnProperty.call(S.qty, item.id) ? S.qty[item.id] : item.qty;
+}
+function edits() {
+  return RUN.items.filter(function (i) { return qtyOf(i) !== i.qty; });
+}
+function approvedItems() {
+  return RUN.items.filter(function (i) { return i.state !== "contradicted"; });
+}
+
+function note(n, title, body) {
+  return '<aside class="note"><b>' + n + " · " + esc(title) + "</b>" + body + "</aside>";
+}
+
+function step(time, cls, inner) {
+  return '<div class="step ' + cls + '">' +
+    '<div class="step__t">' + time + "</div>" +
+    '<div class="step__b">' + inner + "</div></div>";
+}
+
+/* ============================================================================
+   RENDER
+
+   One function rebuilds the whole run area. Drawer and edit state live in S, so
+   a rebuild never loses what the operator opened or typed. The one exception is
+   the streaming paragraph, which is patched in place at ~20 ms — rebuilding the
+   panel sixty times a second would fight the scroll position.
+   ========================================================================== */
+
+function render() {
+  renderBar();
+  el("run").innerHTML = buildRun();
+  el("gate-zone").innerHTML = buildGate();
+  bind();
+}
+
+function renderBar() {
+  var meta = el("run-meta");
+  var pill = el("status-pill");
+  var text = el("status-text");
+
+  var map = {
+    idle:    ["", "Idle"],
+    running: ["pill--run", "Running"],
+    review:  ["pill--hold", "Needs review"],
+    queued:  ["pill--hold", "Queued · sending"],
+    sent:    ["pill--ok", "Sent"],
+    blocked: ["pill--block", "Blocked"]
+  };
+  var m = map[S.phase];
+  pill.className = "pill " + m[0];
+  text.textContent = m[1];
+
+  meta.textContent = S.phase === "idle"
+    ? "run — · not started"
+    : "run " + RUN.id + " · " + RUN.model + " · " + RUN.trigger;
+}
+
+function buildRun() {
+  if (S.phase === "idle") return buildIdle();
+
+  var h = "";
+
+  /* ---- 0.0 start ---- */
+  h += step("0.0s", "step--ok",
+    '<div class="step__head"><span>Run started</span></div>' +
+    '<p class="step__sub">Triggered by schedule. Nobody asked for this run, which is exactly why its output needs a person before it leaves.</p>');
+
+  /* ---- 0.2 the plan: the answer to "what do I look at before the first token" ---- */
+  if (reached("plan")) {
+    h += step("0.2s", "step--ok",
+      '<div class="step__head"><span>Plan committed</span></div>' +
+      '<div class="plan"><span class="label">The agent said it would</span><ol>' +
+        RUN.plan.map(function (p, i) {
+          return '<li' + (i === RUN.plan.length - 1 ? ' class="plan__stop"' : "") + ">" + esc(p) + "</li>";
+        }).join("") +
+      "</ol></div>" +
+      note("01", "Streaming — the wait is filled with a commitment, not a spinner",
+        "The model reasons for about two seconds before the first token. A spinner spends that time saying " +
+        "nothing; a skeleton shimmer spends it lying about progress. Publishing the plan first spends it " +
+        "usefully — the operator can already tell the run is pointed at the right data, and can kill it before " +
+        "it burns tokens. The last line, <em>do not send</em>, is the agent stating the limit of its own authority."));
+  }
+
+  /* ---- tool calls ---- */
+  RUN.tools.forEach(function (t, i) {
+    if (!reached(t.id)) {
+      /* The in-flight row. It names the tool while it runs, so the pause has a
+         subject. "Thinking" is not a subject. */
+      if (S.step === STEP_INDEX[t.id]) {
+        h += step(STEPS[STEP_INDEX[t.id]].at.toFixed(1) + "s", "step--live",
+          '<div class="step__head"><span class="tool__name">' + esc(t.name) + "</span>" +
+          '<span class="tool__what">' + esc(t.what) + "…</span></div>");
+      }
+      return;
+    }
+    var isOpen = !!S.open[t.id];
+    h += step(STEPS[STEP_INDEX[t.id]].at.toFixed(1) + "s", "step--ok",
+      '<button class="tool" data-open="' + t.id + '" aria-expanded="' + isOpen + '">' +
+        '<span class="tool__name">' + esc(t.name) + "</span>" +
+        '<span class="tool__what">' + esc(t.what) + "</span>" +
+        '<span class="tool__num">' + esc(t.count) + " · " + t.ms + " ms</span>" +
+        '<span class="tool__chev">' + (isOpen ? "[−] hide" : "[+] payload") + "</span>" +
+      "</button>" +
+      (isOpen
+        ? '<div class="payload"><div class="payload__h"><span class="label">returned</span>' +
+          '<span class="label">' + esc(t.count) + "</span></div><pre>" + escPayload(t.payload) + "</pre></div>"
+        : "") +
+      (i === 0
+        ? note("03", "Tool transparency — one line each, payload one click away",
+            "Verb, object, count, duration. That is enough to audit a run without reading JSON, and it is the " +
+            "level of detail that survives a run with forty calls instead of three. The raw payload is never the " +
+            "default view, but it is always exactly one click away and it is the <em>same</em> object the model saw. " +
+            "Open the third call — the record that contradicts the answer is sitting in it, in plain sight, " +
+            "before the answer has even been written.")
+        : ""));
+  });
+
+  /* ---- composing ---- */
+  if (S.step === STEP_INDEX.compose) {
+    h += step("2.0s", "step--live",
+      '<div class="step__head"><span>Writing the order from 3 records</span></div>' +
+      '<p class="step__sub">First token expected around 2.4 s.</p>');
+  }
+
+  /* ---- the answer ---- */
+  if (reached("compose")) {
+    var streaming = S.proseChars < RUN.prose.length;
+    h += step("2.4s", streaming ? "step--live" : "step--ok",
+      '<div class="step__head"><span class="label">draft purchase order</span>' +
+        (reached("firstToken") ? '<span class="tool__num">first token 2.4s</span>' : "") + "</div>" +
+      '<p class="prose" id="prose" aria-busy="' + streaming + '">' +
+        esc(RUN.prose.slice(0, S.proseChars)) + (streaming ? '<span class="caret"></span>' : "") +
+      "</p>" +
+      (reached("items") ? buildItems() : ""));
+  }
+
+  /* ---- checks ---- */
+  if (S.step === STEP_INDEX.checking) {
+    h += step("5.6s", "step--live",
+      '<div class="step__head"><span>Checking the answer against the records it read</span></div>' +
+      '<p class="step__sub">4 checks. These do not ask the model anything.</p>');
+  }
+  if (reached("checked")) h += buildChecks();
+
+  return h;
+}
+
+function buildIdle() {
+  return '' +
+    '<div class="step step--ok"><div class="step__t">—</div><div class="step__b">' +
+      '<div class="step__head"><span>Ready. Last run: Monday, 4 items, 1 held.</span></div>' +
+      '<p class="step__sub">This agent reads stock, sales velocity and supplier terms, then drafts a purchase ' +
+      'order. It cannot send one. Press <em>Run workflow</em>.</p>' +
+      note("00", "What this screen is",
+        "A run inspector, redesigned. The version this replaces answers one question — <em>what JSON came " +
+        "out?</em> — and the operator has four others: is it still going, can I trust this number, where did " +
+        "it come from, and what happens if I do nothing. Those four questions are the layout.") +
+    "</div></div>";
+}
+
+function buildItems() {
+  var h = '<div class="items">';
+
+  RUN.items.forEach(function (it) {
+    var cls = it.state === "contradicted" ? "item item--block"
+            : it.state === "assumed" ? "item item--flag" : "item";
+    var tagCls = { verified: "tag--verified", derived: "tag--derived", assumed: "tag--assumed", contradicted: "tag--contra" }[it.state];
+    var isOpen = !!S.open[it.id];
+    var q = qtyOf(it);
+    var changed = q !== it.qty;
+
+    h += '<div class="' + cls + '"><div class="item__row">' +
+      "<div><span class=\"item__name\">" + esc(it.lot) + "</span>" +
+      '<span class="item__sku">' + esc(it.sku) + "</span></div>" +
+      '<div class="item__qty">' +
+        (S.editing && it.state !== "contradicted"
+          ? '<input class="qty-input" type="number" min="0" step="10" value="' + q +
+            '" data-qty="' + it.id + '" aria-label="Quantity for ' + esc(it.lot) + '"> ' + esc(it.unit)
+          : q + " " + esc(it.unit)) +
+        (changed ? '<span class="edited">was ' + it.qty + " " + esc(it.unit) + " · edited</span>" : "") +
+      "</div>" +
+      '<div class="item__tags">' +
+        '<button class="tag ' + tagCls + '" data-open="' + it.id + '" aria-expanded="' + isOpen + '">' +
+          esc(it.tagText) + "</button>" +
+        '<button class="btn btn--quiet" data-open="' + it.id + '">' + (isOpen ? "hide the maths" : "why this number") + "</button>" +
+        '<span class="tool__num" style="margin-left:auto">' + money(it.usd) + "</span>" +
+      "</div></div>" +
+      (isOpen ? buildEvidence(it) : "") +
+      "</div>";
+  });
+
+  h += "</div>";
+
+  h += note("02", "Confidence — attached to the claim, never to the message",
+    "There is no confidence percentage anywhere on this screen. A number like <em>87% confident</em> is " +
+    "uncalibrated, applies to a whole message rather than the part that is shaky, and gives the operator " +
+    "nothing to act on. Every value here is instead one of three things: <b style=\"display:inline;color:var(--ok)\">verified</b> " +
+    "— it came from a record, here it is; <b style=\"display:inline\">derived</b> — computed from verified " +
+    "numbers, here is the arithmetic; <b style=\"display:inline;color:var(--hold)\">assumed</b> — the model filled a gap, " +
+    "here is the gap. Only <em>assumed</em> gets colour, because if everything is flagged nothing is. " +
+    "Open <em>Sereno Decaf</em>: the assumption names itself, and it names what it would cost to be wrong.");
+
+  return h;
+}
+
+function buildEvidence(it) {
+  return '<div class="ev">' +
+    '<div class="ev__eq">' + esc(it.eq) + "</div>" +
+    '<ul class="ev__list">' +
+      it.ev.map(function (row) {
+        return "<li><span class=\"ev__k\">" + esc(row[0]) + "</span>" +
+          '<span class="ev__v">' + esc(row[1]) + "</span>" +
+          '<span class="ev__src">' + esc(row[2]) + "</span></li>";
+      }).join("") +
+    "</ul></div>";
+}
+
+function buildChecks() {
+  var failed = RUN.checks.filter(function (c) { return !c.pass; }).length;
+  var c = RUN.contradiction;
+
+  return step("6.4s", "step--block",
+    '<div class="checks">' +
+      '<div class="checks__h"><span class="label">post-run checks</span>' +
+        '<span class="pill pill--block">' + failed + " failed of " + RUN.checks.length + "</span></div>" +
+      "<ul>" + RUN.checks.map(function (k) {
+        return '<li><span class="mark ' + (k.pass ? "mark--pass" : "mark--fail") + '">' +
+          (k.pass ? "PASS" : "FAIL") + "</span><span>" + esc(k.text) + "</span></li>";
+      }).join("") + "</ul>" +
+
+      '<div class="contra">' +
+        '<div class="contra__h">contradiction · not an error the model reported</div>' +
+        '<div class="contra__b">' +
+          '<p class="contra__quote">' + esc(c.claimSentence) + "<s>" + esc(c.claimBad) + "</s>" + esc(c.claimTail) + "</p>" +
+          '<div class="contra__pair">' +
+            '<div class="contra__cell contra__cell--claim"><span class="label">the run wrote</span>' +
+              '<span class="contra__val">' + esc(c.claimVal) + "</span></div>" +
+            '<div class="contra__cell contra__cell--rec"><span class="label">the record says</span>' +
+              '<span class="contra__val">' + esc(c.recordVal) + "</span></div>" +
+          "</div>" +
+          '<p class="ev__src">' + esc(c.recordSrc) + "</p>" +
+          '<p class="contra__so"><strong>So:</strong> ' + esc(c.consequence) + "</p>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+
+    note("04", "Graceful failure — the model does not get a vote on whether it was right",
+      "This is the one that is genuinely hard. The model was not hedging and not confused: it wrote a fluent, " +
+      "specific, checkable sentence, and the sentence is false. So nothing here asks the model to grade itself, " +
+      "and there is no <em>AI can make mistakes</em> banner — a disclaimer that appears on every screen is read " +
+      "on none. Instead a deterministic check re-reads the record the run read and shows both values side by " +
+      "side, with the operational consequence in plain words. Three design choices worth defending: the failure " +
+      "is <em>scoped</em> — one bad line does not void the other three; the copy reports a contradiction rather " +
+      "than apologising, because an apology is not information; and the struck-through claim stays visible, " +
+      "because hiding what the agent said makes it impossible to judge how much to trust it next week."));
+}
+
+/* ---- the gate and everything after it ---- */
+
+function buildGate() {
+  if (!reached("gate")) return "";
+
+  if (S.phase === "sent")    return buildSentReceipt();
+  if (S.phase === "queued")  return buildQueued();
+  if (S.phase === "blocked") return buildBlocked();
+
+  var n = approvedItems().length;
+  var total = approvedItems().reduce(function (a, i) { return a + i.usd; }, 0);
+  var suppliers = {};
+  approvedItems().forEach(function (i) { suppliers[i.sku.split(" · ")[1]] = 1; });
+  var nSup = Object.keys(suppliers).length;
+
+  return '' +
+    '<div class="step step--hold"><div class="step__t">6.6s</div><div class="step__b">' +
+      '<div class="gate">' +
+        '<div class="gate__t">gmail.send — not called</div>' +
+        "<p>The only step in this workflow that touches the outside world is the only step the agent has no " +
+        "permission to run. It is on the timeline as the thing that did <em>not</em> happen, in its place, " +
+        "with the reason.</p>" +
+      "</div>" +
+    "</div></div>" +
+
+    '<div class="approve" role="region" aria-label="Approval required">' +
+      '<p class="approve__lead">Nothing has been sent.</p>' +
+      '<p class="approve__sub">' + n + " of " + RUN.items.length + " items are clear — " + money(total) +
+        " across " + nSup + (nSup === 1 ? " supplier" : " suppliers") +
+        ". Volcán Dark is held out over the lead-time contradiction.</p>" +
+      '<div class="approve__acts">' +
+        '<button class="btn btn--primary" id="approve-btn">Approve ' + n + " items</button>" +
+        '<button class="btn" id="edit-btn">' + (S.editing ? "Done editing" : "Edit quantities") + "</button>" +
+        '<button class="btn btn--danger" id="block-btn">Block run</button>' +
+      "</div>" +
+      '<p class="approve__who">Waiting on <b>' + esc(RUN.approver) + "</b>. If nobody acts by <b>" +
+        esc(RUN.expiry) + "</b> the run expires unsent — doing nothing is the safe outcome, not the " +
+        'ambiguous one.<b id="edit-count">' +
+        (edits().length ? " " + edits().length + (edits().length === 1 ? " quantity" : " quantities") + " edited." : "") +
+        "</b></p>" +
+    "</div>" +
+
+    note("05", "Human-in-the-loop — the pause goes before the irreversible step, not after it",
+      "Almost every agent product reviews after the fact, because it is far cheaper to build: let it send, log " +
+      "what it sent, add an audit page. For anything irreversible that review is a eulogy. So the side effect is " +
+      "carved off as its own human-owned commit, and four decisions hang off that. <b style=\"display:inline\">One:</b> " +
+      "the approval is <em>partial</em> — you approve three items and hold one, because all-or-nothing " +
+      "approval means the bad line is the enemy of the four good ones. <b style=\"display:inline\">Two:</b> editing is a " +
+      "first-class verb next to approving, not a rejection loop, and the original is kept. " +
+      "<b style=\"display:inline\">Three:</b> the pending state has a named owner and an expiry, because " +
+      "<em>waiting on someone</em> without saying who is how approvals rot for three weeks. " +
+      "<b style=\"display:inline\">Four:</b> the default when the clock runs out is <em>don't send</em>, and the screen says " +
+      "so out loud — an operator should never have to guess what silence does. This is not a confirm dialog. A " +
+      "modal strips away the evidence at the exact moment the evidence is needed and trains people to click " +
+      "through it.");
+}
+
+function buildQueued() {
+  var m = Math.floor(S.secondsLeft / 60), s = S.secondsLeft % 60;
+  return '' +
+    '<div class="receipt receipt--queue">' +
+      '<div class="receipt__h"><span class="pill pill--hold"><span class="pill__led"></span>Queued</span>' +
+        '<span class="countdown">' + m + ":" + (s < 10 ? "0" : "") + s + "</span>" +
+        '<span class="tool__num">until send</span>' +
+        '<div class="panel__spacer"></div>' +
+        '<button class="btn btn--danger" id="recall-btn">Recall</button></div>' +
+      '<div class="receipt__b">' +
+        "<p>" + approvedItems().length + " items approved by " + esc(RUN.approver) +
+        (edits().length ? ", " + edits().length + " quantity edited" : "") +
+        ". The email leaves in five minutes.</p>" +
+        "<p>A five-minute hold turns one irreversible action into a reversible one for the length of time it " +
+        "actually takes to notice a mistake — which is roughly the moment after you click.</p>" +
+      "</div>" +
+    "</div>" +
+    note("05b", "The undo window",
+      "The cheapest safety feature in this entire design: delay the send. Approval is the moment attention " +
+      "collapses, and the mistake surfaces about ten seconds later. Costs one queue and a timer; buys back " +
+      "the only five minutes that matter.");
+}
+
+function buildSentReceipt() {
+  var held = RUN.items.filter(function (i) { return i.state === "contradicted"; });
+  return '' +
+    '<div class="receipt receipt--ok">' +
+      '<div class="receipt__h"><span class="pill pill--ok">Sent 09:14</span>' +
+        '<span class="tool__num">approved by ' + esc(RUN.approver) + "</span></div>" +
+      '<div class="receipt__b">' +
+        approvedItems().map(function (i, n) {
+          return '<div class="receipt__line">PO-2026-034' + (n + 1) + " → " +
+            esc(i.sku.split(" · ")[1]) + " · " + qtyOf(i) + " " + esc(i.unit) + "</div>";
+        }).join("") +
+        (edits().length
+          ? "<p style=\"margin-top:8px\"><strong>" + edits().length + " quantity edited by a person.</strong> " +
+            edits().map(function (i) { return esc(i.lot) + ": " + i.qty + " → " + qtyOf(i) + " kg"; }).join("; ") +
+            ". The original is kept on the run — an audit trail that quietly rewrites what the agent said is " +
+            "worse than no audit trail.</p>"
+          : "") +
+        "<p style=\"margin-top:8px\"><strong>Held back:</strong> " +
+          held.map(function (i) { return esc(i.lot); }).join(", ") +
+          " — lead-time contradiction, unresolved. Confirm with Cooperativa Tolima and re-run.</p>" +
+      "</div>" +
+    "</div>" +
+    '<div style="margin-top:12px"><button class="btn" id="reset2-btn">Run it again</button></div>';
+}
+
+function buildBlocked() {
+  return '' +
+    '<div class="receipt receipt--block">' +
+      '<div class="receipt__h"><span class="pill pill--block">Blocked</span>' +
+        '<span class="tool__num">by ' + esc(RUN.approver) + "</span></div>" +
+      '<div class="receipt__b">' +
+        "<p>Nothing was sent. The draft is kept in full, contradiction and all.</p>" +
+        (S.blockReason
+          ? "<p><strong>Reason:</strong> " + esc(S.blockReason) + "</p>"
+          : '<p>Why? One tap — it is the only signal anyone gets about what the agent should stop doing:</p>' +
+            '<div class="reasons">' +
+              '<button class="btn btn--quiet" data-reason="Source data is stale">Source data is stale</button>' +
+              '<button class="btn btn--quiet" data-reason="Wrong time to order">Wrong time to order</button>' +
+              '<button class="btn btn--quiet" data-reason="I do not trust this run">I don’t trust this run</button>' +
+            "</div>") +
+      "</div>" +
+    "</div>" +
+    '<div style="margin-top:12px"><button class="btn" id="reset2-btn">Run it again</button></div>';
+}
+
+/* ============================================================================
+   EVENT BINDING
+   ========================================================================== */
+
+function bind() {
+  document.querySelectorAll("[data-open]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-open");
+      S.open[k] = !S.open[k];
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-qty]").forEach(function (inp) {
+    inp.addEventListener("input", function () {
+      var id = inp.getAttribute("data-qty");
+      var v = parseInt(inp.value, 10);
+      if (!isNaN(v)) S.qty[id] = v;
+      /* Patched in place rather than re-rendered: an operator who overrides the
+         agent must see, on the keystroke, that the override was taken and what
+         it replaced. Re-rendering would take the caret out of the field they
+         are still typing in. */
+      patchEdits();
+    });
+    inp.addEventListener("blur", render);
+  });
+
+  document.querySelectorAll("[data-reason]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      S.blockReason = b.getAttribute("data-reason");
+      render();
+    });
+  });
+
+  var a = el("approve-btn");
+  if (a) a.addEventListener("click", startQueue);
+
+  var e = el("edit-btn");
+  if (e) e.addEventListener("click", function () { S.editing = !S.editing; render(); });
+
+  var bl = el("block-btn");
+  if (bl) bl.addEventListener("click", function () {
+    clearTimers(); S.phase = "blocked"; announce("Run blocked. Nothing sent."); render();
+  });
+
+  var r = el("recall-btn");
+  if (r) r.addEventListener("click", function () {
+    clearTimers(); S.phase = "review"; S.secondsLeft = 300;
+    announce("Send recalled. Back to review."); render();
+  });
+
+  var r2 = el("reset2-btn");
+  if (r2) r2.addEventListener("click", reset);
+}
+
+/* Keep the "was N · edited" markers and the running edit count in sync while
+   the operator is still typing, without rebuilding the panel around them. */
+function patchEdits() {
+  RUN.items.forEach(function (it) {
+    var inp = document.querySelector('[data-qty="' + it.id + '"]');
+    if (!inp) return;
+    var cell = inp.closest(".item__qty");
+    var mark = cell.querySelector(".edited");
+    var changed = qtyOf(it) !== it.qty;
+    if (changed) {
+      if (!mark) {
+        mark = document.createElement("span");
+        mark.className = "edited";
+        cell.appendChild(mark);
+      }
+      mark.textContent = "was " + it.qty + " " + it.unit + " · edited";
+    } else if (mark) {
+      mark.remove();
+    }
+  });
+  var counter = el("edit-count");
+  if (counter) {
+    var n = edits().length;
+    counter.textContent = n ? " " + n + (n === 1 ? " quantity" : " quantities") + " edited." : "";
+  }
+}
+
+function announce(msg) { el("live-region").textContent = msg; }
+
+/* ============================================================================
+   THE DRIVER
+   ========================================================================== */
+
+function advance() {
+  S.step += 1;
+  var justDone = STEPS[S.step - 1].key;
+
+  if (justDone === "firstToken") { render(); streamProse(); return; }
+  if (justDone === "gate") {
+    S.phase = "review";
+    announce("Run finished. 1 of 4 checks failed. 3 items are waiting for your approval; nothing has been sent.");
+  }
+  if (justDone === "checked") announce("Checks complete. One contradiction found.");
+
+  render();
+
+  if (S.step < STEPS.length) {
+    var wait = (STEPS[S.step].at - STEPS[S.step - 1].at) * 1000;
+    later(advance, Math.max(120, wait));
+  }
+}
+
+function streamProse() {
+  var perChar = 16;
+  var tick = function () {
+    S.proseChars += 2;
+    var p = el("prose");
+    if (p) {
+      p.textContent = RUN.prose.slice(0, S.proseChars);
+      if (S.proseChars < RUN.prose.length) {
+        var c = document.createElement("span");
+        c.className = "caret";
+        p.appendChild(c);
+      } else {
+        p.setAttribute("aria-busy", "false");
+      }
+    }
+    if (S.proseChars < RUN.prose.length) {
+      later(tick, perChar);
+    } else {
+      /* Items land after the prose finishes, not during: text that reflows while
+         a table grows under it is unreadable in both directions. */
+      later(advance, 320);
+    }
+  };
+  tick();
+}
+
+function start() {
+  clearTimers();
+  S = { phase: "running", step: 0, proseChars: 0, open: {}, editing: false, qty: {},
+        blockReason: null, secondsLeft: 300 };
+  el("run-btn").disabled = true;
+  el("skip-btn").disabled = false;
+  el("reset-btn").disabled = false;
+  announce("Run started.");
+  advance();
+}
+
+function skip() {
+  clearTimers();
+  S.phase = "review";
+  S.step = STEPS.length;
+  S.proseChars = RUN.prose.length;
+  announce("Jumped to the finished run. 3 items waiting for approval.");
+  render();
+}
+
+function reset() {
+  clearTimers();
+  S = { phase: "idle", step: 0, proseChars: 0, open: {}, editing: false, qty: {},
+        blockReason: null, secondsLeft: 300 };
+  el("run-btn").disabled = false;
+  el("skip-btn").disabled = true;
+  el("reset-btn").disabled = true;
+  announce("Reset.");
+  render();
+}
+
+function startQueue() {
+  clearTimers();
+  S.phase = "queued";
+  S.secondsLeft = 300;
+  S.editing = false;
+  announce("Approved. Sending in five minutes — you can still recall it.");
+  render();
+
+  var iv = setInterval(function () {
+    S.secondsLeft -= 1;
+    if (S.secondsLeft <= 0) {
+      clearInterval(iv);
+      S.phase = "sent";
+      announce("Sent.");
+      render();
+      return;
+    }
+    /* Patch the countdown in place rather than rebuilding; a panel that redraws
+       every second cannot be read. */
+    var c = document.querySelector(".countdown");
+    if (c) {
+      var m = Math.floor(S.secondsLeft / 60), s = S.secondsLeft % 60;
+      c.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+    }
+  }, 1000);
+  TIMERS.push(iv);
+}
+
+/* ============================================================================
+   CHROME: theme, notes, deep-linked states
+   ========================================================================== */
+
+function setTheme(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  var cur = document.documentElement.getAttribute("data-theme");
+  el("theme-btn").textContent = cur === "dark" ? "Theme: dark"
+    : cur === "light" ? "Theme: light" : "Theme";
+}
+
+el("theme-btn").addEventListener("click", function () {
+  var cur = document.documentElement.getAttribute("data-theme");
+  if (!cur) {
+    cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  setTheme(cur === "dark" ? "light" : "dark");
+});
+
+el("notes-btn").addEventListener("click", function () {
+  var on = document.documentElement.getAttribute("data-notes") !== "off";
+  document.documentElement.setAttribute("data-notes", on ? "off" : "on");
+  el("notes-btn").textContent = "Design notes: " + (on ? "off" : "on");
+  el("notes-btn").setAttribute("aria-pressed", String(!on));
+});
+
+el("run-btn").addEventListener("click", start);
+el("skip-btn").addEventListener("click", skip);
+el("reset-btn").addEventListener("click", reset);
+
+/* Deep-linked states. This exists so the prototype can be captured and
+   demonstrated without waiting through the run every time. */
+(function boot() {
+  var q = new URLSearchParams(location.search);
+
+  if (q.get("theme")) setTheme(q.get("theme"));
+  if (q.get("notes") === "off") {
+    document.documentElement.setAttribute("data-notes", "off");
+    el("notes-btn").textContent = "Design notes: off";
+    el("notes-btn").setAttribute("aria-pressed", "false");
+  }
+
+  var want = q.get("state");
+  reset();
+
+  if (!want || want === "idle") return;
+
+  if (want === "running") {
+    S.phase = "running";
+    S.step = STEP_INDEX.firstToken + 1;
+    S.proseChars = 46;
+    S.open = { t3: true };
+    el("run-btn").disabled = true;
+    el("skip-btn").disabled = false;
+    el("reset-btn").disabled = false;
+    render();
+    return;
+  }
+
+  el("run-btn").disabled = true;
+  el("skip-btn").disabled = false;
+  el("reset-btn").disabled = false;
+  S.step = STEPS.length;
+  S.proseChars = RUN.prose.length;
+  S.phase = "review";
+
+  if (want === "evidence") S.open = { i3: true, t3: true };
+  if (want === "editing")  S.editing = true;
+  if (want === "queued")   { render(); startQueue(); return; }
+  if (want === "sent")     { S.phase = "sent"; }
+  if (want === "blocked")  { S.phase = "blocked"; }
+
+  render();
+})();
+</script>
+</body>
+</html>

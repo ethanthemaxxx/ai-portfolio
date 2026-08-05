@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2808 714" font-family="-apple-system,sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa6a2"/>
+    </marker>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.2" fill="#dde4e1"/>
+    </pattern>
+  </defs>
+  <rect width="2808" height="714" fill="#f2f4f3"/>
+  <rect width="2808" height="714" fill="url(#dots)"/>
+  <text x="50" y="42" font-size="17" font-weight="700" fill="#14181a">Cerro Alto — catalog enrichment</text>
+  <text x="50" y="62" font-size="11.5" fill="#66716d">Rendered from the committed n8n-workflow.json — node positions and wiring are the file's own. Not an n8n screenshot.</text>
+  <path d="M 258 302 C 298 302, 250 302, 290 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 458 302 C 498 302, 450 302, 490 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 658 302 C 698 302, 650 302, 690 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 858 302 C 898 302, 850 302, 890 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1058 302 C 1098 302, 1050 302, 1090 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1258 302 C 1298 302, 1250 302, 1290 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1458 302 C 1498 302, 1470 162, 1510 162" fill="none" stroke="#9aa6a2" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr)"/><path d="M 1458 302 C 1498 302, 1470 442, 1510 442" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1678 442 C 1718 442, 1670 442, 1710 442" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1878 442 C 1918 442, 1870 442, 1910 442" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 2078 442 C 2118 442, 2070 442, 2110 442" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 2278 442 C 2318 442, 2270 342, 2310 342" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 2278 442 C 2318 442, 2270 562, 2310 562" fill="none" stroke="#9aa6a2" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr)"/><path d="M 2478 342 C 2518 342, 2470 342, 2510 342" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 2678 342 C 2718 342, 1250 302, 1290 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 2478 562 C 2518 562, 1250 302, 1290 302" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1678 162 C 1718 162, 1670 162, 1710 162" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/><path d="M 1878 162 C 1918 162, 1870 162, 1910 162" fill="none" stroke="#9aa6a2" stroke-width="2"  marker-end="url(#arr)"/>
+  
+  <g>
+    <rect x="90" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="90" y="270" width="5" height="64" rx="2.5" fill="#7c6f1f"/>
+    <text x="104" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Manual trigger</text>
+    <text x="104" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">manualTrigger</text>
+    <text x="104" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#7c6f1f">TRIGGER</text>
+  </g>
+  <g>
+    <rect x="290" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="290" y="270" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="304" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Config</text>
+    <text x="304" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">set</text>
+    <text x="304" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+  <g>
+    <rect x="490" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="490" y="270" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="504" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Read catalog file</text>
+    <text x="504" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">readWriteFile</text>
+    <text x="504" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+  <g>
+    <rect x="690" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="690" y="270" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="704" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Parse catalog JSON</text>
+    <text x="704" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">extractFromFile</text>
+    <text x="704" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+  <g>
+    <rect x="890" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="890" y="270" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="904" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">One item per product</text>
+    <text x="904" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">splitOut</text>
+    <text x="904" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+  <g>
+    <rect x="1090" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1090" y="270" width="5" height="64" rx="2.5" fill="#1b4f8f"/>
+    <text x="1104" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Build fact ledger</text>
+    <text x="1104" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">code</text>
+    <text x="1104" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#1b4f8f">CODE</text>
+  </g>
+  <g>
+    <rect x="1290" y="270" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1290" y="270" width="5" height="64" rx="2.5" fill="#0f766e"/>
+    <text x="1304" y="295" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Loop over products</text>
+    <text x="1304" y="312" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">splitInBatches</text>
+    <text x="1304" y="326" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#0f766e">LOOP</text>
+  </g>
+  <g>
+    <rect x="1510" y="410" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1510" y="410" width="5" height="64" rx="2.5" fill="#1b4f8f"/>
+    <text x="1524" y="435" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Build prompt</text>
+    <text x="1524" y="452" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">code</text>
+    <text x="1524" y="466" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#1b4f8f">CODE</text>
+  </g>
+  <g>
+    <rect x="1710" y="410" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1710" y="410" width="5" height="64" rx="2.5" fill="#5b3f8f"/>
+    <text x="1724" y="435" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Anthropic Messages API</text>
+    <text x="1724" y="452" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">httpRequest</text>
+    <text x="1724" y="466" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#5b3f8f">MODEL CALL</text>
+  </g>
+  <g>
+    <rect x="1910" y="410" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1910" y="410" width="5" height="64" rx="2.5" fill="#1b4f8f"/>
+    <text x="1924" y="435" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Validate hard rules</text>
+    <text x="1924" y="452" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">code</text>
+    <text x="1924" y="466" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#1b4f8f">CODE</text>
+  </g>
+  <g>
+    <rect x="2110" y="410" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="2110" y="410" width="5" height="64" rx="2.5" fill="#8a5a16"/>
+    <text x="2124" y="435" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Passed every rule?</text>
+    <text x="2124" y="452" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">if</text>
+    <text x="2124" y="466" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#8a5a16">BRANCH</text>
+  </g>
+  <g>
+    <rect x="2310" y="310" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="2310" y="310" width="5" height="64" rx="2.5" fill="#8f2f2a"/>
+    <text x="2324" y="335" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Human review gate</text>
+    <text x="2324" y="352" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">wait</text>
+    <text x="2324" y="366" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#8f2f2a">HUMAN GATE</text>
+  </g>
+  <g>
+    <rect x="2510" y="310" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="2510" y="310" width="5" height="64" rx="2.5" fill="#1f6b45"/>
+    <text x="2524" y="335" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Shopify productUpdate</text>
+    <text x="2524" y="352" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">httpRequest</text>
+    <text x="2524" y="366" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#1f6b45">SHOPIFY API</text>
+  </g>
+  <g>
+    <rect x="2310" y="530" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="2310" y="530" width="5" height="64" rx="2.5" fill="#6b7280"/>
+    <text x="2324" y="555" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Quarantine</text>
+    <text x="2324" y="572" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">noOp</text>
+    <text x="2324" y="586" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#6b7280">QUARANTINE</text>
+  </g>
+  <g>
+    <rect x="1510" y="130" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1510" y="130" width="5" height="64" rx="2.5" fill="#1b4f8f"/>
+    <text x="1524" y="155" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Build run report</text>
+    <text x="1524" y="172" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">code</text>
+    <text x="1524" y="186" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#1b4f8f">CODE</text>
+  </g>
+  <g>
+    <rect x="1710" y="130" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1710" y="130" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="1724" y="155" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Report to file</text>
+    <text x="1724" y="172" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">convertToFile</text>
+    <text x="1724" y="186" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+  <g>
+    <rect x="1910" y="130" width="168" height="64" rx="8" fill="#ffffff" stroke="#cdd6d3" stroke-width="1.5"/>
+    <rect x="1910" y="130" width="5" height="64" rx="2.5" fill="#556169"/>
+    <text x="1924" y="155" font-family="-apple-system,Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#14181a">Write enriched catalog</text>
+    <text x="1924" y="172" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66716d">readWriteFile</text>
+    <text x="1924" y="186" font-family="-apple-system,sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#556169">DATA</text>
+  </g>
+</svg>

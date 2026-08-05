@@ -1,0 +1,955 @@
+[
+  {
+    "handle": "huila-reserve",
+    "title": "Huila Reserve",
+    "product_type": "Coffee",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "medium",
+      "single-origin",
+      "colombia"
+    ],
+    "available_on_subscription": true,
+    "attributes": {
+      "roast_level": "Medium",
+      "origin": "Huila, Colombia",
+      "process": "Washed",
+      "altitude_masl": 1750,
+      "tasting_notes": [
+        "ripe plum",
+        "brown sugar",
+        "orange"
+      ],
+      "green_price_per_kg_usd": 6.4,
+      "last_roast_date": "2026-08-03"
+    },
+    "short_blurb": "The one we hand people who say they don't like black coffee.",
+    "body_html": "<p>Huila Reserve sabe a ciruela madura, azúcar moreno y naranja.</p>\n<p>El que le damos a quien dice que no le gusta el café negro.</p>\n<p>Tueste medio, lavado, de Huila, Colombia. Cultivado a 1750 metros sobre el nivel del mar. Pagamos $6.40 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+    "seo": {
+      "title": "Huila Reserve — Café de tueste medio de Colombia",
+      "description": "Huila Reserve es un tueste medio lavado de Huila, Colombia. Sabe a ciruela madura, azúcar moreno y naranja. Puedes pedirlo en 250g, 500g o 1kg."
+    },
+    "variants": [
+      {
+        "sku": "CA-HUIL-WH-250g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-HUIL-WH-500g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-HUIL-WH-1kg",
+        "option1_grind": "Whole Bean",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-HUIL-FI-250g",
+        "option1_grind": "Filter",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-HUIL-FI-500g",
+        "option1_grind": "Filter",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-HUIL-FI-1kg",
+        "option1_grind": "Filter",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-HUIL-ES-250g",
+        "option1_grind": "Espresso",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-HUIL-ES-500g",
+        "option1_grind": "Espresso",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-HUIL-ES-1kg",
+        "option1_grind": "Espresso",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-HUIL-FR-250g",
+        "option1_grind": "French Press",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-HUIL-FR-500g",
+        "option1_grind": "French Press",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-HUIL-FR-1kg",
+        "option1_grind": "French Press",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      }
+    ],
+    "image_alt": "Bolsa de café Cerro Alto Huila Reserve, 250g, grano entero"
+  },
+  {
+    "handle": "narino-microlot",
+    "title": "Nariño Microlot",
+    "product_type": "Coffee",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "light",
+      "single-origin",
+      "colombia"
+    ],
+    "available_on_subscription": false,
+    "attributes": {
+      "roast_level": "Light",
+      "origin": "Nariño, Colombia",
+      "process": "Natural",
+      "altitude_masl": 2100,
+      "tasting_notes": [
+        "raspberry",
+        "hibiscus",
+        "cane sugar"
+      ],
+      "green_price_per_kg_usd": 9.1,
+      "last_roast_date": "2026-08-03"
+    },
+    "short_blurb": "Loud, fruity, and unforgiving. Best in a pour-over.",
+    "body_html": "<p>Nariño Microlot sabe a frambuesa, hibisco y azúcar de caña.</p>\n<p>Fuerte, frutal y sin perdón. Mejor en filtro.</p>\n<p>Tueste claro, natural, de Nariño, Colombia. Cultivado a 2100 metros sobre el nivel del mar. Pagamos $9.10 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+    "seo": {
+      "title": "Nariño Microlot — Café de tueste claro de Colombia",
+      "description": "Nariño Microlot es un tueste claro natural de Nariño, Colombia. Sabe a frambuesa, hibisco y azúcar de caña. Puedes pedirlo en 250g, 500g o 1kg."
+    },
+    "variants": [
+      {
+        "sku": "CA-NARI-WH-250g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": null,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-NARI-WH-500g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": null,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-NARI-WH-1kg",
+        "option1_grind": "Whole Bean",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": null,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-NARI-FI-250g",
+        "option1_grind": "Filter",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": null,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-NARI-FI-500g",
+        "option1_grind": "Filter",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": null,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-NARI-FI-1kg",
+        "option1_grind": "Filter",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": null,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-NARI-ES-250g",
+        "option1_grind": "Espresso",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": null,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-NARI-ES-500g",
+        "option1_grind": "Espresso",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": null,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-NARI-ES-1kg",
+        "option1_grind": "Espresso",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": null,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-NARI-FR-250g",
+        "option1_grind": "French Press",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": null,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-NARI-FR-500g",
+        "option1_grind": "French Press",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": null,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-NARI-FR-1kg",
+        "option1_grind": "French Press",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": null,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      }
+    ],
+    "image_alt": "Bolsa de café Cerro Alto Nariño Microlot, 250g, grano entero"
+  },
+  {
+    "handle": "volcan-dark",
+    "title": "Volcán Dark",
+    "product_type": "Coffee",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "dark",
+      "single-origin",
+      "colombia"
+    ],
+    "available_on_subscription": true,
+    "attributes": {
+      "roast_level": "Dark",
+      "origin": "Tolima, Colombia",
+      "process": "Washed",
+      "altitude_masl": 1600,
+      "tasting_notes": [
+        "dark chocolate",
+        "molasses",
+        "toasted walnut"
+      ],
+      "green_price_per_kg_usd": 5.8,
+      "last_roast_date": "2026-08-03"
+    },
+    "short_blurb": "Built to cut through milk without turning bitter.",
+    "body_html": "<p>Volcán Dark sabe a chocolate negro, melaza y nuez tostada.</p>\n<p>Hecho para atravesar la leche sin volverse amargo.</p>\n<p>Tueste oscuro, lavado, de Tolima, Colombia. Cultivado a 1600 metros sobre el nivel del mar. Pagamos $5.80 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+    "seo": {
+      "title": "Volcán Dark — Café de tueste oscuro de Colombia",
+      "description": "Volcán Dark es un tueste oscuro lavado de Tolima, Colombia. Sabe a chocolate negro, melaza y nuez tostada. Puedes pedirlo en 250g, 500g o 1kg."
+    },
+    "variants": [
+      {
+        "sku": "CA-VOLC-WH-250g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-VOLC-WH-500g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-VOLC-WH-1kg",
+        "option1_grind": "Whole Bean",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-VOLC-FI-250g",
+        "option1_grind": "Filter",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-VOLC-FI-500g",
+        "option1_grind": "Filter",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-VOLC-FI-1kg",
+        "option1_grind": "Filter",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-VOLC-ES-250g",
+        "option1_grind": "Espresso",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-VOLC-ES-500g",
+        "option1_grind": "Espresso",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-VOLC-ES-1kg",
+        "option1_grind": "Espresso",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-VOLC-FR-250g",
+        "option1_grind": "French Press",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-VOLC-FR-500g",
+        "option1_grind": "French Press",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-VOLC-FR-1kg",
+        "option1_grind": "French Press",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      }
+    ],
+    "image_alt": "Bolsa de café Cerro Alto Volcán Dark, 250g, grano entero"
+  },
+  {
+    "handle": "casa-blend",
+    "title": "Casa Blend",
+    "product_type": "Coffee",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "medium",
+      "blend",
+      "colombia"
+    ],
+    "available_on_subscription": true,
+    "attributes": {
+      "roast_level": "Medium",
+      "origin": "Huila + Tolima, Colombia",
+      "process": "Washed",
+      "altitude_masl": 1680,
+      "tasting_notes": [
+        "milk chocolate",
+        "almond",
+        "red apple"
+      ],
+      "green_price_per_kg_usd": 5.5,
+      "last_roast_date": "2026-08-03"
+    },
+    "short_blurb": "The everyday bag. Works in anything, hard to ruin.",
+    "body_html": "<p>Casa Blend sabe a chocolate con leche, almendra y manzana roja.</p>\n<p>La bolsa de todos los días. Funciona en cualquier método.</p>\n<p>Tueste medio, lavado, de Huila and Tolima, Colombia. Cultivado a 1680 metros sobre el nivel del mar. Pagamos $5.50 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+    "seo": {
+      "title": "Casa Blend — Café de tueste medio de Colombia",
+      "description": "Casa Blend es un tueste medio lavado de Huila and Tolima, Colombia. Sabe a chocolate con leche, almendra y manzana roja. Puedes pedirlo en 250g, 500g o 1kg."
+    },
+    "variants": [
+      {
+        "sku": "CA-CASA-WH-250g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-CASA-WH-500g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-CASA-WH-1kg",
+        "option1_grind": "Whole Bean",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-CASA-FI-250g",
+        "option1_grind": "Filter",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-CASA-FI-500g",
+        "option1_grind": "Filter",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-CASA-FI-1kg",
+        "option1_grind": "Filter",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-CASA-ES-250g",
+        "option1_grind": "Espresso",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-CASA-ES-500g",
+        "option1_grind": "Espresso",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-CASA-ES-1kg",
+        "option1_grind": "Espresso",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-CASA-FR-250g",
+        "option1_grind": "French Press",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-CASA-FR-500g",
+        "option1_grind": "French Press",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-CASA-FR-1kg",
+        "option1_grind": "French Press",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      }
+    ],
+    "image_alt": "Bolsa de café Cerro Alto Casa Blend, 250g, grano entero"
+  },
+  {
+    "handle": "sereno-decaf",
+    "title": "Sereno Decaf",
+    "product_type": "Coffee",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "medium",
+      "single-origin",
+      "colombia"
+    ],
+    "available_on_subscription": true,
+    "attributes": {
+      "roast_level": "Medium",
+      "origin": "Huila, Colombia",
+      "process": "Sugarcane EA decaf",
+      "altitude_masl": 1700,
+      "tasting_notes": [
+        "caramel",
+        "baked pear",
+        "cocoa"
+      ],
+      "green_price_per_kg_usd": 7.2,
+      "last_roast_date": "2026-08-03"
+    },
+    "short_blurb": "Decaf that tastes like coffee. Sugarcane process, no methylene chloride.",
+    "body_html": "<p>Sereno Decaf sabe a caramelo, pera al horno y cacao.</p>\n<p>Descafeinado que sabe a café, sin cloruro de metileno.</p>\n<p>Tueste medio, descafeinado con caña (EA), de Huila, Colombia. Cultivado a 1700 metros sobre el nivel del mar. Pagamos $7.20 por kilo de café verde.</p>\n<p>Puedes elegir grano entero, filtro, espresso o prensa francesa, en 250g, 500g o 1kg. Tostamos lunes y jueves y enviamos el mismo día.</p>",
+    "seo": {
+      "title": "Sereno Decaf — Café de tueste medio de Colombia",
+      "description": "Sereno Decaf es un tueste medio descafeinado con caña (EA) de Huila, Colombia. Sabe a caramelo, pera al horno y cacao. Puedes pedirlo en 250g, 500g o 1kg."
+    },
+    "variants": [
+      {
+        "sku": "CA-SERE-WH-250g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-SERE-WH-500g",
+        "option1_grind": "Whole Bean",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-SERE-WH-1kg",
+        "option1_grind": "Whole Bean",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-SERE-FI-250g",
+        "option1_grind": "Filter",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-SERE-FI-500g",
+        "option1_grind": "Filter",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-SERE-FI-1kg",
+        "option1_grind": "Filter",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-SERE-ES-250g",
+        "option1_grind": "Espresso",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-SERE-ES-500g",
+        "option1_grind": "Espresso",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-SERE-ES-1kg",
+        "option1_grind": "Espresso",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      },
+      {
+        "sku": "CA-SERE-FR-250g",
+        "option1_grind": "French Press",
+        "option2_size": "250g",
+        "price": 19,
+        "subscription_price": 17.1,
+        "inventory_quantity": 40,
+        "weight_g": 250
+      },
+      {
+        "sku": "CA-SERE-FR-500g",
+        "option1_grind": "French Press",
+        "option2_size": "500g",
+        "price": 34,
+        "subscription_price": 30.6,
+        "inventory_quantity": 25,
+        "weight_g": 500
+      },
+      {
+        "sku": "CA-SERE-FR-1kg",
+        "option1_grind": "French Press",
+        "option2_size": "1kg",
+        "price": 62,
+        "subscription_price": 55.8,
+        "inventory_quantity": 12,
+        "weight_g": 1000
+      }
+    ],
+    "image_alt": "Bolsa de café Cerro Alto Sereno Decaf, 250g, grano entero"
+  },
+  {
+    "handle": "v60-dripper",
+    "title": "Cerro Alto V60 Dripper",
+    "product_type": "Equipment",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "equipment"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Ceramic, size 02. Holds heat better than plastic.",
+    "body_html": "<p>Cerámica, tamaño 02. Guarda el calor mejor que el plástico.</p>\n<p>Puedes elegir color: White o Black. Cada uno cuesta $24.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Cerro Alto V60 Dripper — Cerámica, tamaño 02",
+      "description": "Cerro Alto V60 Dripper: Cerámica, tamaño 02. Guarda el calor mejor que el plástico. Puedes elegir color: White, Black. Pagas $24. Envío gratis desde $45."
+    },
+    "variants": [
+      {
+        "sku": "CA-V60-DR-WHI",
+        "option1": "White",
+        "option1_name": "Color",
+        "price": 24,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-V60-DR-BLA",
+        "option1": "Black",
+        "option1_name": "Color",
+        "price": 24,
+        "inventory_quantity": 30
+      }
+    ],
+    "image_alt": "Cerro Alto V60 Dripper, Cerámica, tamaño 02, White"
+  },
+  {
+    "handle": "paper-filters-100",
+    "title": "V60 Paper Filters (100 ct)",
+    "product_type": "Equipment",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "equipment"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Bleached, size 02. Rinse before brewing.",
+    "body_html": "<p>Blanqueados, tamaño 02. Enjuágalos antes de preparar.</p>\n<p>Cuesta $9.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "V60 Paper Filters (100 ct) — Blanqueados, tamaño 02",
+      "description": "V60 Paper Filters (100 ct): Blanqueados, tamaño 02. Enjuágalos antes de preparar. Pagas $9. Enviamos desde Miami y puedes añadirlo a cualquier pedido."
+    },
+    "variants": [
+      {
+        "sku": "CA-PAPER-",
+        "option1": null,
+        "price": 9,
+        "inventory_quantity": 60
+      }
+    ],
+    "image_alt": "V60 Paper Filters (100 ct), Blanqueados, tamaño 02"
+  },
+  {
+    "handle": "gooseneck-kettle",
+    "title": "Gooseneck Kettle 1L",
+    "product_type": "Equipment",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "equipment"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Variable temperature, 60-100 C. Manufacturer warranty: 2 years.",
+    "body_html": "<p>Temperatura variable, 60-100 C. Garantía del fabricante: 2 años.</p>\n<p>Puedes elegir acabado: Matte Black o Brushed Steel. Cada uno cuesta $69.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Gooseneck Kettle 1L — Temperatura variable, 60-100 C",
+      "description": "Gooseneck Kettle 1L: Temperatura variable, 60-100 C. Garantía del fabricante: 2 años. Puedes elegir acabado: Matte Black, Brushed Steel. Pagas $69."
+    },
+    "variants": [
+      {
+        "sku": "CA-GOOSEN-MAT",
+        "option1": "Matte Black",
+        "option1_name": "Finish",
+        "price": 69,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-GOOSEN-BRU",
+        "option1": "Brushed Steel",
+        "option1_name": "Finish",
+        "price": 69,
+        "inventory_quantity": 30
+      }
+    ],
+    "image_alt": "Gooseneck Kettle 1L, Temperatura variable, 60-100 C, Matte Black"
+  },
+  {
+    "handle": "digital-scale",
+    "title": "Digital Brew Scale",
+    "product_type": "Equipment",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "equipment"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "0.1 g resolution with a built-in timer. The cheapest upgrade in coffee.",
+    "body_html": "<p>Resolución de 0.1 g con temporizador. La mejora más barata del café.</p>\n<p>Cuesta $39.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Digital Brew Scale — Resolución de 0.1 g con temporizador",
+      "description": "Digital Brew Scale: Resolución de 0.1 g con temporizador. La mejora más barata del café. Pagas $39. Enviamos desde Miami y puedes añadirlo a cualquier pedido."
+    },
+    "variants": [
+      {
+        "sku": "CA-DIGITA",
+        "option1": null,
+        "price": 39,
+        "inventory_quantity": 60
+      }
+    ],
+    "image_alt": "Digital Brew Scale, Resolución de 0.1 g con temporizador"
+  },
+  {
+    "handle": "ceramic-mug",
+    "title": "Cerro Alto Mug 10 oz",
+    "product_type": "Equipment",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "equipment"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Thick walled, dishwasher safe.",
+    "body_html": "<p>Paredes gruesas, apta para lavavajillas.</p>\n<p>Puedes elegir esmalte: Clay o Cream. Cada uno cuesta $18.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Cerro Alto Mug 10 oz | Cerro Alto",
+      "description": "Cerro Alto Mug 10 oz: Paredes gruesas, apta para lavavajillas. Puedes elegir esmalte: Clay, Cream. Enviamos desde Miami y puedes añadirlo a cualquier pedido."
+    },
+    "variants": [
+      {
+        "sku": "CA-CERAMI-CLA",
+        "option1": "Clay",
+        "option1_name": "Glaze",
+        "price": 18,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-CERAMI-CRE",
+        "option1": "Cream",
+        "option1_name": "Glaze",
+        "price": 18,
+        "inventory_quantity": 30
+      }
+    ],
+    "image_alt": "Cerro Alto Mug 10 oz, Paredes gruesas, apta para lavavajillas, Clay"
+  },
+  {
+    "handle": "origin-sampler",
+    "title": "Origin Sampler (4 x 100g)",
+    "product_type": "Gift",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "gift"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Huila, Narino, Volcan and Casa in 100 g bags. The easiest gift we sell.",
+    "body_html": "<p>Huila, Nariño, Volcán y Casa en bolsas de 100 g. El regalo más fácil que vendemos.</p>\n<p>Puedes elegir molienda: Whole Bean, Filter, Espresso o French Press. Cada uno cuesta $32.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Origin Sampler (4 x 100g) | Cerro Alto",
+      "description": "Origin Sampler (4 x 100g): Huila, Nariño, Volcán y Casa en bolsas de 100 g. El regalo más fácil que vendemos. Pagas $32. Envío gratis desde $45."
+    },
+    "variants": [
+      {
+        "sku": "CA-ORIGIN-WHO",
+        "option1": "Whole Bean",
+        "option1_name": "Grind",
+        "price": 32,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-ORIGIN-FIL",
+        "option1": "Filter",
+        "option1_name": "Grind",
+        "price": 32,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-ORIGIN-ESP",
+        "option1": "Espresso",
+        "option1_name": "Grind",
+        "price": 32,
+        "inventory_quantity": 30
+      },
+      {
+        "sku": "CA-ORIGIN-FRE",
+        "option1": "French Press",
+        "option1_name": "Grind",
+        "price": 32,
+        "inventory_quantity": 30
+      }
+    ],
+    "image_alt": "Origin Sampler (4 x 100g), Huila, Nariño, Volcán y Casa en bolsas de 100 g, Whole Bean"
+  },
+  {
+    "handle": "gift-card",
+    "title": "Gift Card",
+    "product_type": "Gift",
+    "vendor": "Cerro Alto Coffee",
+    "tags": [
+      "gift"
+    ],
+    "available_on_subscription": false,
+    "attributes": {},
+    "short_blurb": "Digital, delivered by email, never expires.",
+    "body_html": "<p>Digital, llega por correo, no vence.</p>\n<p>Puedes elegir valor: $25, $50 o $100.</p>\n<p>Lo enviamos desde Miami y el envío es gratis si tu pedido pasa de $45.</p>",
+    "seo": {
+      "title": "Gift Card — Digital, llega por correo, no vence",
+      "description": "Gift Card: Digital, llega por correo, no vence. Puedes elegir valor: $25, $50, $100. Enviamos desde Miami y puedes añadirlo a cualquier pedido."
+    },
+    "variants": [
+      {
+        "sku": "CA-GIFT-C-$25",
+        "option1": "$25",
+        "option1_name": "Value",
+        "price": 25,
+        "inventory_quantity": 0
+      },
+      {
+        "sku": "CA-GIFT-C-$50",
+        "option1": "$50",
+        "option1_name": "Value",
+        "price": 50,
+        "inventory_quantity": 0
+      },
+      {
+        "sku": "CA-GIFT-C-$10",
+        "option1": "$100",
+        "option1_name": "Value",
+        "price": 100,
+        "inventory_quantity": 0
+      }
+    ],
+    "image_alt": "Gift Card, Digital, llega por correo, no vence, $25"
+  }
+]

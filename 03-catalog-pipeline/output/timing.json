@@ -1,0 +1,23 @@
+{
+  "anchorDate": "2026-08-04",
+  "locale": "en",
+  "generator": "offline-template-v1",
+  "productCount": 12,
+  "stages": [
+    {
+      "stage": "ledger",
+      "ms": 9.202
+    },
+    {
+      "stage": "generate",
+      "ms": 2.678
+    },
+    {
+      "stage": "validate",
+      "ms": 95.54
+    }
+  ],
+  "totalMs": 107.69,
+  "totalMinutes": 0.002,
+  "note": "Wall-clock of this run only. It is attributed to the generator named above and is not presented as a figure for any other implementation."
+}

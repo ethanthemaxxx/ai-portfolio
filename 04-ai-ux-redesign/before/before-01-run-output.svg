@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 900" width="1240" height="900" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title>Reconstruction: the current AI agent node output panel</title>
+  <desc>A drawn reconstruction, from memory and public documentation, of how AI agent
+  nodes in workflow automation tools present a finished run. Not a screenshot of any
+  product. No company logo, brand or product asset is used.</desc>
+
+  <defs>
+    <style>
+      .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; }
+      .k  { fill: #8ea6b8; }
+      .s  { fill: #b6c98a; }
+      .p  { fill: #8b979d; }
+      .d  { fill: #5c686d; }
+      .w  { fill: #d9e0e3; }
+    </style>
+  </defs>
+
+  <rect width="1240" height="900" fill="#181c1f"/>
+
+  <!-- disclosure, inside the image itself -->
+  <rect x="0" y="0" width="1240" height="44" fill="#0f1214"/>
+  <text x="20" y="20" font-size="12.5" font-weight="700" fill="#e0e6e9">RECONSTRUCTION — NOT A SCREENSHOT OF ANY PRODUCT.</text>
+  <text x="20" y="36" font-size="11.5" fill="#8b979d">Drawn from memory and public documentation of AI agent nodes in workflow automation tools. Composite, not any one product. No logo, brand or product asset used. Data is synthetic.</text>
+
+  <!-- editor chrome -->
+  <rect x="0" y="44" width="1240" height="38" fill="#20262a"/>
+  <text x="20" y="68" font-size="12.5" class="w">Reorder Planner</text>
+  <text x="140" y="68" font-size="12" class="d">/</text>
+  <text x="155" y="68" font-size="12.5" class="p">AI Agent</text>
+  <rect x="1074" y="53" width="146" height="22" rx="3" fill="#2c3438" stroke="#3b4549"/>
+  <text x="1147" y="68" font-size="11.5" class="p" text-anchor="middle">Test step</text>
+
+  <!-- ================= INPUT pane ================= -->
+  <rect x="16" y="96" width="292" height="784" rx="3" fill="#1e2427" stroke="#2c3438"/>
+  <rect x="16" y="96" width="292" height="34" rx="3" fill="#252c30"/>
+  <text x="30" y="118" font-size="11.5" letter-spacing="0.08em" class="p">INPUT</text>
+  <rect x="30" y="146" width="52" height="20" rx="2" fill="#323a3e"/>
+  <text x="56" y="160" font-size="10.5" class="w mono" text-anchor="middle">Table</text>
+  <text x="104" y="160" font-size="10.5" class="p mono">JSON</text>
+  <text x="152" y="160" font-size="10.5" class="p mono">Schema</text>
+
+  <text x="30" y="196" font-size="11" class="d mono">1 item</text>
+  <line x1="30" y1="208" x2="294" y2="208" stroke="#2c3438"/>
+  <text x="30" y="228" font-size="11" class="k mono">triggeredAt</text>
+  <text x="30" y="246" font-size="11" class="s mono">"2026-08-03T06:00:00-05:00"</text>
+  <line x1="30" y1="262" x2="294" y2="262" stroke="#2c3438"/>
+  <text x="30" y="282" font-size="11" class="k mono">chatInput</text>
+  <text x="30" y="300" font-size="11" class="s mono">"Run the weekly reorder."</text>
+
+  <!-- ================= PARAMETERS pane ================= -->
+  <rect x="318" y="96" width="330" height="784" rx="3" fill="#1e2427" stroke="#2c3438"/>
+  <rect x="318" y="96" width="330" height="34" rx="3" fill="#252c30"/>
+  <text x="332" y="118" font-size="11.5" letter-spacing="0.08em" class="p">PARAMETERS</text>
+
+  <text x="332" y="164" font-size="11" class="p">Agent</text>
+  <rect x="332" y="174" width="300" height="26" rx="3" fill="#252c30" stroke="#333c40"/>
+  <text x="342" y="191" font-size="11.5" class="w">Tools Agent</text>
+
+  <text x="332" y="228" font-size="11" class="p">System Message</text>
+  <rect x="332" y="238" width="300" height="88" rx="3" fill="#252c30" stroke="#333c40"/>
+  <text x="342" y="256" font-size="10.5" class="p mono">You are a purchasing assistant. Read</text>
+  <text x="342" y="272" font-size="10.5" class="p mono">stock and velocity, size reorders</text>
+  <text x="342" y="288" font-size="10.5" class="p mono">against supplier lead times, and</text>
+  <text x="342" y="304" font-size="10.5" class="p mono">draft a purchase order per supplier.</text>
+
+  <rect x="332" y="352" width="16" height="16" rx="2" fill="#3d8f7f"/>
+  <text x="358" y="365" font-size="11.5" class="w">Return Intermediate Steps</text>
+  <text x="332" y="388" font-size="10.5" class="d">Off by default. Most people never turn it on,</text>
+  <text x="332" y="404" font-size="10.5" class="d">so most runs cannot be audited at all.</text>
+
+  <!-- sub-node strip -->
+  <line x1="332" y1="440" x2="632" y2="440" stroke="#2c3438"/>
+  <text x="332" y="466" font-size="11" class="p">Sub-nodes</text>
+  <rect x="332" y="478" width="140" height="26" rx="3" fill="#252c30" stroke="#333c40"/>
+  <text x="342" y="495" font-size="10.5" class="p mono">Chat Model</text>
+  <rect x="332" y="512" width="140" height="26" rx="3" fill="#252c30" stroke="#333c40"/>
+  <text x="342" y="529" font-size="10.5" class="p mono">Memory</text>
+  <rect x="332" y="546" width="300" height="26" rx="3" fill="#252c30" stroke="#333c40"/>
+  <text x="342" y="563" font-size="10.5" class="p mono">Tools (4)</text>
+
+  <!-- ================= OUTPUT pane ================= -->
+  <rect x="658" y="96" width="566" height="784" rx="3" fill="#1e2427" stroke="#2c3438"/>
+  <rect x="658" y="96" width="566" height="34" rx="3" fill="#252c30"/>
+  <text x="672" y="118" font-size="11.5" letter-spacing="0.08em" class="p">OUTPUT</text>
+  <text x="1130" y="118" font-size="11" class="d mono">1 item · 9.42s</text>
+
+  <rect x="672" y="146" width="52" height="20" rx="2" fill="#2a3236"/>
+  <text x="698" y="160" font-size="10.5" class="p mono" text-anchor="middle">Table</text>
+  <rect x="732" y="146" width="52" height="20" rx="2" fill="#323a3e"/>
+  <text x="758" y="160" font-size="10.5" class="w mono" text-anchor="middle">JSON</text>
+  <text x="806" y="160" font-size="10.5" class="p mono">Schema</text>
+
+  <!-- the JSON tree: everything the same weight -->
+  <text x="672" y="196" font-size="11" class="d mono">▼ [</text>
+  <text x="686" y="214" font-size="11" class="d mono">▼ 0: {</text>
+
+  <text x="700" y="234" font-size="11" class="k mono">"output":</text>
+  <text x="772" y="234" font-size="11" class="s mono">"Four lots fall under four weeks of cover</text>
+  <text x="772" y="250" font-size="11" class="s mono">before the next roast cycle. I have sized each</text>
+  <text x="772" y="266" font-size="11" class="s mono">order to the supplier's minimum and rounded up</text>
+  <text x="772" y="282" font-size="11" class="s mono">to whole bags. Huila Reserve 60 kg, Nariño</text>
+  <text x="772" y="298" font-size="11" class="s mono">Microlot 30 kg, Sereno Decaf 30 kg. Volcán Dark</text>
+  <text x="772" y="314" font-size="11" class="s mono">ships from Cooperativa Tolima in 14 days, so</text>
+  <text x="772" y="330" font-size="11" class="s mono">the 120 kg lands before you run dry on day 17."</text>
+
+  <text x="700" y="358" font-size="11" class="d mono">▼ "intermediateSteps": [</text>
+  <text x="714" y="376" font-size="11" class="d mono">▼ 0: {</text>
+  <text x="728" y="394" font-size="11" class="d mono">▼ "action": {</text>
+  <text x="742" y="412" font-size="11" class="k mono">"tool":</text>
+  <text x="800" y="412" font-size="11" class="s mono">"shopify_inventory_levels"</text>
+  <text x="742" y="430" font-size="11" class="k mono">"toolInput":</text>
+  <text x="828" y="430" font-size="11" class="d mono">{…}</text>
+  <text x="742" y="448" font-size="11" class="k mono">"log":</text>
+  <text x="790" y="448" font-size="11" class="s mono">"I need to check current stock first…"</text>
+  <text x="728" y="466" font-size="11" class="d mono">}</text>
+  <text x="728" y="484" font-size="11" class="k mono">"observation":</text>
+  <text x="828" y="484" font-size="11" class="s mono">"[{\"sku\":\"CA-HUI-GRN\",</text>
+  <text x="828" y="500" font-size="11" class="s mono">\"on_hand_kg\":18},{\"sku\":\"CA-NAR-GRN\",\"on_h…</text>
+  <text x="714" y="518" font-size="11" class="d mono">}</text>
+  <text x="714" y="536" font-size="11" class="d mono">▶ 1: {…}</text>
+  <text x="714" y="554" font-size="11" class="d mono">▶ 2: {…}</text>
+  <text x="700" y="572" font-size="11" class="d mono">]</text>
+  <text x="686" y="590" font-size="11" class="d mono">}</text>
+  <text x="672" y="608" font-size="11" class="d mono">]</text>
+
+  <!-- what is NOT here -->
+  <line x1="672" y1="638" x2="1210" y2="638" stroke="#2c3438" stroke-dasharray="3 3"/>
+  <text x="672" y="662" font-size="11.5" fill="#c9704f" font-weight="600">Nothing on this panel is wrong. That is the problem.</text>
+  <text x="672" y="684" font-size="11" class="p">The sentence “ships from Cooperativa Tolima in 14 days” is false — the supplier record read</text>
+  <text x="672" y="702" font-size="11" class="p">at step 2 says 28. Both are on this screen. They are rendered at identical weight, one inside</text>
+  <text x="672" y="720" font-size="11" class="p">a prose blob and the other inside an escaped string four levels down a collapsed tree.</text>
+
+  <text x="672" y="754" font-size="11" class="p">There is no confidence signal, no provenance, no validation, and no approval step. The next</text>
+  <text x="672" y="772" font-size="11" class="p">node in the workflow is a Gmail node. By the time a person opens this panel to read it, the</text>
+  <text x="672" y="790" font-size="11" class="p">purchase order has already been sent.</text>
+
+  <text x="672" y="826" font-size="11" class="d">The five failures this redesign targets: no pre-token feedback, no expressed uncertainty,</text>
+  <text x="672" y="844" font-size="11" class="d">tool calls buried in nested JSON, confident errors that nothing checks, and no human gate.</text>
+</svg>

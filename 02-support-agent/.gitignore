@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env
+.env.local
+
+# macOS resource forks. This repo lives on an exFAT volume, which has no native
+# support for extended attributes, so Finder writes them as sidecar files. They
+# are noise, and a client cloning the repo should never see them.
+._*
+.DS_Store
