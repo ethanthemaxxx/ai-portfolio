@@ -1,5 +1,5 @@
 import Widget from './widget.tsx';
-import HeroSky from './hero-sky.tsx';
+import HeroMesh from './hero-mesh.tsx';
 import {
   FEATURE_ICONS,
   IconCheck,
@@ -222,7 +222,7 @@ export default function Page() {
       <main id="top">
         {/* ── hero ─────────────────────────────────────────────────────── */}
         <section className="hero">
-          <HeroSky />
+          <HeroMesh />
 
           <div className="container hero__head">
             <span className="eyebrow">support agent</span>

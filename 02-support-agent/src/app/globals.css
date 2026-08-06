@@ -55,21 +55,21 @@
   --warn: #9a6412;
   --bad: #b4402f;
 
-  /* ── the hero's atmospheric fade ─────────────────────────────────────── */
+  /* ── the hero's backdrop ─────────────────────────────────────────────── */
   /*
-   * Four stops, not three. With the blue held back to a single late stop the
-   * upper two-thirds stay near-white, and white clouds painted on near-white
-   * paper are simply not there. The field has to become sky well before the
-   * clouds do.
+   * A wash rather than a scene: just enough cool tint under the widget for a
+   * white card to read as floating above it, and nothing loud enough to compete
+   * with the grid drawn on top.
    */
-  --sky-grad: linear-gradient(
-    180deg,
-    #f9f9f9 0%,
-    #dfe9f5 18%,
-    #c4d7ec 46%,
-    #a8c2df 76%,
-    #93b1d7 100%
-  );
+  --wash-grad: linear-gradient(180deg, #f9f9f9 0%, #eff4fa 46%, #dee8f4 100%);
+
+  --pitch-fine: 22px;
+  --pitch-coarse: 88px;
+  --mesh-line: rgba(24, 24, 24, 0.075);
+  --mesh-dot: rgba(24, 24, 24, 0.11);
+  --mesh-hot: rgba(24, 24, 24, 0.34);
+  --mesh-rule: rgba(24, 24, 24, 0.17);
+  --mesh-cell: rgba(24, 24, 24, 0.055);
 
   /* ── type ────────────────────────────────────────────────────────────── */
   --font-sans: 'Inter', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
@@ -633,88 +633,175 @@ textarea {
   isolation: isolate;
 }
 
-/* ── hero backdrop: grid → crosses → sky → three cloud layers ─────────── */
+/* ── hero backdrop: an interactive surveyed grid ──────────────────────── */
 
-.sky {
+.mesh {
   position: absolute;
   inset: 0;
   z-index: -1;
   overflow: hidden;
+  /* The hero owns the pointer listener; this layer must never intercept it. */
   pointer-events: none;
-  /* Written once per frame by hero-sky.tsx. Declared so the fallback is 0
-     rather than an invalid value if the effect never runs. */
+
+  /*
+   * Written by hero-mesh.tsx, at most once per frame. Declared here so the
+   * static composition is valid before — or entirely without — the effect:
+   * the pointer starts off-canvas and the highlight starts invisible.
+   */
   --sy: 0;
+  --mx: -9999px;
+  --my: -9999px;
+  --cx: -9999px;
+  --cy: -9999px;
+  --ma: 0;
+
+  /* Two planes, two rates. Named once, used by the layer and by its mask. */
+  --drift-fine: calc(var(--sy) * -0.1px);
+  --drift-coarse: calc(var(--sy) * -0.04px);
+
+  /* Where the grid is legible at all. Both graticules and the highlight share
+     it, so the whole backdrop fades out as one thing. */
+  --mesh-fade: radial-gradient(140% 96% at 50% 28%, #000 52%, transparent 94%);
 }
 
-.sky__grid {
+.mesh__wash {
+  position: absolute;
+  inset: 18% 0 0;
+  background: var(--wash-grad);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 28%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 28%, #000 90%, transparent 100%);
+}
+
+/*
+ * Every grid plane is anchored to the hero's top-left and extended downward
+ * instead of being inset on both edges. That matters for more than tidiness:
+ * a repeating background paints from its own top-left, so anchoring here is
+ * what makes the grid origin the same point JS snaps the cell against. Inset
+ * the layer and the highlighted cell lands between the lines it is meant to
+ * fill, unless the inset happens to be an exact multiple of the pitch.
+ *
+ * Drift is negative — the plane moves up as the page scrolls — so the spare
+ * height goes at the bottom, where the movement uncovers it. 400px covers the
+ * largest offset the fine plane can reach before the hero is out of view.
+ *
+ * Translated, never background-position-shifted, so the movement stays on the
+ * compositor instead of repainting a full-viewport gradient every frame.
+ */
+.mesh__dots,
+.mesh__lines,
+.mesh__glow-clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(100% + 400px);
+  will-change: transform;
+}
+
+.mesh__dots {
+  background-image: radial-gradient(circle, var(--mesh-dot) 1px, transparent 1px);
+  background-size: var(--pitch-fine) var(--pitch-fine);
+  transform: translate3d(0, var(--drift-fine), 0);
+  -webkit-mask-image: var(--mesh-fade);
+  mask-image: var(--mesh-fade);
+}
+
+.mesh__lines {
+  background-image:
+    linear-gradient(to right, var(--mesh-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--mesh-line) 1px, transparent 1px);
+  background-size: var(--pitch-coarse) var(--pitch-coarse);
+  transform: translate3d(0, var(--drift-coarse), 0);
+  -webkit-mask-image: var(--mesh-fade);
+  mask-image: var(--mesh-fade);
+}
+
+/*
+ * The highlight needs two masks — the page-wide fade, and the disc under the
+ * pointer — but it gets them from two nested elements rather than from two
+ * layers on one. `mask-composite: intersect` would do it in one element and is
+ * supported here, but its `-webkit-` prefix takes a different keyword set, so
+ * on a browser that only understands the prefixed form the two masks fall back
+ * to being added: the hot grid would then be painted across the whole hero,
+ * permanently, instead of only under the cursor. Nesting has no such failure
+ * mode — a parent mask clips its children everywhere.
+ */
+.mesh__glow-clip {
+  transform: translate3d(0, var(--drift-coarse), 0);
+  -webkit-mask-image: var(--mesh-fade);
+  mask-image: var(--mesh-fade);
+}
+
+/*
+ * `--mx`/`--my` arrive in hero coordinates, but this plane is translated by
+ * --drift-coarse, so the disc is placed in the translated space. Without that
+ * subtraction the highlight trails the cursor by exactly the parallax offset,
+ * which reads as broken rather than as depth.
+ */
+.mesh__glow {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(24, 24, 24, 0.09) 1px, transparent 1px);
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(120% 70% at 50% 12%, #000 35%, transparent 78%);
-  mask-image: radial-gradient(120% 70% at 50% 12%, #000 35%, transparent 78%);
+  background-image:
+    linear-gradient(to right, var(--mesh-hot) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--mesh-hot) 1px, transparent 1px);
+  background-size: var(--pitch-coarse) var(--pitch-coarse);
+  opacity: var(--ma);
+  transition: opacity 320ms var(--ease);
+  -webkit-mask-image: radial-gradient(
+    230px 230px at var(--mx) calc(var(--my) - var(--drift-coarse)),
+    #000 0%,
+    rgba(0, 0, 0, 0.5) 46%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    230px 230px at var(--mx) calc(var(--my) - var(--drift-coarse)),
+    #000 0%,
+    rgba(0, 0, 0, 0.5) 46%,
+    transparent 72%
+  );
 }
 
-.sky__cross {
+/* The one cell the pointer is inside, snapped to the coarse pitch in JS. */
+.mesh__cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pitch-coarse);
+  height: var(--pitch-coarse);
+  background: var(--mesh-cell);
+  opacity: var(--ma);
+  transition: opacity 320ms var(--ease);
+  transform: translate3d(var(--cx), calc(var(--cy) + var(--drift-coarse)), 0);
+  will-change: transform;
+}
+
+/* Crosshairs. The instrument reading its own position. */
+.mesh__rule {
+  position: absolute;
+  background: var(--mesh-rule);
+  opacity: var(--ma);
+  transition: opacity 320ms var(--ease);
+  will-change: transform;
+}
+.mesh__rule--h {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  transform: translate3d(0, var(--my), 0);
+}
+.mesh__rule--v {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  transform: translate3d(var(--mx), 0, 0);
+}
+
+.mesh__cross {
   position: absolute;
   color: rgba(24, 24, 24, 0.2);
   transform: translate(-50%, -50%);
-}
-
-/*
- * The sky starts a little above the widget so the card is already sitting in it
- * by the time you reach it, and it is masked at both ends: in at the top so
- * there is no seam against the paper, out at the bottom so it dissolves into
- * the next section instead of stopping at a hard line.
- */
-.sky__grad {
-  position: absolute;
-  inset: 20% 0 0;
-  background: var(--sky-grad);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 92%, transparent 100%);
-}
-
-/*
- * Each layer is wider than the viewport and anchored to the bottom of the sky,
- * so the parallax offset never drags an edge into view. `translate3d` keeps the
- * movement on the compositor; `--depth` is the only thing that differs between
- * layers, and it is what makes the far clouds read as far.
- */
-.sky__layer {
-  position: absolute;
-  left: 50%;
-  width: 170%;
-  min-width: 1400px;
-  transform: translate3d(-50%, calc(var(--sy) * var(--depth) * 1px), 0);
-  will-change: transform;
-}
-.sky__layer svg {
-  width: 100%;
-  height: auto;
-}
-
-/*
- * Depth is carried by three things at once — size, blur and opacity — because
- * parallax alone reads as a glitch. The far band is small, soft and thin; the
- * near band is large, nearly sharp and nearly opaque, and is allowed to run off
- * the bottom of the sky so the horizon never resolves into a visible edge.
- */
-.sky__layer--far {
-  bottom: 22%;
-  color: rgba(255, 255, 255, 0.52);
-  filter: blur(6px);
-}
-.sky__layer--mid {
-  bottom: 6%;
-  color: rgba(255, 255, 255, 0.78);
-  filter: blur(3.5px);
-}
-.sky__layer--near {
-  bottom: -14%;
-  width: 190%;
-  color: rgba(255, 255, 255, 0.95);
-  filter: blur(1.5px);
 }
 
 .hero__head {
