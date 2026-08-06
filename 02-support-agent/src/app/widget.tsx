@@ -69,7 +69,7 @@ function stripCitations(text: string): string {
   return text.replace(/\s*\[[a-z-]+\]/g, '').replace(/[ \t]+\n/g, '\n');
 }
 
-export default function Widget() {
+export default function Widget({ live = false }: { live?: boolean }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -180,10 +180,18 @@ export default function Widget() {
   return (
     <div className="widget">
       <header className="widget__header">
-        <div>
+        <span className="widget__avatar" aria-hidden="true">
+          CA
+        </span>
+        <div className="widget__id">
           <strong>Cerro Alto Coffee</strong>
           <span className="widget__hours">Support · Mon–Fri 9–5 ET</span>
         </div>
+        {/* The mode is stated in the surface itself, not in a footnote below it. */}
+        <span className={`widget__mode ${live ? 'widget__mode--live' : ''}`}>
+          <i aria-hidden="true" />
+          {live ? 'Live' : 'Fixture mode'}
+        </span>
       </header>
 
       <div className="widget__scroll" ref={scrollRef}>
@@ -260,7 +268,9 @@ export default function Widget() {
             {/* A deliberate state. Escalation is the system working, not failing. */}
             {turn.handoff && (
               <div className="handoff">
-                <div className="handoff__title">Passed to a person</div>
+                <div className="handoff__title">
+                  <span aria-hidden="true">⇥</span> Passed to a person
+                </div>
                 <p>{turn.handoff.tellCustomer}</p>
                 <span className="handoff__ref">Ref {turn.handoff.ticketId}</span>
               </div>
