@@ -56,7 +56,20 @@
   --bad: #b4402f;
 
   /* ── the hero's atmospheric fade ─────────────────────────────────────── */
-  --sky-grad: linear-gradient(180deg, #f9f9f9 0%, #dae3ed 74%, #b7cae0 100%);
+  /*
+   * Four stops, not three. With the blue held back to a single late stop the
+   * upper two-thirds stay near-white, and white clouds painted on near-white
+   * paper are simply not there. The field has to become sky well before the
+   * clouds do.
+   */
+  --sky-grad: linear-gradient(
+    180deg,
+    #f9f9f9 0%,
+    #dfe9f5 18%,
+    #c4d7ec 46%,
+    #a8c2df 76%,
+    #93b1d7 100%
+  );
 
   /* ── type ────────────────────────────────────────────────────────────── */
   --font-sans: 'Inter', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
@@ -421,6 +434,11 @@ textarea {
   box-shadow: var(--e-2);
   transform: translateY(-2px);
 }
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
 .card__foot {
   margin-top: auto;
   padding-top: var(--s-4);
@@ -429,14 +447,17 @@ textarea {
   color: var(--ink-muted);
 }
 
+/*
+ * The icon tile. The pastel is the accent at ~45% over white, which keeps it
+ * light enough for a 1.5px ink stroke to stay legible on top — the icon is the
+ * label here, so the tile must never compete with it.
+ */
 .tile {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-sm);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
   display: grid;
   place-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--t-sm);
   color: var(--ink);
   flex: 0 0 auto;
 }
@@ -519,15 +540,13 @@ textarea {
   text-transform: uppercase;
 }
 .wordmark__mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
   background: var(--surface-ink);
   display: grid;
   place-items: center;
   color: var(--ink-inverse);
-  font-size: 11px;
-  letter-spacing: 0;
   flex: 0 0 auto;
 }
 
@@ -614,23 +633,88 @@ textarea {
   isolation: isolate;
 }
 
-/* Dot grid, faded out toward the fold. */
-.hero__grid {
+/* ── hero backdrop: grid → crosses → sky → three cloud layers ─────────── */
+
+.sky {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Written once per frame by hero-sky.tsx. Declared so the fallback is 0
+     rather than an invalid value if the effect never runs. */
+  --sy: 0;
+}
+
+.sky__grid {
+  position: absolute;
+  inset: 0;
   background-image: radial-gradient(circle, rgba(24, 24, 24, 0.09) 1px, transparent 1px);
   background-size: 22px 22px;
   -webkit-mask-image: radial-gradient(120% 70% at 50% 12%, #000 35%, transparent 78%);
   mask-image: radial-gradient(120% 70% at 50% 12%, #000 35%, transparent 78%);
 }
-.hero__sky {
+
+.sky__cross {
   position: absolute;
-  inset: 38% 0 0;
-  z-index: -1;
+  color: rgba(24, 24, 24, 0.2);
+  transform: translate(-50%, -50%);
+}
+
+/*
+ * The sky starts a little above the widget so the card is already sitting in it
+ * by the time you reach it, and it is masked at both ends: in at the top so
+ * there is no seam against the paper, out at the bottom so it dissolves into
+ * the next section instead of stopping at a hard line.
+ */
+.sky__grad {
+  position: absolute;
+  inset: 20% 0 0;
   background: var(--sky-grad);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 92%, transparent 100%);
+}
+
+/*
+ * Each layer is wider than the viewport and anchored to the bottom of the sky,
+ * so the parallax offset never drags an edge into view. `translate3d` keeps the
+ * movement on the compositor; `--depth` is the only thing that differs between
+ * layers, and it is what makes the far clouds read as far.
+ */
+.sky__layer {
+  position: absolute;
+  left: 50%;
+  width: 170%;
+  min-width: 1400px;
+  transform: translate3d(-50%, calc(var(--sy) * var(--depth) * 1px), 0);
+  will-change: transform;
+}
+.sky__layer svg {
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Depth is carried by three things at once — size, blur and opacity — because
+ * parallax alone reads as a glitch. The far band is small, soft and thin; the
+ * near band is large, nearly sharp and nearly opaque, and is allowed to run off
+ * the bottom of the sky so the horizon never resolves into a visible edge.
+ */
+.sky__layer--far {
+  bottom: 22%;
+  color: rgba(255, 255, 255, 0.52);
+  filter: blur(6px);
+}
+.sky__layer--mid {
+  bottom: 6%;
+  color: rgba(255, 255, 255, 0.78);
+  filter: blur(3.5px);
+}
+.sky__layer--near {
+  bottom: -14%;
+  width: 190%;
+  color: rgba(255, 255, 255, 0.95);
+  filter: blur(1.5px);
 }
 
 .hero__head {
@@ -742,14 +826,16 @@ textarea {
 }
 .mark {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 10px;
   line-height: 1;
+}
+.mark svg {
+  width: 12px;
+  height: 12px;
 }
 .mark--no {
   background: color-mix(in srgb, var(--a-coral) 25%, white);
@@ -766,7 +852,7 @@ textarea {
 
 .step {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 140px 1fr;
   gap: var(--s-8);
   align-items: start;
   padding-block: var(--s-10);
@@ -774,6 +860,11 @@ textarea {
 }
 .step:first-of-type {
   border-top: 0;
+}
+.step__marker {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
 }
 .step__body {
   display: flex;
@@ -864,6 +955,7 @@ textarea {
   transition: transform var(--dur-2) var(--ease);
 }
 .faq__item[open] .faq__sign {
+  /* A real cross rotates cleanly; a "+" glyph rotates into a blurry mess. */
   transform: rotate(45deg);
   border-color: var(--ink);
   color: var(--ink);
@@ -1156,6 +1248,17 @@ textarea {
   font-variant-numeric: tabular-nums;
   opacity: 0.75;
 }
+.status__tick,
+.status__cross {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.status__tick svg,
+.status__cross svg {
+  width: 13px;
+  height: 13px;
+}
 .status__tick {
   color: var(--ok);
 }
@@ -1246,6 +1349,10 @@ textarea {
   text-transform: uppercase;
   color: var(--warn);
   margin-bottom: var(--s-2);
+}
+.handoff__title svg {
+  width: 14px;
+  height: 14px;
 }
 .handoff p {
   font-size: var(--t-sm);

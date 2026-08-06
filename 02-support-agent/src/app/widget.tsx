@@ -24,6 +24,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { IconCheck, IconCross, IconHandoff } from './icons.tsx';
 
 type Phase = 'idle' | 'thinking' | 'tool' | 'streaming' | 'done' | 'error';
 
@@ -230,12 +231,18 @@ export default function Widget({ live = false }: { live?: boolean }) {
                   </>
                 ) : tool.ok ? (
                   <>
-                    <span className="status__tick">✓</span> {tool.label}
+                    <span className="status__tick">
+                      <IconCheck />
+                    </span>{' '}
+                    {tool.label}
                     <span className="status__ms">{tool.ms} ms</span>
                   </>
                 ) : (
                   <>
-                    <span className="status__cross">✕</span> Couldn&apos;t reach the order system
+                    <span className="status__cross">
+                      <IconCross />
+                    </span>{' '}
+                    Couldn&apos;t reach the order system
                   </>
                 )}
               </div>
@@ -269,7 +276,7 @@ export default function Widget({ live = false }: { live?: boolean }) {
             {turn.handoff && (
               <div className="handoff">
                 <div className="handoff__title">
-                  <span aria-hidden="true">⇥</span> Passed to a person
+                  <IconHandoff /> Passed to a person
                 </div>
                 <p>{turn.handoff.tellCustomer}</p>
                 <span className="handoff__ref">Ref {turn.handoff.ticketId}</span>

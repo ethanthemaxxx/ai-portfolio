@@ -1,4 +1,14 @@
 import Widget from './widget.tsx';
+import HeroSky from './hero-sky.tsx';
+import {
+  FEATURE_ICONS,
+  IconCheck,
+  IconCross,
+  IconMenu,
+  IconPlus,
+  MarkBean,
+  type IconKey,
+} from './icons.tsx';
 
 /**
  * The demo page.
@@ -24,30 +34,30 @@ const STACK = [
   'node:test',
 ];
 
-const FEATURES = [
+const FEATURES: { icon: IconKey; tone: string; title: string; body: string; foot: string }[] = [
   {
-    tile: '§',
+    icon: 'document',
     tone: 'tile--lav',
     title: 'Grounded retrieval',
     body: 'Answers are assembled from the store’s own help centre — hybrid lexical and embedding search over six policy documents, shipped at k=6.',
     foot: 'No document, no claim.',
   },
   {
-    tile: '⌗',
+    icon: 'parcel',
     tone: 'tile--sky',
     title: 'Live order lookup',
     body: 'A typed tool call hits the Shopify Admin API and returns a normalised envelope, so status, carrier and dates come from the order — not from the model.',
     foot: 'Real data, real latency, shown.',
   },
   {
-    tile: '⇥',
+    icon: 'handoff',
     tone: 'tile--amber',
     title: 'Deterministic escalation',
     body: 'Refunds over the approval limit, damage claims and low-confidence retrievals route to a person through code, not through a prompt asking nicely.',
     foot: 'No prompt can talk past it.',
   },
   {
-    tile: '✓',
+    icon: 'seal',
     tone: 'tile--mint',
     title: 'Checkable answers',
     body: 'Every answer carries the documents it was built from as clickable chips. The customer can read the policy the agent read.',
@@ -55,21 +65,24 @@ const FEATURES = [
   },
 ];
 
-const STEPS = [
+const STEPS: { n: string; icon: IconKey; title: string; body: string; code: string }[] = [
   {
     n: 'STEP 1',
+    icon: 'search',
     title: 'Retrieve before reasoning',
     body: 'The question is embedded and searched against the committed index. Six chunks come back with scores; if the best of them falls under the relevance floor, the turn is already on its way to a human.',
     code: 'retrieve(q, k=6) → chunks[]     floor → escalate',
   },
   {
     n: 'STEP 2',
+    icon: 'terminal',
     title: 'Call tools, in the open',
     body: 'Order lookup, help-centre search and escalation are typed tools with contracts and their own tests. The widget shows each call as it starts and the real elapsed time when it returns.',
     code: 'lookup_order("CA-10244") → { status, carrier, eta }',
   },
   {
     n: 'STEP 3',
+    icon: 'fork',
     title: 'Answer, or hand off',
     body: 'Claims not supported by the retrieved context fail the citation gate. When the policy says a human decides — money, damage, anything past the approval limit — the agent writes the ticket instead of the promise.',
     code: 'gate B: every claim ∈ context   else → handoff(ticket)',
@@ -95,8 +108,18 @@ const STATS = [
   },
 ];
 
-const EXAMPLES = [
+const EXAMPLES: {
+  icon: IconKey;
+  tone: string;
+  label: string;
+  title: string;
+  body: string;
+  tags: string[];
+  foot: string;
+}[] = [
   {
+    icon: 'truck',
+    tone: 'tile--sky',
     label: 'ORDER STALLED',
     title: 'CA-10244 hasn’t moved in four days',
     body: 'The agent looks the order up, reads the carrier scan history, and says what the shipping policy actually commits to — including the part where nothing has gone wrong yet.',
@@ -104,6 +127,8 @@ const EXAMPLES = [
     foot: 'Answered from policy plus the live order',
   },
   {
+    icon: 'receipt',
+    tone: 'tile--amber',
     label: 'REFUND OVER LIMIT',
     title: 'A dead kettle on CA-10250',
     body: 'A damage claim above the approval limit. The agent declines to promise the refund, writes a ticket carrying the order and the customer’s account of the fault, and says who decides next.',
@@ -111,6 +136,8 @@ const EXAMPLES = [
     foot: 'Handoff — the system working',
   },
   {
+    icon: 'cup',
+    tone: 'tile--mint',
     label: 'PRODUCT ADVICE',
     title: 'Which grind for an Aeropress?',
     body: 'No order, no tool call. Straight retrieval against the brewing guide, with the grind chart cited so the customer can check it before buying the wrong bag.',
@@ -159,7 +186,7 @@ export default function Page() {
         <div className="container nav__inner">
           <a className="wordmark" href="#top" aria-label="Cerro Alto Coffee — top of page">
             <span className="wordmark__mark" aria-hidden="true">
-              CA
+              <MarkBean size={15} />
             </span>
             Cerro Alto
           </a>
@@ -178,9 +205,7 @@ export default function Page() {
 
           <details className="nav__menu">
             <summary aria-label="Open menu">
-              <svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true">
-                <path d="M0 1h18M0 6h18M0 11h18" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <IconMenu size={18} />
             </summary>
             <div className="nav__sheet">
               <a href="#demo">Demo</a>
@@ -197,8 +222,7 @@ export default function Page() {
       <main id="top">
         {/* ── hero ─────────────────────────────────────────────────────── */}
         <section className="hero">
-          <div className="hero__grid" aria-hidden="true" />
-          <div className="hero__sky" aria-hidden="true" />
+          <HeroSky />
 
           <div className="container hero__head">
             <span className="eyebrow">support agent</span>
@@ -276,19 +300,19 @@ export default function Page() {
                 <ul className="compare__list">
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Invents a delivery window it has no source for
                   </li>
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Cannot see the order, so it asks the customer to go and check
                   </li>
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Promises a refund nobody authorised
                   </li>
@@ -300,19 +324,19 @@ export default function Page() {
                 <ul className="compare__list">
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Answer the question they were written for, not the one asked
                   </li>
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Go stale the day the policy changes
                   </li>
                   <li>
                     <span className="mark mark--no" aria-hidden="true">
-                      ✕
+                      <IconCross />
                     </span>
                     Turn every edge case into a queue
                   </li>
@@ -324,19 +348,19 @@ export default function Page() {
                 <ul className="compare__list">
                   <li>
                     <span className="mark mark--yes" aria-hidden="true">
-                      ✓
+                      <IconCheck />
                     </span>
                     Cites the document each claim came from
                   </li>
                   <li>
                     <span className="mark mark--yes" aria-hidden="true">
-                      ✓
+                      <IconCheck />
                     </span>
                     Reads the live order, and shows the call that read it
                   </li>
                   <li>
                     <span className="mark mark--yes" aria-hidden="true">
-                      ✓
+                      <IconCheck />
                     </span>
                     Escalates by rule when money or damage is involved
                   </li>
@@ -363,10 +387,12 @@ export default function Page() {
             </div>
 
             <div className="grid grid--4 reveal">
-              {FEATURES.map((f) => (
+              {FEATURES.map((f) => {
+                const Icon = FEATURE_ICONS[f.icon];
+                return (
                 <article className="card card--lift" key={f.title}>
-                  <span className={`tile ${f.tone}`} aria-hidden="true">
-                    {f.tile}
+                  <span className={`tile ${f.tone}`}>
+                    <Icon size={22} />
                   </span>
                   <h3 className="h-sub">{f.title}</h3>
                   <p className="body-muted" style={{ fontSize: 'var(--t-sm)' }}>
@@ -374,7 +400,8 @@ export default function Page() {
                   </p>
                   <p className="card__foot">{f.foot}</p>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -396,16 +423,22 @@ export default function Page() {
             </div>
 
             <div className="reveal">
-              {STEPS.map((s) => (
+              {STEPS.map((s) => {
+                const Icon = FEATURE_ICONS[s.icon];
+                return (
                 <div className="step" key={s.n}>
-                  <span className="label">{s.n}</span>
+                  <div className="step__marker">
+                    <Icon size={20} />
+                    <span className="label">{s.n}</span>
+                  </div>
                   <div className="step__body">
                     <h3 className="h-card">{s.title}</h3>
                     <p className="body-muted">{s.body}</p>
                     <code className="step__code">{s.code}</code>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -472,9 +505,16 @@ export default function Page() {
             </div>
 
             <div className="grid grid--3 reveal">
-              {EXAMPLES.map((e) => (
+              {EXAMPLES.map((e) => {
+                const Icon = FEATURE_ICONS[e.icon];
+                return (
                 <article className="card card--lift" key={e.title}>
-                  <span className="label">{e.label}</span>
+                  <div className="card__head">
+                    <span className={`tile ${e.tone}`}>
+                      <Icon size={22} />
+                    </span>
+                    <span className="label">{e.label}</span>
+                  </div>
                   <h3 className="h-sub">{e.title}</h3>
                   <p className="body-muted" style={{ fontSize: 'var(--t-sm)' }}>
                     {e.body}
@@ -488,7 +528,8 @@ export default function Page() {
                   </div>
                   <p className="card__foot">{e.foot}</p>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -510,8 +551,8 @@ export default function Page() {
                 <details className="faq__item" key={item.q}>
                   <summary className="faq__q">
                     {item.q}
-                    <span className="faq__sign" aria-hidden="true">
-                      +
+                    <span className="faq__sign">
+                      <IconPlus size={14} />
                     </span>
                   </summary>
                   <p className="faq__a">{item.a}</p>
@@ -556,7 +597,7 @@ export default function Page() {
             <div className="footer__blurb">
               <a className="wordmark" href="#top">
                 <span className="wordmark__mark" aria-hidden="true">
-                  CA
+                  <MarkBean size={15} />
                 </span>
                 Cerro Alto
               </a>
