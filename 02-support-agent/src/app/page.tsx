@@ -1,5 +1,8 @@
 import Widget from './widget.tsx';
 import HeroMesh from './hero-mesh.tsx';
+import UseCases from './use-cases.tsx';
+import RunIt from './run-it.tsx';
+import Counter from './counter.tsx';
 import {
   FEATURE_ICONS,
   IconCheck,
@@ -91,20 +94,76 @@ const STEPS: { n: string; icon: IconKey; title: string; body: string; code: stri
 
 const STATS = [
   {
-    value: '251/252',
+    value: 251,
+    suffix: '/252',
+    decimals: 0,
     note: 'unit and contract tests passing, with 1 skipped loudly because it needs an embeddings key.',
   },
   {
-    value: '14/16',
+    value: 14,
+    suffix: '/16',
+    decimals: 0,
     note: 'retrieval cases where every expected source came back — 88%, on the offline embedding stub.',
   },
   {
-    value: '94%',
+    value: 94,
+    suffix: '%',
+    decimals: 0,
     note: 'top-k hit rate at the shipped k=6, where false below-floor escalation reaches 0%.',
   },
   {
-    value: '0.815',
+    value: 0.815,
+    suffix: '',
+    decimals: 3,
     note: 'mean reciprocal rank at k=6 — within 0.007 of its ceiling at k=12, for half the context.',
+  },
+];
+
+/*
+ * What the agent is wired to. Each mark names a capability rather than a vendor,
+ * and the vendor is named in text beside it — drawing someone else's logo would
+ * put their trade mark in this repository, which is a different thing from
+ * saying which API this calls.
+ */
+const CONNECTIONS: { icon: IconKey; name: string; role: string }[] = [
+  { icon: 'spark', name: 'Anthropic API', role: 'claude-opus-5, streaming, tool use' },
+  { icon: 'store', name: 'Shopify Admin API', role: 'order status, carrier, dates' },
+  { icon: 'vector', name: 'Voyage embeddings', role: 'with an OpenAI fallback' },
+  { icon: 'book', name: 'The help centre', role: 'six markdown policy documents' },
+  { icon: 'inbox', name: 'Human handoff', role: 'ticket written at escalation' },
+  { icon: 'braces', name: 'TypeScript', role: 'typed contracts per tool' },
+  { icon: 'flask', name: 'node:test', role: '252 tests, no framework' },
+  { icon: 'globe', name: 'Next.js on Vercel', role: 'the demo you are reading' },
+];
+
+/*
+ * This sits where a product page would put testimonials. Fabricated praise on a
+ * page whose entire argument is "no claim without a source" would undo the
+ * argument, so the slot holds the thing testimonials are a proxy for: something
+ * a reader can check. Each card is a command from the repository and what it
+ * actually prints.
+ */
+const RECEIPTS = [
+  {
+    label: 'ESCALATION',
+    claim: 'Refunds above the limit cannot be talked past.',
+    detail:
+      'The trigger reads the order envelope, not the conversation. An order flagged requiresApproval routes to a person whatever the customer or the model says next.',
+    source: 'src/escalation/triggers.ts · refundOverApprovalLimit',
+  },
+  {
+    label: 'GROUNDING',
+    claim: 'No document above the floor means no answer.',
+    detail:
+      'When nothing retrieved clears the relevance floor the turn escalates with a stated reason rather than improvising from the model’s own priors.',
+    source: 'src/escalation/triggers.ts · retrieval_below_floor',
+  },
+  {
+    label: 'HONESTY',
+    claim: 'The half that was not measured prints no number.',
+    detail:
+      'The eval report publishes both retrieval misses in full, including the case where the relevance floor is confident and wrong — which is why the citation gate exists at all.',
+    source: 'evals/report.md · §4, not run',
   },
 ];
 
@@ -193,10 +252,10 @@ export default function Page() {
 
           <nav className="nav__links" aria-label="Sections">
             <a href="#demo">Demo</a>
+            <a href="#who">Who it&apos;s for</a>
             <a href="#how">How it works</a>
             <a href="#evidence">Evidence</a>
-            <a href="#examples">Examples</a>
-            <a href="#faq">FAQ</a>
+            <a href="#run">Run it</a>
           </nav>
 
           <a className="btn btn--primary btn--sm nav__cta" href="/case-study.html">
@@ -209,9 +268,10 @@ export default function Page() {
             </summary>
             <div className="nav__sheet">
               <a href="#demo">Demo</a>
+              <a href="#who">Who it&apos;s for</a>
               <a href="#how">How it works</a>
               <a href="#evidence">Evidence</a>
-              <a href="#examples">Examples</a>
+              <a href="#run">Run it</a>
               <a href="#faq">FAQ</a>
               <a href="/case-study.html">Read the case study</a>
             </div>
@@ -406,8 +466,30 @@ export default function Page() {
           </div>
         </section>
 
+        {/* ── use cases ────────────────────────────────────────────────── */}
+        <section className="section" id="who">
+          <div className="container">
+            <div className="section__head reveal">
+              <span className="eyebrow">who it is for</span>
+              <h2 className="h-section">
+                Three people have to
+                <br />
+                live with this thing
+              </h2>
+              <p className="lead">
+                The customer who asks, the lead who answers for the answer, and whoever inherits
+                the code. Each of them needs something different from it.
+              </p>
+            </div>
+
+            <div className="reveal">
+              <UseCases />
+            </div>
+          </div>
+        </section>
+
         {/* ── how it works ─────────────────────────────────────────────── */}
-        <section className="section" id="how">
+        <section className="section section--sunk" id="how">
           <div className="container">
             <div className="section__head reveal">
               <span className="eyebrow">how it works</span>
@@ -444,7 +526,7 @@ export default function Page() {
         </section>
 
         {/* ── evidence ─────────────────────────────────────────────────── */}
-        <section className="section section--sunk" id="evidence">
+        <section className="section" id="evidence">
           <div className="container">
             <div className="section__head reveal">
               <span className="eyebrow">evidence</span>
@@ -461,8 +543,10 @@ export default function Page() {
 
             <div className="grid grid--4 reveal">
               {STATS.map((s) => (
-                <div className="stat" key={s.value}>
-                  <span className="stat__value">{s.value}</span>
+                <div className="stat" key={s.note}>
+                  <span className="stat__value">
+                    <Counter value={s.value} suffix={s.suffix} decimals={s.decimals} />
+                  </span>
                   <p className="stat__note">{s.note}</p>
                 </div>
               ))}
@@ -484,6 +568,92 @@ export default function Page() {
                   gate exists.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── connections ──────────────────────────────────────────────── */}
+        <section className="section section--sunk" id="connects">
+          <div className="container">
+            <div className="section__head reveal">
+              <span className="eyebrow">what it is wired to</span>
+              <h2 className="h-section">
+                Eight moving parts,
+                <br />
+                all of them named
+              </h2>
+              <p className="lead">
+                Nothing here is a black box you have to take on faith. Each piece is either an API
+                with a contract or a file in the repository.
+              </p>
+            </div>
+
+            <div className="grid grid--4 conns reveal">
+              {CONNECTIONS.map((c) => {
+                const Icon = FEATURE_ICONS[c.icon];
+                return (
+                  <div className="conn" key={c.name}>
+                    <span className="conn__mark">
+                      <Icon size={20} />
+                    </span>
+                    <span className="conn__name">{c.name}</span>
+                    <span className="conn__role">{c.role}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── receipts ─────────────────────────────────────────────────── */}
+        <section className="section">
+          <div className="container">
+            <div className="section__head reveal">
+              <span className="eyebrow">receipts</span>
+              <h2 className="h-section">
+                Three claims, and
+                <br />
+                where to check each
+              </h2>
+              <p className="lead">
+                A page arguing that nothing should be claimed without a source does not get to run
+                testimonials. These are the claims it makes, and the file each one lives in.
+              </p>
+            </div>
+
+            <div className="grid grid--3 reveal">
+              {RECEIPTS.map((r) => (
+                <article className="card receipt" key={r.label}>
+                  <span className="label">{r.label}</span>
+                  <p className="receipt__claim">{r.claim}</p>
+                  <p className="body-muted" style={{ fontSize: 'var(--t-sm)' }}>
+                    {r.detail}
+                  </p>
+                  <code className="receipt__src">{r.source}</code>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── run it yourself ──────────────────────────────────────────── */}
+        <section className="section section--sunk" id="run">
+          <div className="container">
+            <div className="section__head reveal">
+              <span className="eyebrow">run it yourself</span>
+              <h2 className="h-section">
+                What you can check
+                <br />
+                without asking me
+              </h2>
+              <p className="lead">
+                One half of this project runs on a clean clone with no keys and no network. The
+                other half needs keys and has not been run. Both are listed.
+              </p>
+            </div>
+
+            <div className="reveal">
+              <RunIt />
             </div>
           </div>
         </section>
@@ -535,7 +705,7 @@ export default function Page() {
         </section>
 
         {/* ── faq ──────────────────────────────────────────────────────── */}
-        <section className="section section--sunk" id="faq">
+        <section className="section" id="faq">
           <div className="container">
             <div className="section__head reveal">
               <span className="eyebrow">faq</span>

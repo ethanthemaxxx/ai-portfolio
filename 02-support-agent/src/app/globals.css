@@ -973,8 +973,312 @@ textarea {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Use cases — numbered accordion
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.cases {
+  border-top: 1px solid var(--line);
+}
+.cases__item {
+  border-bottom: 1px solid var(--line);
+}
+.cases__h {
+  margin: 0;
+  font: inherit;
+}
+
+.cases__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  padding: var(--s-6) 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.cases__n {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  letter-spacing: var(--track-label);
+  flex: 0 0 auto;
+}
+.cases__title {
+  font-size: var(--t-h3);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
+  line-height: 1.2;
+}
+.cases__chevron {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  color: var(--ink-muted);
+  transition:
+    transform var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+}
+.cases__item.is-open .cases__chevron {
+  transform: rotate(180deg);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/*
+ * The panel is toggled with the `hidden` attribute, not with max-height. A
+ * height transition on prose has to guess a maximum, and the guess is wrong on
+ * the first narrow viewport that wraps a line — the panel then either clips its
+ * own text or animates to a gap below it. The inner element animates instead,
+ * which needs no measurement to be correct.
+ */
+.cases__panel[hidden] {
+  display: none;
+}
+.cases__panel-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--s-8);
+  padding: 0 0 var(--s-8) calc(var(--s-5) + 3ch);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cases__panel-inner {
+    animation: case-in var(--dur-2) var(--ease) both;
+  }
+  @keyframes case-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+}
+
+.cases__lede {
+  font-size: var(--t-lead);
+  line-height: 1.45;
+  letter-spacing: var(--track-tight);
+  text-wrap: pretty;
+}
+.cases__points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cases__points li {
+  position: relative;
+  padding: var(--s-3) 0 var(--s-3) var(--s-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+.cases__points li:first-child {
+  border-top: 0;
+}
+.cases__points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1.35em;
+  width: 8px;
+  height: 1px;
+  background: var(--ink-faint);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Connections grid
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.conn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.conn__mark {
+  color: var(--ink);
+  margin-bottom: var(--s-1);
+}
+.conn__name {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
+}
+.conn__role {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-muted);
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Receipts
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.receipt__claim {
+  font-size: var(--t-h4);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+.receipt__src {
+  margin-top: auto;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Run it — segmented switch and plan cards
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * `display: flex` with `width: fit-content`, not `inline-flex`. An inline-level
+ * box ignores `margin-inline: auto` — it sits wherever the line box puts it, so
+ * the earlier inline-flex version silently pinned the control to the left edge
+ * while looking correct in isolation.
+ */
+.switch {
+  display: flex;
+  width: fit-content;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  margin-inline: auto;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+}
+.switch__opt {
+  height: 38px;
+  padding-inline: var(--s-6);
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+.switch__opt.is-on {
+  background: var(--surface-ink);
+  color: var(--ink-inverse);
+}
+
+.switch__note {
+  margin: var(--s-4) auto var(--s-8);
+  max-width: 56ch;
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.plan {
+  gap: var(--s-4);
+}
+.plan__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.plan__blurb {
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+.plan__cmd {
+  display: block;
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0;
+  color: var(--ink);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.plan__result {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
+  line-height: 1.4;
+}
+.plan__ok,
+.plan__no {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+.plan__ok {
+  color: var(--ok);
+}
+.plan__no {
+  color: var(--ink-faint);
+}
+.plan--unmeasured .plan__result {
+  color: var(--ink-muted);
+}
+.plan__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+.plan__items li {
+  padding: var(--s-3) 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Stats
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * The ghost is a copy of the final string, laid out but not painted, so the
+ * tile is already as wide as it will ever be before the count starts. The live
+ * value is taken out of flow on top of it. Without this, "9/252" widening to
+ * "251/252" nudges everything beside it on every frame.
+ */
+.counter {
+  position: relative;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+.counter__ghost {
+  visibility: hidden;
+}
+.counter__live {
+  position: absolute;
+  inset: 0;
+}
 
 .stat {
   display: flex;
@@ -1608,6 +1912,17 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--s-4);
     padding-block: var(--s-8);
+  }
+  .cases__panel-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    padding-left: 0;
+  }
+  .cases__header {
+    gap: var(--s-4);
+  }
+  .cases__title {
+    font-size: var(--t-h4);
   }
   .section__head {
     margin-bottom: var(--s-10);

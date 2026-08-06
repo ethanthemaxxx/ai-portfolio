@@ -229,6 +229,102 @@ export function MarkBean(p: IconProps) {
   );
 }
 
+/* ── what the agent is wired to ────────────────────────────────────────── */
+
+/*
+ * These name a capability, never a vendor. Redrawing a third party's logo puts
+ * their trade mark in this repository under my hand, which is a different
+ * problem from naming them in text — so the mark says what the thing does and
+ * the label beside it says whose it is.
+ */
+
+/** The model. */
+export function IconSpark(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 3.25 13.9 9 19.75 10.9 13.9 12.8 12 18.55 10.1 12.8 4.25 10.9 10.1 9z" />
+      <path d="M18 16.5 18.8 18.7 21 19.5 18.8 20.3 18 22.5 17.2 20.3 15 19.5 17.2 18.7z" />
+    </Svg>
+  );
+}
+
+/** The store the orders live in. */
+export function IconStore(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M4 9.75h16v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.25z" />
+      <path d="M3.25 9.75 5 3.75h14l1.75 6" />
+      <path d="M9.5 20.75v-6h5v6" />
+    </Svg>
+  );
+}
+
+/** The embedding space retrieval searches. */
+export function IconVector(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M3.75 20.25V4M3.75 20.25H20" />
+      <circle cx="9" cy="15" r="1.5" />
+      <circle cx="13.5" cy="9.5" r="1.5" />
+      <circle cx="17.5" cy="14" r="1.5" />
+      <path d="M10.1 13.8 12.4 10.7M14.6 10.6 16.4 12.9" />
+    </Svg>
+  );
+}
+
+/** The help centre. */
+export function IconBook(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M4 4.75A1.5 1.5 0 0 1 5.5 3.25H19v17.5H5.5A1.5 1.5 0 0 1 4 19.25z" />
+      <path d="M4 17.25h15" />
+      <path d="M8 7.25h7" />
+    </Svg>
+  );
+}
+
+/** The queue a handoff lands in. */
+export function IconInbox(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M3.25 13.5 6 4.75h12l2.75 8.75v5.25a1.5 1.5 0 0 1-1.5 1.5H4.75a1.5 1.5 0 0 1-1.5-1.5z" />
+      <path d="M3.25 13.5h4.5l1.25 2.5h6l1.25-2.5h4.5" />
+    </Svg>
+  );
+}
+
+/** The typed contracts. */
+export function IconBraces(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M9.5 3.75H8A2.25 2.25 0 0 0 5.75 6v3.25L3.75 12l2 2.75V18A2.25 2.25 0 0 0 8 20.25h1.5" />
+      <path d="M14.5 3.75H16A2.25 2.25 0 0 1 18.25 6v3.25L20.25 12l-2 2.75V18A2.25 2.25 0 0 1 16 20.25h-1.5" />
+    </Svg>
+  );
+}
+
+/** The suite. */
+export function IconFlask(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M9.5 3.25v6.1L4.6 17.6a1.6 1.6 0 0 0 1.4 2.4h12a1.6 1.6 0 0 0 1.4-2.4l-4.9-8.25V3.25" />
+      <path d="M8.25 3.25h7.5" />
+      <path d="M6.9 14.5h10.2" />
+    </Svg>
+  );
+}
+
+/** Where it is served from. */
+export function IconGlobe(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="12" cy="12" r="8.75" />
+      <path d="M3.4 12h17.2" />
+      <path d="M12 3.25c2.2 2.4 3.4 5.5 3.4 8.75S14.2 18.35 12 20.75c-2.2-2.4-3.4-5.5-3.4-8.75S9.8 5.65 12 3.25z" />
+    </Svg>
+  );
+}
+
 export const FEATURE_ICONS = {
   document: IconDocument,
   parcel: IconParcel,
@@ -240,6 +336,14 @@ export const FEATURE_ICONS = {
   truck: IconTruck,
   receipt: IconReceipt,
   cup: IconCup,
+  spark: IconSpark,
+  store: IconStore,
+  vector: IconVector,
+  book: IconBook,
+  inbox: IconInbox,
+  braces: IconBraces,
+  flask: IconFlask,
+  globe: IconGlobe,
 } as const;
 
 export type IconKey = keyof typeof FEATURE_ICONS;
