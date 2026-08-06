@@ -2,144 +2,863 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Run Inspector — speculative redesign</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Run Inspector — a speculative redesign</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="description" content="A speculative redesign of the run inspector for AI agent nodes in workflow automation tools. Interactive prototype, no sign-up.">
+<meta name="color-scheme" content="light dark">
 <style>
-  /* Same tokens as the prototype, so landing and demo are one world. */
-  :root {
-    --bg: #eceef0; --surface: #ffffff; --line: #d6dbde;
-    --text: #12181b; --dim: #566065; --faint: #7d888d;
-    --accent: #0d6a62; --accent-bg: #e2f0ee; --on-accent: #ffffff;
-    --hold: #8c5a0e; --hold-bg: #f7eddc;
-    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0c1012; --surface: #141a1d; --line: #263135;
-      --text: #e7edef; --dim: #97a5aa; --faint: #74838a;
-      --accent: #46b9ad; --accent-bg: #102b2a; --on-accent: #06201e;
-      --hold: #d3a05c; --hold-bg: #241d10;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0c1012; --surface: #141a1d; --line: #263135;
-    --text: #e7edef; --dim: #97a5aa; --faint: #74838a;
-    --accent: #46b9ad; --accent-bg: #102b2a; --on-accent: #06201e;
-    --hold: #d3a05c; --hold-bg: #241d10;
-  }
-  :root[data-theme="light"] {
-    --bg: #eceef0; --surface: #ffffff; --line: #d6dbde;
-    --text: #12181b; --dim: #566065; --faint: #7d888d;
-    --accent: #0d6a62; --accent-bg: #e2f0ee; --on-accent: #ffffff;
-    --hold: #8c5a0e; --hold-bg: #f7eddc;
-  }
+/* ============================================================================
+   AGENT RUN INSPECTOR — case study landing.
 
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: var(--sans); font-size: 16px; line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
+   DESIGN SYSTEM v2 — "editorial instrument".
+
+   The type system carries the whole argument. A high-contrast serif sets the
+   claims a human is making; the sans sets explanation; mono sets anything a
+   machine produced. Three voices, never mixed, so the reader always knows who
+   is talking. The page is built on an exposed dashed grid — the measuring
+   rules are left visible on purpose, because the subject is verification.
+
+   Colour is rationed. One accent, and it is never used for small body text:
+   at 3.15:1 against the canvas it clears the 3:1 bar for large text and UI
+   marks but not the 4.5:1 bar for prose, so prose that needs the accent gets
+   --accent-ink (4.97:1) instead. That constraint is the reason the page reads
+   calm — the orange only ever lands on things that are already loud.
+   ========================================================================== */
+
+/* ---------- tokens ---------- */
+
+:root {
+  color-scheme: light dark;
+
+  /* type */
+  --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
+  --sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* canvas */
+  --bg:        #f0f0f0;
+  --bg-2:      #e5e5e5;
+  --surface:   #ffffff;
+  --ink:       #0a0a0a;
+  --body:      #4f4f4f;
+  --faint:     #6b6b6b;
+
+  --rule:      rgba(0, 0, 0, .12);
+  --rule-dash: rgba(0, 0, 0, .18);
+
+  /* the one accent */
+  --accent:     #ff3700;   /* marks, rules, large numerals — never small prose */
+  --accent-ink: #c42a00;   /* the same idea at prose contrast */
+
+  /* the dark inset — product surfaces sit in here */
+  --dark:      #151619;
+  --dark-2:    #1f2024;
+  --dark-rule: rgba(255, 255, 255, .14);
+  --on-dark:   #f0f0f0;
+  --on-dark-2: rgba(240, 240, 240, .62);
+
+  /* semantic, inherited from the prototype's provenance system */
+  --ok:    #2c6f47;
+  --hold:  #8c5a0e;
+  --block: #a33c2c;
+
+  /* shape */
+  --r-pill: 50px;
+  --r-lg:   20px;
+  --r-md:   15px;
+  --r-sm:   10px;
+  --r-xs:   6px;
+
+  /* rhythm */
+  --gutter:  clamp(18px, 4vw, 40px);
+  --section: clamp(64px, 9vw, 128px);
+  --max:     1280px;
+}
+
+:root[data-theme="dark"] {
+  --bg:        #0a0a0b;
+  --bg-2:      #131315;
+  --surface:   #151619;
+  --ink:       #f2f2f2;
+  --body:      #a2a2a6;
+  --faint:     #808086;
+
+  --rule:      rgba(255, 255, 255, .13);
+  --rule-dash: rgba(255, 255, 255, .16);
+
+  --accent:     #ff4a1a;
+  --accent-ink: #ff7a52;
+
+  --dark:      #131315;
+  --dark-2:    #1c1c1f;
+  --dark-rule: rgba(255, 255, 255, .12);
+
+  --ok:    #5cb47c;
+  --hold:  #d6a244;
+  --block: #e07a63;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0a0a0b;
+    --bg-2:      #131315;
+    --surface:   #151619;
+    --ink:       #f2f2f2;
+    --body:      #a2a2a6;
+    --faint:     #808086;
+
+    --rule:      rgba(255, 255, 255, .13);
+    --rule-dash: rgba(255, 255, 255, .16);
+
+    --accent:     #ff4a1a;
+    --accent-ink: #ff7a52;
+
+    --dark:      #131315;
+    --dark-2:    #1c1c1f;
+    --dark-rule: rgba(255, 255, 255, .12);
+
+    --ok:    #5cb47c;
+    --hold:  #d6a244;
+    --block: #e07a63;
   }
-  .label {
-    background: var(--hold-bg); color: var(--text);
-    border-bottom: 1px solid var(--line);
-    padding: 10px clamp(16px, 4vw, 40px); font-size: 12.5px; line-height: 1.5;
-  }
-  .label b { font-weight: 650; }
-  .wrap {
-    max-width: 780px; margin: 0 auto;
-    padding: clamp(32px, 6vw, 64px) clamp(16px, 4vw, 40px) 72px;
-    display: flex; flex-direction: column; gap: 30px;
-  }
-  .eyebrow {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em;
-    text-transform: uppercase; color: var(--faint);
-  }
-  h1 {
-    margin: 0; font-size: clamp(28px, 6vw, 42px); line-height: 1.1;
-    letter-spacing: -0.03em; text-wrap: balance; font-weight: 680;
-  }
-  p { margin: 0; }
-  .lede { font-size: clamp(16px, 2.4vw, 18.5px); color: var(--dim); }
-  .cards { display: grid; gap: 14px; }
-  @media (min-width: 680px) { .cards { grid-template-columns: 1fr 1fr; } }
-  a.card {
-    display: flex; flex-direction: column; gap: 7px;
-    background: var(--surface); border: 1px solid var(--line);
-    border-radius: 10px; padding: 20px 22px; text-decoration: none; color: inherit;
-    transition: border-color .15s ease, transform .15s ease;
-  }
-  a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  a.card .go { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
-  a.card h2 { margin: 0; font-size: 17px; letter-spacing: -0.015em; }
-  a.card p { font-size: 14px; color: var(--dim); }
-  .five { display: flex; flex-direction: column; gap: 10px; }
-  .five div { display: flex; gap: 12px; font-size: 14.5px; align-items: baseline; }
-  .five span:first-child {
-    font-family: var(--mono); font-size: 11px; color: var(--accent);
-    flex: none; width: 22px; padding-top: 2px;
-  }
-  .five b { font-weight: 640; }
-  hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
-  footer { font-size: 13px; color: var(--faint); display: flex; flex-direction: column; gap: 8px; }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+}
+
+/* ---------- base ---------- */
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+p { margin: 0; }
+a { color: inherit; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+.sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- the exposed grid ----------
+   Dashed rails at the container edges, fixed behind everything. They are the
+   page's ruler: the subject is checking claims against a record, so the
+   measuring apparatus stays visible rather than being tidied away. */
+
+.rails {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  display: flex; justify-content: center;
+}
+.rails > div {
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  border-left: 1px dashed var(--rule-dash);
+  border-right: 1px dashed var(--rule-dash);
+}
+
+/* ---------- layout ---------- */
+
+.wrap {
+  position: relative; z-index: 1;
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  margin-inline: auto;
+}
+section { position: relative; z-index: 1; }
+
+/* ---------- disclosure strip: first line on the page, always ---------- */
+
+.disclosure {
+  position: relative; z-index: 3;
+  background: var(--dark);
+  color: var(--on-dark-2);
+  border-bottom: 1px solid var(--dark-rule);
+  font-size: 12px; line-height: 1.5;
+  padding: 10px var(--gutter);
+}
+.disclosure b { color: var(--on-dark); font-weight: 600; }
+
+/* ---------- masthead ---------- */
+
+.nav {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.nav__in {
+  display: flex; align-items: center; gap: 16px;
+  padding: 13px 0; min-height: 66px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px; text-decoration: none; flex: 0 0 auto;
+}
+.brand svg { width: 26px; height: 26px; border-radius: 6px; display: block; }
+.brand span {
+  font-family: var(--serif); font-size: 19px; font-weight: 600;
+  letter-spacing: -0.03em; color: var(--ink);
+}
+.nav__links { display: none; gap: 4px; margin-inline: auto; }
+.nav__links a {
+  text-decoration: none; color: var(--body); font-size: 14px;
+  padding: 8px 14px; border-radius: var(--r-pill);
+}
+.nav__links a:hover { color: var(--ink); background: var(--bg-2); }
+.nav__end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 14px 13px 22px; min-height: 52px;
+  border: 1px solid transparent; border-radius: var(--r-pill);
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  letter-spacing: -0.01em; text-decoration: none; cursor: pointer;
+  /* The label never wraps inside the pill — a two-line pill reads as a broken
+     component. If two buttons no longer fit on a row, the row wraps instead. */
+  white-space: nowrap;
+  background: var(--ink); color: var(--bg);
+  transition: transform .18s ease, background-color .18s ease, border-color .18s ease;
+}
+.btn__arw {
+  display: grid; place-items: center;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 12px; line-height: 1; flex: 0 0 auto;
+  transition: transform .18s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:hover .btn__arw { transform: translate(2px, -2px); }
+
+.btn--ghost {
+  background: transparent; color: var(--ink); border-color: var(--rule);
+}
+.btn--ghost:hover { border-color: var(--ink); }
+.btn--ghost .btn__arw { background: var(--bg-2); color: var(--ink); }
+
+.btn--sm { padding: 9px 10px 9px 17px; min-height: 44px; font-size: 13.5px; }
+.btn--sm .btn__arw { width: 24px; height: 24px; font-size: 11px; }
+
+.iconbtn {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; flex: 0 0 auto;
+  border: 1px solid var(--rule); border-radius: 50%;
+  background: transparent; color: var(--ink); cursor: pointer;
+  font: inherit; font-size: 14px;
+}
+.iconbtn:hover { border-color: var(--ink); }
+
+/* ---------- section furniture ---------- */
+
+.sec { padding-block: var(--section); border-top: 1px solid var(--rule); }
+.sec:first-of-type { border-top: 0; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--faint);
+}
+.eyebrow i { font-style: normal; color: var(--accent); }
+
+.sec__head { display: grid; gap: 18px; margin-bottom: clamp(36px, 5vw, 64px); }
+.sec__head h2 { font-size: clamp(32px, 5.4vw, 60px); }
+.sec__head p { font-size: clamp(15.5px, 1.5vw, 17.5px); letter-spacing: -0.02em; max-width: 56ch; }
+
+@media (min-width: 900px) {
+  .sec__head { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: end; column-gap: 48px; }
+  .sec__head .eyebrow { grid-column: 1 / -1; }
+  .sec__head p { justify-self: end; padding-bottom: 6px; }
+}
+
+/* ---------- hero ---------- */
+
+.hero { padding-block: clamp(56px, 9vw, 116px) clamp(48px, 6vw, 80px); text-align: center; }
+.hero__chip {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 7px 15px 7px 11px;
+  border: 1px solid var(--rule); border-radius: var(--r-pill);
+  background: var(--surface);
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--body);
+}
+.hero__chip s { text-decoration: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.hero h1 {
+  margin: 26px auto 0; max-width: 15ch;
+  font-size: clamp(38px, 7.4vw, 78px);
+  letter-spacing: -0.042em; line-height: 1.02;
+}
+.hero__lede {
+  margin: 22px auto 0; max-width: 62ch;
+  font-size: clamp(15.5px, 1.7vw, 18px); letter-spacing: -0.018em;
+}
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 34px; }
+
+/* ---------- fact strip ---------- */
+
+.facts {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.facts > div {
+  padding: 22px 20px; text-align: center;
+  border-right: 1px dashed var(--rule-dash);
+}
+.facts > div:nth-child(2n) { border-right: 0; }
+.facts > div:nth-child(-n+2) { border-bottom: 1px dashed var(--rule-dash); }
+.facts dt {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 7px;
+}
+.facts dd {
+  margin: 0; font-family: var(--serif); font-size: clamp(24px, 3.4vw, 38px);
+  font-weight: 600; letter-spacing: -0.035em; color: var(--ink); line-height: 1;
+}
+@media (min-width: 760px) {
+  .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .facts > div:nth-child(2n) { border-right: 1px dashed var(--rule-dash); }
+  .facts > div:last-child { border-right: 0; }
+  .facts > div:nth-child(-n+2) { border-bottom: 0; }
+}
+
+/* ---------- the dark inset: where product surfaces live ---------- */
+
+.inset {
+  background: var(--dark); color: var(--on-dark-2);
+  border-radius: var(--r-lg); padding: clamp(24px, 4vw, 48px);
+}
+.inset h3, .inset h2 { color: var(--on-dark); }
+.inset .eyebrow { color: var(--on-dark-2); }
+
+.claim {
+  margin: 0; padding: 20px 22px;
+  background: var(--dark-2); border: 1px solid var(--dark-rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-family: var(--serif); font-size: clamp(17px, 2.3vw, 24px);
+  line-height: 1.35; letter-spacing: -0.02em; color: var(--on-dark);
+}
+.claim s { color: var(--accent); text-decoration-thickness: 1.5px; }
+
+.readout {
+  display: grid; gap: 10px; margin-top: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.readout div {
+  padding: 12px 14px; border: 1px solid var(--dark-rule);
+  border-radius: var(--r-xs); background: rgba(255, 255, 255, .03);
+}
+.readout span {
+  display: block; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .11em; text-transform: uppercase; color: var(--on-dark-2);
+  margin-bottom: 5px;
+}
+.readout b {
+  font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--on-dark);
+}
+.readout div:first-child b { color: #ff8f70; }
+.readout div:last-child  b { color: #8ad3a4; }
+
+/* ---------- numbered problem cards ---------- */
+
+.grid-3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+
+.card {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: clamp(22px, 2.6vw, 32px);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  transition: border-color .18s ease, transform .18s ease;
+}
+.card__n {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  color: var(--accent-ink);
+}
+.card h3 { font-size: clamp(20px, 2.1vw, 24px); }
+.card p { font-size: 14.5px; letter-spacing: -0.012em; }
+.card em { font-style: italic; color: var(--ink); }
+.card b { color: var(--ink); font-weight: 600; }
+
+/* ---------- big link cards ---------- */
+
+.links { display: grid; gap: 14px; }
+@media (min-width: 820px) { .links { grid-template-columns: 1fr 1fr; } }
+
+a.link {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: clamp(24px, 3vw, 38px);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); text-decoration: none;
+  transition: border-color .18s ease, transform .18s ease;
+}
+a.link:hover { border-color: var(--ink); transform: translateY(-2px); }
+a.link h3 { font-size: clamp(24px, 2.8vw, 32px); }
+a.link p { font-size: 15px; letter-spacing: -0.015em; flex: 1; }
+a.link b { color: var(--ink); font-weight: 600; }
+.link__go {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink);
+}
+.link__go s {
+  text-decoration: none; display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 11px;
+  transition: transform .18s ease;
+}
+a.link:hover .link__go s { transform: translate(2px, -2px); }
+
+/* ---------- the three-direction comparison ---------- */
+
+.compare { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+.col {
+  padding: clamp(22px, 2.6vw, 30px);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  background: var(--surface);
+}
+.col--ship { background: var(--dark); border-color: var(--dark); }
+.col--ship h3 { color: var(--on-dark); }
+.col--ship li { color: var(--on-dark-2); }
+.col--ship .col__v { color: var(--on-dark); border-color: var(--dark-rule); }
+
+.col__tag {
+  display: inline-block; margin-bottom: 14px;
+  padding: 4px 11px; border-radius: var(--r-pill);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .11em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule); color: var(--faint);
+}
+.col--ship .col__tag { border-color: var(--accent); background: var(--accent); color: #fff; }
+.col h3 { font-size: clamp(19px, 2vw, 23px); margin-bottom: 16px; }
+.col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.col li {
+  display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px;
+  font-size: 14px; letter-spacing: -0.01em; align-items: start;
+}
+.col li s { text-decoration: none; color: var(--faint); font-family: var(--mono); font-size: 12px; line-height: 1.5; }
+.col--ship li s { color: var(--accent); }
+.col__v {
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--ink);
+}
+
+/* ---------- honest limits (accordion) ---------- */
+
+.qa { border-top: 1px solid var(--rule); }
+.qa details { border-bottom: 1px solid var(--rule); }
+.qa summary {
+  display: flex; align-items: center; gap: 16px;
+  padding: 22px 4px; cursor: pointer; list-style: none;
+  font-family: var(--serif); font-size: clamp(17px, 2vw, 22px);
+  font-weight: 600; letter-spacing: -0.028em; color: var(--ink);
+}
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary s {
+  text-decoration: none; font-family: var(--mono); font-size: 11px;
+  color: var(--accent-ink); letter-spacing: .08em; flex: 0 0 auto;
+}
+.qa summary::after {
+  content: "+"; margin-left: auto; flex: 0 0 auto;
+  font-family: var(--mono); font-size: 19px; color: var(--faint); line-height: 1;
+}
+.qa details[open] summary::after { content: "–"; }
+.qa summary:hover { color: var(--accent-ink); }
+.qa p { padding: 0 46px 24px 39px; font-size: 15px; letter-spacing: -0.015em; max-width: 78ch; }
+.qa p + p { padding-top: 0; margin-top: -10px; }
+
+/* ---------- footer ---------- */
+
+.foot { border-top: 1px solid var(--rule); padding-block: clamp(48px, 6vw, 80px) 36px; }
+.foot__mark {
+  font-family: var(--serif); font-size: clamp(38px, 8.4vw, 108px);
+  font-weight: 600; letter-spacing: -0.045em; line-height: .95;
+  color: var(--ink); margin-bottom: 40px;
+}
+.foot__cols { display: grid; gap: 24px; padding-top: 32px; border-top: 1px solid var(--rule); }
+@media (min-width: 820px) { .foot__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
+.foot h4 {
+  font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 12px;
+}
+.foot p { font-size: 13px; line-height: 1.6; }
+.foot p + p { margin-top: 10px; }
+.foot b { color: var(--ink); font-weight: 600; }
+.foot__nav { display: grid; gap: 2px; }
+.foot__nav a {
+  display: inline-flex; align-items: center; min-height: 34px;
+  font-size: 13.5px; text-decoration: none; width: fit-content;
+}
+.foot__nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (min-width: 720px) {
+  .nav__links { display: flex; }
+  .facts > div { padding: 26px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
 </style>
 </head>
 <body>
 
-<div class="label">
+<div class="rails" aria-hidden="true"><div></div></div>
+
+<!-- FIRST LINE ON THE PAGE. Non-negotiable: this is speculative work. -->
+<p class="disclosure">
   <b>Speculative redesign — unaffiliated, unsolicited, not commissioned by anyone.</b>
   An independent UX concept for the run-inspection screen of AI agent nodes in workflow
-  automation tools (n8n, Make, Zapier and similar). It uses no company's logo, brand or
-  product assets, and is not a product of, or endorsed by, any of them. Every number,
-  order, supplier and person shown is synthetic.
-</div>
+  automation tools (n8n, Make, Zapier and similar). It uses no company&rsquo;s logo, brand or
+  product assets, and is not a product of, or endorsed by, any of them. Every number, order,
+  supplier and person shown is synthetic.
+</p>
 
-<div class="wrap">
-  <p class="eyebrow">Portfolio piece · Product design · AI interfaces</p>
-  <h1>What should a screen show you when the AI is confidently wrong?</h1>
-  <p class="lede">
-    An agent just ran against your real business data, and a purchase order is about to
-    go out. Three of four line items are right. On the fourth it wrote a fluent, specific,
-    completely false sentence about a supplier's lead time. A run that crashes is easy —
-    the interesting failure looks exactly like a success.
-  </p>
-
-  <div class="cards">
-    <a class="card" href="/prototype.html">
-      <span class="go">Open the prototype →</span>
-      <h2>Interactive prototype</h2>
-      <p>Press <b>Run workflow</b>. The streaming, the confidence, the tool calls, the failure and the human gate are all live — nothing is a screenshot.</p>
+<header class="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#151619"/>
+        <rect x="8" y="9" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="14.7" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="20.4" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".3"/>
+        <rect x="6" y="20.2" width="20" height="1.5" rx=".75" fill="#ff3700"/>
+      </svg>
+      <span>Run Inspector</span>
     </a>
-    <a class="card" href="/explorations.html">
-      <span class="go">See the process →</span>
-      <h2>Discarded directions</h2>
-      <p>Three treatments for the trust layer, side by side on the same run — the percentage badge, the disclaimer banner, and the one that shipped.</p>
-    </a>
+    <nav class="nav__links" aria-label="Sections">
+      <a href="#problem">The problem</a>
+      <a href="#design">The design</a>
+      <a href="#directions">Directions</a>
+      <a href="#limits">Limits</a>
+    </nav>
+    <div class="nav__end">
+      <button class="iconbtn" id="theme-btn" type="button" aria-label="Switch colour theme" title="Switch theme">◐</button>
+      <a class="btn btn--sm" href="/prototype.html">Open prototype <s class="btn__arw" aria-hidden="true">↗</s></a>
+    </div>
   </div>
+</header>
 
-  <hr>
+<main>
 
-  <div class="five">
-    <p class="eyebrow">The five problems it answers</p>
-    <div><span>01</span><p><b>Streaming</b> — the wait is filled with a commitment, not a spinner. The agent publishes its plan before the first tool call, and the plan's last line is the limit of its own authority.</p></div>
-    <div><span>02</span><p><b>Confidence</b> — no uncalibrated "87% sure" badge. Every value is <i>verified</i>, <i>derived</i> or <i>assumed</i>, and only <i>assumed</i> gets colour.</p></div>
-    <div><span>03</span><p><b>Tool transparency</b> — one line per call, the real payload one click away.</p></div>
-    <div><span>04</span><p><b>Graceful failure</b> — the model is never asked to grade itself. A deterministic check re-reads the record and shows both values side by side.</p></div>
-    <div><span>05</span><p><b>Human-in-the-loop</b> — the pause goes <i>before</i> the irreversible step. Partial approval, editing with the original kept, and an expiry that defaults to <i>not sending</i>.</p></div>
+  <!-- ===================== HERO ===================== -->
+  <section class="wrap hero">
+    <span class="hero__chip"><s aria-hidden="true"></s>Portfolio piece · AI interfaces</span>
+    <h1>What should a screen show you when the AI is confidently wrong?</h1>
+    <p class="hero__lede">
+      An agent just ran against your real business data, and a purchase order is about to go out.
+      Three of four line items are right. On the fourth it wrote a fluent, specific, completely
+      false sentence about a supplier&rsquo;s lead time.
+    </p>
+    <div class="hero__cta">
+      <a class="btn" href="/prototype.html">Run the prototype <s class="btn__arw" aria-hidden="true">↗</s></a>
+      <a class="btn btn--ghost" href="/explorations.html">See the process <s class="btn__arw" aria-hidden="true">↗</s></a>
+    </div>
+  </section>
+
+  <!-- ===================== FACT STRIP ===================== -->
+  <dl class="wrap facts">
+    <div><dt>Prototype</dt><dd>Live</dd></div>
+    <div><dt>Sign-up</dt><dd>None</dd></div>
+    <div><dt>Network requests</dt><dd>Zero</dd></div>
+    <div><dt>Smallest viewport</dt><dd>375px</dd></div>
+  </dl>
+
+  <!-- ===================== 001 / THE PROBLEM ===================== -->
+  <section class="wrap sec" id="problem">
+    <div class="sec__head">
+      <span class="eyebrow"><i>001/</i> The problem</span>
+      <h2>A run that crashes is easy.</h2>
+      <p>
+        The interesting failure looks exactly like a success. Nothing in the model&rsquo;s output
+        marks the false sentence as different from the correct ones around it — same fluency, same
+        specificity, same tone of certainty.
+      </p>
+    </div>
+
+    <div class="inset">
+      <span class="eyebrow"><i>The run wrote</i></span>
+      <p class="claim" style="margin-top:16px">
+        &ldquo;Volcán Dark ships from Cooperativa Tolima in <s>14 days</s>, so the 120&nbsp;kg lands
+        before you run dry on day 17.&rdquo;
+      </p>
+      <div class="readout">
+        <div><span>The run wrote</span><b>lead_time_days = 14</b></div>
+        <div><span>The record says</span><b>lead_time_days = 28</b></div>
+      </div>
+      <p style="margin-top:20px; max-width:64ch; font-size:15px; letter-spacing:-.015em">
+        The supplier record the run itself read says 28. The model was not hedging. There is no
+        signal inside its output that separates this sentence from the three true ones — which is
+        why asking the model how confident it feels cannot be the answer.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== 002 / THE DESIGN ===================== -->
+  <section class="wrap sec" id="design">
+    <div class="sec__head">
+      <span class="eyebrow"><i>002/</i> The design</span>
+      <h2>Five problems, five answers.</h2>
+      <p>
+        Each one is a decision the screen has to make out loud. The prototype implements all five,
+        live — nothing on it is a screenshot.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <article class="card">
+        <span class="card__n">01</span>
+        <h3>Streaming</h3>
+        <p>
+          The wait is filled with a commitment, not a spinner. The agent publishes its plan before
+          the first tool call, and the plan&rsquo;s last line is <b>the limit of its own authority</b>.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card__n">02</span>
+        <h3>Confidence</h3>
+        <p>
+          No uncalibrated &ldquo;87% sure&rdquo; badge. Every value is <em>verified</em>,
+          <em>derived</em> or <em>assumed</em> — and only <em>assumed</em> gets colour.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card__n">03</span>
+        <h3>Tool transparency</h3>
+        <p>
+          One line per call, with the real payload one click away. Legibility at a glance, full
+          evidence on demand.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card__n">04</span>
+        <h3>Graceful failure</h3>
+        <p>
+          The model is never asked to grade itself. A <b>deterministic check</b> re-reads the record
+          and shows both values side by side.
+        </p>
+      </article>
+      <article class="card">
+        <span class="card__n">05</span>
+        <h3>Human-in-the-loop</h3>
+        <p>
+          The pause goes <em>before</em> the irreversible step. Partial approval, editing with the
+          original kept, and an expiry that defaults to <b>not sending</b>.
+        </p>
+      </article>
+      <article class="card" style="background:var(--dark); border-color:var(--dark)">
+        <span class="card__n" style="color:var(--accent)">→</span>
+        <h3 style="color:var(--on-dark)">See it run</h3>
+        <p style="color:var(--on-dark-2)">
+          Press <b style="color:var(--on-dark)">Run workflow</b>. The streaming, the tool calls, the
+          failure and the human gate are all live.
+        </p>
+        <a class="btn btn--sm" href="/prototype.html" style="background:var(--on-dark); color:var(--dark); align-self:flex-start; margin-top:4px">
+          Open prototype <s class="btn__arw" aria-hidden="true">↗</s>
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== 003 / WHAT'S HERE ===================== -->
+  <section class="wrap sec">
+    <div class="sec__head">
+      <span class="eyebrow"><i>003/</i> What&rsquo;s here</span>
+      <h2>Two surfaces, both real.</h2>
+      <p>The working prototype, and the reasoning that produced it — including what got thrown away.</p>
+    </div>
+
+    <div class="links">
+      <a class="link" href="/prototype.html">
+        <h3>Interactive prototype</h3>
+        <p>
+          The full run, end to end: the plan, the streaming prose, the tool calls with their real
+          payloads, the contradiction the check catches, and the approval gate that stands in front
+          of the irreversible step. <b>Driveable from the keyboard, usable at 375px.</b>
+        </p>
+        <span class="link__go">Open it <s aria-hidden="true">↗</s></span>
+      </a>
+      <a class="link" href="/explorations.html">
+        <h3>Discarded directions</h3>
+        <p>
+          Three treatments for the trust layer on the same run — the percentage badge, the
+          disclaimer banner, and the one that shipped. <b>The discarded two are drawn as a competent
+          team would ship them</b>, not as straw men.
+        </p>
+        <span class="link__go">See the process <s aria-hidden="true">↗</s></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== 004 / DIRECTIONS ===================== -->
+  <section class="wrap sec" id="directions">
+    <div class="sec__head">
+      <span class="eyebrow"><i>004/</i> The decision</span>
+      <h2>Three ways to show doubt.</h2>
+      <p>
+        One question, asked of each: does it give the operator a reason to catch the false lead time?
+      </p>
+    </div>
+
+    <div class="compare">
+      <div class="col">
+        <span class="col__tag">Discarded</span>
+        <h3>Confidence score</h3>
+        <ul>
+          <li><s>—</s><span>Uncalibrated: the model has no reliable access to its own reliability</span></li>
+          <li><s>—</s><span>Message-level, so three solid facts dilute one invention</span></li>
+          <li><s>—</s><span>Unactionable: nobody knows what to do at 87 versus 62</span></li>
+        </ul>
+        <p class="col__v">Verdict — the false claim sits inside the 87%</p>
+      </div>
+      <div class="col">
+        <span class="col__tag">Discarded</span>
+        <h3>Persistent disclaimer</h3>
+        <ul>
+          <li><s>—</s><span>Identical on a perfect run and on a broken one</span></li>
+          <li><s>—</s><span>On every screen, therefore read on none</span></li>
+          <li><s>—</s><span>Transfers responsibility without naming one thing to check</span></li>
+        </ul>
+        <p class="col__v">Verdict — a constant warning carries no information</p>
+      </div>
+      <div class="col col--ship">
+        <span class="col__tag">Shipped</span>
+        <h3>Provenance per claim</h3>
+        <ul>
+          <li><s>+</s><span>Uncertainty attaches to the claim, never to the message</span></li>
+          <li><s>+</s><span>Verified, derived or assumed — only the last gets colour</span></li>
+          <li><s>+</s><span>A deterministic check re-reads the record the run read</span></li>
+        </ul>
+        <p class="col__v">Verdict — flagged, and the clean items stay clean</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 005 / LIMITS ===================== -->
+  <section class="wrap sec" id="limits">
+    <div class="sec__head">
+      <span class="eyebrow"><i>005/</i> Honest limits</span>
+      <h2>What this is not.</h2>
+      <p>The parts a case study usually leaves out, stated before you have to ask.</p>
+    </div>
+
+    <div class="qa">
+      <details open>
+        <summary><s>01/</s> Was any of this usability tested?</summary>
+        <p>
+          No. No usability testing was run on this design. There are no task-time or error-rate
+          numbers anywhere in it, because none were measured — the case study argues from design
+          reasoning and states what it would test first.
+        </p>
+      </details>
+      <details>
+        <summary><s>02/</s> Is this real client work?</summary>
+        <p>
+          No. It is unsolicited, unaffiliated and uncommissioned — a speculative concept, never
+          presented as client or paid work. It uses no company&rsquo;s logo, brand or product assets.
+        </p>
+      </details>
+      <details>
+        <summary><s>03/</s> Is the data real?</summary>
+        <p>
+          No. The brand, suppliers, SKUs, quantities, order references and the approver are all
+          invented for the prototype. No real business data appears anywhere in it.
+        </p>
+      </details>
+      <details>
+        <summary><s>04/</s> What would it cost to build?</summary>
+        <p>
+          Provenance has to be plumbed. The runtime must tag every output field with the tool result
+          it came from, which is real engineering and assumes structured output. That price is
+          exactly why teams ship a percentage badge instead — and it is the whole difference.
+        </p>
+      </details>
+      <details>
+        <summary><s>05/</s> What would you test first?</summary>
+        <p>
+          Whether an operator under time pressure actually reads the contradiction card before
+          approving, or clears the gate on muscle memory. The design assumes the pause is
+          load-bearing; that assumption is the one most worth breaking.
+        </p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap foot">
+  <p class="foot__mark">Agent Run<br>Inspector</p>
+  <div class="hero__cta" style="justify-content:flex-start; margin:0 0 8px">
+    <a class="btn" href="/prototype.html">Run the prototype <s class="btn__arw" aria-hidden="true">↗</s></a>
+    <a class="btn btn--ghost" href="/explorations.html">See the process <s class="btn__arw" aria-hidden="true">↗</s></a>
   </div>
+  <div class="foot__cols">
+    <div>
+      <h4>Pages</h4>
+      <div class="foot__nav">
+        <a href="/prototype.html">Interactive prototype</a>
+        <a href="/explorations.html">Discarded directions</a>
+        <a href="#problem">The problem</a>
+        <a href="#limits">Honest limits</a>
+      </div>
+    </div>
+    <div>
+      <h4>Disclosure</h4>
+      <p>
+        <b>Speculative work.</b> Independent redesign concept, not affiliated with or commissioned
+        by any company. Not client work, not paid work, never presented as either.
+      </p>
+      <p>Every number, order, supplier and person shown is synthetic.</p>
+    </div>
+    <div>
+      <h4>Build</h4>
+      <p>
+        <b>No sign-up, no data collected, nothing leaves your browser.</b> Each page is a single
+        self-contained HTML file — no build step, no dependencies, no external fonts, and zero
+        network requests once loaded.
+      </p>
+      <p>View source; the reasoning is commented in place.</p>
+    </div>
+  </div>
+</footer>
 
-  <hr>
-
-  <footer>
-    <p><b>No sign-up, no data collected, nothing leaves your browser.</b> The prototype is a single self-contained HTML file — no build step, no dependencies, and zero network requests once loaded.</p>
-    <p>No usability testing was run on this design. There are no task-time or error-rate numbers anywhere in it, because none were measured — the case study argues from design reasoning and states what it would test first.</p>
-  </footer>
-</div>
+<script>
+"use strict";
+/* Theme toggle. Cycles system → light → dark and remembers the choice, so the
+   three pages of the case study stay in one world as you move between them. */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById("theme-btn");
+  try {
+    var saved = localStorage.getItem("ari-theme");
+    if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  } catch (e) {}
+  btn.addEventListener("click", function () {
+    var now = root.getAttribute("data-theme");
+    var next = now === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("ari-theme", next); } catch (e) {}
+  });
+})();
+</script>
 
 </body>
 </html>

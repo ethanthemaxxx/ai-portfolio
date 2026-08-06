@@ -18,23 +18,47 @@
    design decision under test.
    ========================================================================== */
 
+/* ---------- tokens ----------
+   The same design system as the landing page and the prototype. The names
+   below the system block are this page's original vocabulary, aliased onto
+   the shared palette so every component keeps reading in its own terms.
+
+   Colour rationing, same rule as the prototype: the page chrome owns the
+   brand orange; inside the three mockups colour is semantic only — green is
+   verified, amber is assumed, red is contradicted. Interactive affordances
+   are graphite. On a page whose entire argument is about what deserves
+   colour, the brand does not get to borrow the alarm. */
+
 :root {
   color-scheme: light dark;
 
+  --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --bg:        #eceef0;
-  --surface:   #ffffff;
-  --surface-2: #f4f6f7;
-  --line:      #d6dbde;
-  --line-2:    #b4bcc1;
-  --text:      #12181b;
-  --dim:       #566065;
-  --faint:     #7d888d;
+  /* system canvas */
+  --ink:        #0a0a0a;
+  --bg-2:       #e5e5e5;
+  --rule-dash:  rgba(0, 0, 0, .18);
+  --brand:      #ff3700;
+  --brand-ink:  #c42a00;
+  --dark:       #151619;
+  --dark-rule:  rgba(255, 255, 255, .14);
+  --on-dark:    #f0f0f0;
+  --on-dark-2:  rgba(240, 240, 240, .62);
 
-  --accent:    #0d6a62;
-  --accent-bg: #e2f0ee;
+  /* page vocabulary */
+  --bg:        #f0f0f0;
+  --surface:   #ffffff;
+  --surface-2: #f5f5f5;
+  --line:      rgba(0, 0, 0, .12);
+  --line-2:    rgba(0, 0, 0, .24);
+  --text:      #0a0a0a;
+  --dim:       #4f4f4f;
+  --faint:     #6b6b6b;
+
+  --accent:    #0a0a0a;
+  --accent-bg: #e9e9e9;
 
   --ok:        #2c6f47;
   --ok-bg:     #e4efe8;
@@ -43,21 +67,32 @@
   --block:     #a33c2c;
   --block-bg:  #f8e7e3;
 
-  --radius: 3px;
+  --radius: 8px;
+
+  --gutter: clamp(18px, 4vw, 40px);
+  --max:    1280px;
 }
 
 :root[data-theme="dark"] {
-  --bg:        #0c1012;
-  --surface:   #141a1d;
-  --surface-2: #1a2225;
-  --line:      #263135;
-  --line-2:    #3a494e;
-  --text:      #e7edef;
-  --dim:       #97a5aa;
-  --faint:     #74838a;
+  --ink:        #f2f2f2;
+  --bg-2:       #131315;
+  --rule-dash:  rgba(255, 255, 255, .16);
+  --brand:      #ff4a1a;
+  --brand-ink:  #ff7a52;
+  --dark:       #131315;
+  --dark-rule:  rgba(255, 255, 255, .12);
 
-  --accent:    #46b9ad;
-  --accent-bg: #102b2a;
+  --bg:        #0a0a0b;
+  --surface:   #151619;
+  --surface-2: #1c1c20;
+  --line:      rgba(255, 255, 255, .13);
+  --line-2:    rgba(255, 255, 255, .26);
+  --text:      #f2f2f2;
+  --dim:       #a2a2a6;
+  --faint:     #808086;
+
+  --accent:    #f2f2f2;
+  --accent-bg: #26262a;
 
   --ok:        #5cb47c;
   --ok-bg:     #12251a;
@@ -69,17 +104,25 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:        #0c1012;
-    --surface:   #141a1d;
-    --surface-2: #1a2225;
-    --line:      #263135;
-    --line-2:    #3a494e;
-    --text:      #e7edef;
-    --dim:       #97a5aa;
-    --faint:     #74838a;
+    --ink:        #f2f2f2;
+    --bg-2:       #131315;
+    --rule-dash:  rgba(255, 255, 255, .16);
+    --brand:      #ff4a1a;
+    --brand-ink:  #ff7a52;
+    --dark:       #131315;
+    --dark-rule:  rgba(255, 255, 255, .12);
 
-    --accent:    #46b9ad;
-    --accent-bg: #102b2a;
+    --bg:        #0a0a0b;
+    --surface:   #151619;
+    --surface-2: #1c1c20;
+    --line:      rgba(255, 255, 255, .13);
+    --line-2:    rgba(255, 255, 255, .26);
+    --text:      #f2f2f2;
+    --dim:       #a2a2a6;
+    --faint:     #808086;
+
+    --accent:    #f2f2f2;
+    --accent-bg: #26262a;
 
     --ok:        #5cb47c;
     --ok-bg:     #12251a;
@@ -107,45 +150,111 @@ body {
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* ---------- the exposed grid ---------- */
+
+.rails {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  display: flex; justify-content: center;
+}
+.rails > div {
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  border-left: 1px dashed var(--rule-dash);
+  border-right: 1px dashed var(--rule-dash);
+}
+
 /* ---------- disclosure banner: first line on the page ---------- */
 
 .disclaimer {
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--line);
-  padding: 9px 16px;
+  position: relative; z-index: 3;
+  background: var(--dark);
+  color: var(--on-dark-2);
+  border-bottom: 1px solid var(--dark-rule);
+  padding: 10px var(--gutter);
   font-size: 12px;
-  line-height: 1.45;
-  color: var(--dim);
+  line-height: 1.5;
 }
-.disclaimer strong { color: var(--text); font-weight: 600; }
+.disclaimer strong { color: var(--on-dark); font-weight: 600; }
+
+/* ---------- masthead ---------- */
+
+.topbar {
+  position: relative; z-index: 20;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.topbar__in {
+  display: flex; align-items: center; gap: 16px;
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  margin-inline: auto; padding: 13px 0; min-height: 66px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px; text-decoration: none; flex: 0 0 auto;
+}
+.brand svg { width: 26px; height: 26px; border-radius: 6px; display: block; }
+.brand span {
+  font-family: var(--serif); font-size: 19px; font-weight: 600;
+  letter-spacing: -0.03em; color: var(--ink);
+}
+.topbar__end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+.pillbtn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 10px 9px 17px; min-height: 44px;
+  border: 1px solid transparent; border-radius: 50px;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 500;
+  letter-spacing: -0.01em; text-decoration: none; cursor: pointer;
+  white-space: nowrap;
+  background: var(--ink); color: var(--bg);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.pillbtn s {
+  text-decoration: none;
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--brand); color: #fff; font-size: 11px; line-height: 1;
+  flex: 0 0 auto; transition: transform .18s ease;
+}
+.pillbtn:hover { transform: translateY(-1px); }
+.pillbtn:hover s { transform: translate(2px, -2px); }
+.pillbtn--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.pillbtn--ghost:hover { border-color: var(--ink); }
+.pillbtn--ghost s { background: var(--bg-2); color: var(--ink); }
 
 /* ---------- shell ---------- */
 
 .shell {
-  max-width: 1240px;
+  position: relative; z-index: 1;
+  width: min(100% - (var(--gutter) * 2), var(--max));
   margin: 0 auto;
-  padding: 20px 16px 60px;
+  padding: clamp(30px, 5vw, 56px) 0 60px;
 }
 
-.masthead {
-  margin: 8px 0 10px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 16px;
+.masthead { margin: 0 0 22px; }
+.masthead .eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--faint);
 }
+.masthead .eyebrow i { font-style: normal; color: var(--brand-ink); }
 .masthead h1 {
   margin: 0;
-  font-size: 19px;
-  font-weight: 620;
-  letter-spacing: -0.012em;
+  font-family: var(--serif);
+  font-size: clamp(30px, 5.4vw, 56px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  text-wrap: balance;
 }
-.masthead .spacer { flex: 1 1 auto; }
 
 .lede {
-  margin: 0 0 6px;
-  max-width: 74ch;
-  font-size: 13.5px;
+  margin: 18px 0 0;
+  max-width: 68ch;
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.55;
+  letter-spacing: -0.015em;
   color: var(--dim);
 }
 .lede strong { color: var(--text); font-weight: 600; }
@@ -153,16 +262,16 @@ button { font: inherit; color: inherit; }
 /* ---------- the shared test ---------- */
 
 .test {
-  margin: 16px 0 22px;
+  margin: 26px 0 32px;
   border: 1px solid var(--line);
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--brand);
   border-radius: 0 var(--radius) var(--radius) 0;
   background: var(--surface);
-  padding: 12px 14px;
+  padding: 16px 18px;
   max-width: 74ch;
 }
-.test .label { display: block; margin-bottom: 4px; }
-.test p { margin: 0; font-size: 13px; }
+.test .label { display: block; margin-bottom: 6px; }
+.test p { margin: 0; font-size: 13.5px; }
 .test p + p { margin-top: 6px; }
 .test .false-claim { color: var(--block); font-weight: 560; }
 
@@ -212,9 +321,9 @@ button { font: inherit; color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border: 1px solid var(--line-2);
-  border-radius: 2px;
+  border-radius: 50px;
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.07em;
@@ -430,8 +539,8 @@ button { font: inherit; color: inherit; }
 
 .note {
   margin: 12px 0 0;
-  padding: 9px 11px;
-  border-left: 2px dashed var(--accent);
+  padding: 11px 13px;
+  border-left: 2px dashed var(--brand);
   background: var(--accent-bg);
   border-radius: 0 var(--radius) var(--radius) 0;
   font-size: 12px;
@@ -442,7 +551,7 @@ button { font: inherit; color: inherit; }
   font-size: 10.5px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--brand-ink);
   display: block;
   margin-bottom: 3px;
 }
@@ -452,34 +561,56 @@ button { font: inherit; color: inherit; }
 /* ---------- theme button ---------- */
 
 .btn-quiet {
-  min-height: 28px;
-  padding: 3px 8px;
-  border: 1px solid transparent;
-  border-radius: 2px;
+  display: inline-grid; place-items: center;
+  width: 44px; height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
   background: transparent;
-  color: var(--dim);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.03em;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
   cursor: pointer;
 }
-.btn-quiet:hover { color: var(--accent); border-color: var(--line); }
+.btn-quiet:hover { border-color: var(--ink); }
 
 /* ---------- footer ---------- */
 
 .foot {
-  max-width: 1240px;
+  position: relative; z-index: 1;
+  width: min(100% - (var(--gutter) * 2), var(--max));
   margin: 0 auto;
-  padding: 22px 16px 40px;
-  font-size: 11.5px;
+  padding: clamp(40px, 5vw, 64px) 0 40px;
+  font-size: 12.5px;
   line-height: 1.6;
-  color: var(--faint);
+  color: var(--dim);
   border-top: 1px solid var(--line);
 }
-.foot p { margin: 0 0 6px; max-width: 76ch; }
+.foot__mark {
+  font-family: var(--serif);
+  font-size: clamp(30px, 6vw, 64px);
+  font-weight: 600; letter-spacing: -0.045em; line-height: .98;
+  color: var(--ink); margin: 0 0 28px;
+}
+.foot__cols { display: grid; gap: 24px; padding-top: 26px; border-top: 1px solid var(--line); }
+@media (min-width: 820px) { .foot__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
+.foot h4 {
+  font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--faint); margin: 0 0 12px;
+}
+.foot p { margin: 0 0 10px; max-width: 62ch; }
+.foot p:last-child { margin-bottom: 0; }
+.foot strong { color: var(--text); font-weight: 600; }
+.foot__nav { display: grid; gap: 2px; }
+.foot__nav a {
+  display: inline-flex; align-items: center; min-height: 34px;
+  font-size: 13px; color: var(--dim); text-decoration: none; width: fit-content;
+}
+.foot__nav a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
+
+<div class="rails" aria-hidden="true"><div></div></div>
 
 <!-- FIRST LINE ON THE PAGE. -->
 <p class="disclaimer">
@@ -488,12 +619,31 @@ button { font: inherit; color: inherit; }
   used; not a product of, or endorsed by, anyone. All data is synthetic.
 </p>
 
+<header class="topbar">
+  <div class="topbar__in">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#151619"/>
+        <rect x="8" y="9" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="14.7" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="20.4" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".3"/>
+        <rect x="6" y="20.2" width="20" height="1.5" rx=".75" fill="#ff3700"/>
+      </svg>
+      <span>Run Inspector</span>
+    </a>
+    <div class="topbar__end">
+      <button class="btn-quiet" id="theme-btn" type="button" aria-label="Switch colour theme" title="Switch theme">◐</button>
+      <a class="pillbtn pillbtn--ghost" href="/">Case study <s aria-hidden="true">↗</s></a>
+      <a class="pillbtn" href="/prototype.html">Prototype <s aria-hidden="true">↗</s></a>
+    </div>
+  </div>
+</header>
+
 <main class="shell">
 
   <header class="masthead">
+    <span class="eyebrow"><i>002/</i> The process</span>
     <h1>Confidence layer — three directions</h1>
-    <span class="spacer"></span>
-    <button class="btn-quiet" id="theme-btn">Theme</button>
   </header>
 
   <p class="lede">
@@ -712,29 +862,57 @@ button { font: inherit; color: inherit; }
 </main>
 
 <footer class="foot">
-  <p>
-    <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
-    commissioned by any company. Not client work, not paid work, never presented as either.
-    All data is synthetic. No usability testing has been run on any of these directions; this page
-    is design reasoning, not evidence of outcomes.
-  </p>
-  <p>
-    Part of the <em>Agent Run Inspector</em> case study — see <span class="mono">README.md</span>,
-    <span class="mono">decisions.md</span> §2, and the interactive
-    <span class="mono">prototype.html</span>. Self-contained: no network requests, no external
-    fonts, no build step.
-  </p>
+  <p class="foot__mark">Confidence<br>layer</p>
+  <div class="foot__cols">
+    <div>
+      <h4>Pages</h4>
+      <div class="foot__nav">
+        <a href="/">Case study</a>
+        <a href="/prototype.html">Interactive prototype</a>
+        <a href="/explorations.html">This process piece</a>
+      </div>
+    </div>
+    <div>
+      <h4>Disclosure</h4>
+      <p>
+        <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
+        commissioned by any company. Not client work, not paid work, never presented as either.
+        All data is synthetic.
+      </p>
+      <p>
+        No usability testing has been run on any of these directions; this page is design
+        reasoning, not evidence of outcomes.
+      </p>
+    </div>
+    <div>
+      <h4>Build</h4>
+      <p>
+        Part of the <em>Agent Run Inspector</em> case study — see <span class="mono">README.md</span>,
+        <span class="mono">decisions.md</span> §2, and the interactive
+        <span class="mono">prototype.html</span>.
+      </p>
+      <p>Self-contained: no network requests, no external fonts, no build step.</p>
+    </div>
+  </div>
 </footer>
 
 <script>
 "use strict";
 
+/* One theme across the three pages of the case study. Storage is best-effort. */
 function setTheme(t) {
-  if (t) document.documentElement.setAttribute("data-theme", t);
-  var cur = document.documentElement.getAttribute("data-theme");
-  document.getElementById("theme-btn").textContent =
-    cur === "dark" ? "Theme: dark" : cur === "light" ? "Theme: light" : "Theme";
+  if (t) {
+    document.documentElement.setAttribute("data-theme", t);
+    try { localStorage.setItem("ari-theme", t); } catch (e) {}
+  }
 }
+
+try {
+  var savedTheme = localStorage.getItem("ari-theme");
+  if (savedTheme === "light" || savedTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
+} catch (e) {}
 
 document.getElementById("theme-btn").addEventListener("click", function () {
   var cur = document.documentElement.getAttribute("data-theme");

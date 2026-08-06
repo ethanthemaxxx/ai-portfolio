@@ -23,35 +23,64 @@
         rubber-stamped from a notification instead — which is the failure mode
         the whole design exists to prevent.
 
-   Visual language: an instrument panel, not a chat app. Hairlines, square
+   Visual language: an instrument panel, not a chat app. Hairlines, soft
    corners, no shadows, no gradients. Human words are set in sans; every value
-   the machine emitted is set in mono. That split is the type system — you can
-   tell at a glance what a person wrote and what a program produced.
+   the machine emitted is set in mono; the claims the case study itself makes
+   are set in the display serif. Three voices, never mixed — you can tell at a
+   glance what a person wrote, what a program produced, and what the designer
+   is asserting.
+
+   COLOUR RATIONING — the rule that keeps this panel readable:
+
+   The page chrome owns the brand orange. Inside the panel, orange appears in
+   exactly one place: the live indicator, the single "something is happening"
+   signal. Every other colour in here is semantic and owns a meaning —
+   green is verified, amber is assumed, red is contradicted. Interactive
+   affordances (hover, focus, the caret) are graphite, not brand.
+
+   That is deliberate. The design's own thesis is that only the states needing
+   a human get colour; a brand accent splashed across hovers and borders would
+   spend the exact signal the provenance system depends on.
    ========================================================================== */
 
-/* ---------- tokens ---------- */
+/* ---------- tokens ----------
+   The case-study design system. The names on the left of the alias block are
+   the panel's original vocabulary, kept so every component below still reads
+   in its own terms while drawing from the shared palette. */
 
 :root {
   color-scheme: light dark;
 
+  --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-  /* Cool neutral graphite. Deliberately not the cream/terracotta of the
-     support-widget piece, and deliberately not the violet gradient every AI
-     product ships with. */
-  --bg:        #eceef0;
-  --surface:   #ffffff;
-  --surface-2: #f4f6f7;
-  --line:      #d6dbde;
-  --line-2:    #b4bcc1;
-  --text:      #12181b;
-  --dim:       #566065;
-  --faint:     #7d888d;
+  /* system canvas */
+  --ink:        #0a0a0a;
+  --body-c:     #4f4f4f;
+  --bg-2:       #e5e5e5;
+  --rule-dash:  rgba(0, 0, 0, .18);
+  --brand:      #ff3700;   /* marks only — never small prose */
+  --brand-ink:  #c42a00;   /* the same idea at prose contrast */
+  --dark:       #151619;
+  --dark-rule:  rgba(255, 255, 255, .14);
+  --on-dark:    #f0f0f0;
+  --on-dark-2:  rgba(240, 240, 240, .62);
 
-  --accent:    #0d6a62;
-  --accent-bg: #e2f0ee;
-  --on-accent: #ffffff;
+  /* panel vocabulary, drawn from the system above */
+  --bg:        #f0f0f0;
+  --surface:   #ffffff;
+  --surface-2: #f5f5f5;
+  --line:      rgba(0, 0, 0, .12);
+  --line-2:    rgba(0, 0, 0, .24);
+  --text:      #0a0a0a;
+  --dim:       #4f4f4f;
+  --faint:     #6b6b6b;
+
+  /* Interactive = graphite, so colour stays free to mean something. */
+  --accent:    #0a0a0a;
+  --accent-bg: #e9e9e9;
+  --on-accent: #f0f0f0;
 
   --ok:        #2c6f47;
   --ok-bg:     #e4efe8;
@@ -60,22 +89,34 @@
   --block:     #a33c2c;
   --block-bg:  #f8e7e3;
 
-  --radius: 3px;
+  --radius: 8px;
+
+  --gutter:  clamp(18px, 4vw, 40px);
+  --max:     1280px;
 }
 
 :root[data-theme="dark"] {
-  --bg:        #0c1012;
-  --surface:   #141a1d;
-  --surface-2: #1a2225;
-  --line:      #263135;
-  --line-2:    #3a494e;
-  --text:      #e7edef;
-  --dim:       #97a5aa;
-  --faint:     #74838a;
+  --ink:        #f2f2f2;
+  --body-c:     #a2a2a6;
+  --bg-2:       #131315;
+  --rule-dash:  rgba(255, 255, 255, .16);
+  --brand:      #ff4a1a;
+  --brand-ink:  #ff7a52;
+  --dark:       #131315;
+  --dark-rule:  rgba(255, 255, 255, .12);
 
-  --accent:    #46b9ad;
-  --accent-bg: #102b2a;
-  --on-accent: #06201e;
+  --bg:        #0a0a0b;
+  --surface:   #151619;
+  --surface-2: #1c1c20;
+  --line:      rgba(255, 255, 255, .13);
+  --line-2:    rgba(255, 255, 255, .26);
+  --text:      #f2f2f2;
+  --dim:       #a2a2a6;
+  --faint:     #808086;
+
+  --accent:    #f2f2f2;
+  --accent-bg: #26262a;
+  --on-accent: #0a0a0b;
 
   --ok:        #5cb47c;
   --ok-bg:     #12251a;
@@ -87,18 +128,27 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:        #0c1012;
-    --surface:   #141a1d;
-    --surface-2: #1a2225;
-    --line:      #263135;
-    --line-2:    #3a494e;
-    --text:      #e7edef;
-    --dim:       #97a5aa;
-    --faint:     #74838a;
+    --ink:        #f2f2f2;
+    --body-c:     #a2a2a6;
+    --bg-2:       #131315;
+    --rule-dash:  rgba(255, 255, 255, .16);
+    --brand:      #ff4a1a;
+    --brand-ink:  #ff7a52;
+    --dark:       #131315;
+    --dark-rule:  rgba(255, 255, 255, .12);
 
-    --accent:    #46b9ad;
-    --accent-bg: #102b2a;
-    --on-accent: #06201e;
+    --bg:        #0a0a0b;
+    --surface:   #151619;
+    --surface-2: #1c1c20;
+    --line:      rgba(255, 255, 255, .13);
+    --line-2:    rgba(255, 255, 255, .26);
+    --text:      #f2f2f2;
+    --dim:       #a2a2a6;
+    --faint:     #808086;
+
+    --accent:    #f2f2f2;
+    --accent-bg: #26262a;
+    --on-accent: #0a0a0b;
 
     --ok:        #5cb47c;
     --ok-bg:     #12251a;
@@ -140,39 +190,115 @@ button, input, select { font: inherit; color: inherit; }
   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
+/* ---------- the exposed grid ----------
+   Same dashed rails as the landing page: the measuring apparatus stays
+   visible, because the subject is verification. */
+
+.rails {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  display: flex; justify-content: center;
+}
+.rails > div {
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  border-left: 1px dashed var(--rule-dash);
+  border-right: 1px dashed var(--rule-dash);
+}
+
 /* ---------- disclosure banner (must be the first line on the page) ---------- */
 
 .disclaimer {
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--line);
-  padding: 9px 16px;
+  position: relative; z-index: 3;
+  background: var(--dark);
+  color: var(--on-dark-2);
+  border-bottom: 1px solid var(--dark-rule);
+  padding: 10px var(--gutter);
   font-size: 12px;
-  line-height: 1.45;
-  color: var(--dim);
+  line-height: 1.5;
 }
-.disclaimer strong { color: var(--text); font-weight: 600; }
+.disclaimer strong { color: var(--on-dark); font-weight: 600; }
+
+/* ---------- masthead ---------- */
+
+.topbar {
+  position: relative; z-index: 20;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.topbar__in {
+  display: flex; align-items: center; gap: 16px;
+  width: min(100% - (var(--gutter) * 2), var(--max));
+  margin-inline: auto; padding: 13px 0; min-height: 66px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px; text-decoration: none; flex: 0 0 auto;
+}
+.brand svg { width: 26px; height: 26px; border-radius: 6px; display: block; }
+.brand span {
+  font-family: var(--serif); font-size: 19px; font-weight: 600;
+  letter-spacing: -0.03em; color: var(--ink);
+}
+.topbar__end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+.pillbtn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 10px 9px 17px; min-height: 44px;
+  border: 1px solid transparent; border-radius: 50px;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 500;
+  letter-spacing: -0.01em; text-decoration: none; cursor: pointer;
+  white-space: nowrap;
+  background: var(--ink); color: var(--bg);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.pillbtn s {
+  text-decoration: none;
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--brand); color: #fff; font-size: 11px; line-height: 1;
+  flex: 0 0 auto; transition: transform .18s ease;
+}
+.pillbtn:hover { transform: translateY(-1px); }
+.pillbtn:hover s { transform: translate(2px, -2px); }
+.pillbtn--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.pillbtn--ghost:hover { border-color: var(--ink); }
+.pillbtn--ghost s { background: var(--bg-2); color: var(--ink); }
 
 /* ---------- shell ---------- */
 
 .shell {
-  max-width: 900px;
+  position: relative; z-index: 1;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 20px 16px 140px;
+  padding: clamp(30px, 5vw, 56px) var(--gutter) 140px;
 }
 
-.masthead { margin: 8px 0 22px; }
+.masthead { margin: 0 0 26px; }
+.masthead .eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--faint);
+}
+.masthead .eyebrow i { font-style: normal; color: var(--brand-ink); }
 .masthead h1 {
-  margin: 0 0 6px;
-  font-size: 19px;
-  font-weight: 620;
-  letter-spacing: -0.012em;
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: clamp(30px, 5.4vw, 52px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  text-wrap: balance;
 }
 .masthead p {
   margin: 0;
-  max-width: 62ch;
-  font-size: 13.5px;
+  max-width: 64ch;
+  font-size: clamp(15px, 1.5vw, 16.5px);
+  line-height: 1.55;
+  letter-spacing: -0.015em;
   color: var(--dim);
 }
+.masthead em { font-style: normal; font-weight: 600; color: var(--text); }
 
 /* ---------- panel chrome ---------- */
 
@@ -232,9 +358,9 @@ button, input, select { font: inherit; color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border: 1px solid var(--line-2);
-  border-radius: 2px;
+  border-radius: 50px;
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.07em;
@@ -242,7 +368,8 @@ button, input, select { font: inherit; color: inherit; }
   color: var(--dim);
   white-space: nowrap;
 }
-.pill--run   { color: var(--accent); border-color: var(--accent); background: var(--accent-bg); }
+/* The one place brand orange is allowed inside the panel: "this is live". */
+.pill--run   { color: var(--brand-ink); border-color: var(--brand-ink); background: var(--accent-bg); }
 .pill--hold  { color: var(--hold);   border-color: var(--hold);   background: var(--hold-bg); }
 .pill--ok    { color: var(--ok);     border-color: var(--ok);     background: var(--ok-bg); }
 .pill--block { color: var(--block);  border-color: var(--block);  background: var(--block-bg); }
@@ -262,10 +389,10 @@ button, input, select { font: inherit; color: inherit; }
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-height: 34px;
-  padding: 6px 13px;
+  min-height: 40px;
+  padding: 8px 18px;
   border: 1px solid var(--line-2);
-  border-radius: 2px;
+  border-radius: 50px;
   background: var(--surface);
   color: var(--text);
   font-size: 13px;
@@ -286,8 +413,8 @@ button, input, select { font: inherit; color: inherit; }
 .btn--danger:hover:not(:disabled) { border-color: var(--block); color: var(--block); }
 
 .btn--quiet {
-  min-height: 28px;
-  padding: 3px 8px;
+  min-height: 34px;
+  padding: 5px 12px;
   border-color: transparent;
   background: transparent;
   color: var(--dim);
@@ -338,7 +465,7 @@ button, input, select { font: inherit; color: inherit; }
   background: var(--surface);
   border: 1px solid var(--line-2);
 }
-.step--live  .step__b::before { border-color: var(--accent); background: var(--accent); animation: led 1.1s ease-in-out infinite; }
+.step--live  .step__b::before { border-color: var(--brand); background: var(--brand); animation: led 1.1s ease-in-out infinite; }
 .step--ok    .step__b::before { border-color: var(--ok);    background: var(--ok); }
 .step--hold  .step__b::before { border-color: var(--hold);  background: var(--hold); }
 .step--block .step__b::before { border-color: var(--block); background: var(--block); }
@@ -365,7 +492,7 @@ button, input, select { font: inherit; color: inherit; }
   margin: 8px 0 0;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--brand);
   background: var(--surface-2);
   border-radius: 0 var(--radius) var(--radius) 0;
 }
@@ -456,7 +583,7 @@ button, input, select { font: inherit; color: inherit; }
   width: 2px; height: 1em;
   margin-left: 1px;
   vertical-align: text-bottom;
-  background: var(--accent);
+  background: var(--brand);
   animation: blink 1s steps(2, start) infinite;
 }
 @keyframes blink { to { visibility: hidden; } }
@@ -688,7 +815,7 @@ button, input, select { font: inherit; color: inherit; }
   display: block;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: var(--accent);
+  color: var(--brand-ink);
   margin-top: 3px;
   white-space: nowrap;
 }
@@ -745,7 +872,7 @@ button, input, select { font: inherit; color: inherit; }
   display: block;
   margin: 8px 0 0;
   padding: 7px 10px;
-  border-left: 2px dashed var(--accent);
+  border-left: 2px dashed var(--brand);
   background: var(--accent-bg);
   border-radius: 0 var(--radius) var(--radius) 0;
   font-size: 12px;
@@ -757,7 +884,7 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 10.5px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--brand-ink);
   display: block;
   margin-bottom: 2px;
 }
@@ -766,15 +893,36 @@ button, input, select { font: inherit; color: inherit; }
 /* ---------- footer ---------- */
 
 .foot {
-  max-width: 900px;
+  position: relative; z-index: 1;
+  width: min(100% - (var(--gutter) * 2), var(--max));
   margin: 0 auto;
-  padding: 26px 16px 40px;
-  font-size: 11.5px;
+  padding: clamp(40px, 5vw, 64px) 0 40px;
+  font-size: 12.5px;
   line-height: 1.6;
-  color: var(--faint);
+  color: var(--dim);
   border-top: 1px solid var(--line);
 }
-.foot p { margin: 0 0 6px; max-width: 70ch; }
+.foot__mark {
+  font-family: var(--serif);
+  font-size: clamp(30px, 6vw, 64px);
+  font-weight: 600; letter-spacing: -0.045em; line-height: .98;
+  color: var(--ink); margin: 0 0 28px;
+}
+.foot__cols { display: grid; gap: 24px; padding-top: 26px; border-top: 1px solid var(--line); }
+@media (min-width: 820px) { .foot__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
+.foot h4 {
+  font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--faint); margin: 0 0 12px;
+}
+.foot p { margin: 0 0 10px; max-width: 62ch; }
+.foot p:last-child { margin-bottom: 0; }
+.foot strong { color: var(--text); font-weight: 600; }
+.foot__nav { display: grid; gap: 2px; }
+.foot__nav a {
+  display: inline-flex; align-items: center; min-height: 34px;
+  font-size: 13px; color: var(--dim); text-decoration: none; width: fit-content;
+}
+.foot__nav a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- wider viewports ---------- */
 
@@ -796,6 +944,8 @@ button, input, select { font: inherit; color: inherit; }
 </head>
 <body>
 
+<div class="rails" aria-hidden="true"><div></div></div>
+
 <!-- FIRST LINE ON THE PAGE. Non-negotiable: this is speculative work. -->
 <p class="disclaimer">
   <strong>Speculative redesign — unaffiliated, unsolicited, not commissioned by anyone.</strong>
@@ -805,9 +955,29 @@ button, input, select { font: inherit; color: inherit; }
   person shown is synthetic.
 </p>
 
+<header class="topbar">
+  <div class="topbar__in">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#151619"/>
+        <rect x="8" y="9" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="14.7" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".92"/>
+        <rect x="8" y="20.4" width="16" height="2.6" rx="1.3" fill="#f0f0f0" opacity=".3"/>
+        <rect x="6" y="20.2" width="20" height="1.5" rx=".75" fill="#ff3700"/>
+      </svg>
+      <span>Run Inspector</span>
+    </a>
+    <div class="topbar__end">
+      <a class="pillbtn pillbtn--ghost" href="/explorations.html">Process <s aria-hidden="true">↗</s></a>
+      <a class="pillbtn" href="/">Case study <s aria-hidden="true">↗</s></a>
+    </div>
+  </div>
+</header>
+
 <main class="shell">
 
   <header class="masthead">
+    <span class="eyebrow"><i>001/</i> The prototype</span>
     <h1>Agent Run Inspector</h1>
     <p>
       The screen an operator opens when an AI agent has just run against their real business data
@@ -851,22 +1021,40 @@ button, input, select { font: inherit; color: inherit; }
 </main>
 
 <footer class="foot">
-  <p>
-    <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
-    commissioned by any company. Not client work, not paid work, never presented as either.
-  </p>
-  <p>
-    Synthetic data throughout: the brand, suppliers, SKUs, quantities, order references and the
-    approver are invented for this prototype. No real business data appears anywhere.
-  </p>
-  <p>
-    No usability testing has been run on this design. There are no measured numbers here, because
-    none were measured &mdash; the argument is design reasoning, not evidence of outcomes.
-  </p>
-  <p style="margin-top:12px;">
-    Self-contained: no network requests, no external fonts, no CDN, no build step. View source &mdash;
-    the reasoning is commented in place.
-  </p>
+  <p class="foot__mark">Agent Run<br>Inspector</p>
+  <div class="foot__cols">
+    <div>
+      <h4>Pages</h4>
+      <div class="foot__nav">
+        <a href="/">Case study</a>
+        <a href="/explorations.html">Discarded directions</a>
+        <a href="/prototype.html">This prototype</a>
+      </div>
+    </div>
+    <div>
+      <h4>Disclosure</h4>
+      <p>
+        <strong>Speculative work.</strong> Independent redesign concept, not affiliated with or
+        commissioned by any company. Not client work, not paid work, never presented as either.
+      </p>
+      <p>
+        Synthetic data throughout: the brand, suppliers, SKUs, quantities, order references and the
+        approver are invented for this prototype. No real business data appears anywhere.
+      </p>
+    </div>
+    <div>
+      <h4>Build</h4>
+      <p>
+        No usability testing has been run on this design. There are no measured numbers here,
+        because none were measured &mdash; the argument is design reasoning, not evidence of
+        outcomes.
+      </p>
+      <p>
+        Self-contained: no network requests, no external fonts, no CDN, no build step. View source
+        &mdash; the reasoning is commented in place.
+      </p>
+    </div>
+  </div>
 </footer>
 
 <script>
@@ -1668,12 +1856,26 @@ function startQueue() {
    CHROME: theme, notes, deep-linked states
    ========================================================================== */
 
+/* The three pages of the case study share one theme choice, so moving between
+   the landing page, the prototype and the process piece never flips the
+   lights on you. Storage is best-effort — a blocked localStorage degrades to
+   per-page theming rather than throwing. */
 function setTheme(t) {
-  if (t) document.documentElement.setAttribute("data-theme", t);
+  if (t) {
+    document.documentElement.setAttribute("data-theme", t);
+    try { localStorage.setItem("ari-theme", t); } catch (e) {}
+  }
   var cur = document.documentElement.getAttribute("data-theme");
   el("theme-btn").textContent = cur === "dark" ? "Theme: dark"
     : cur === "light" ? "Theme: light" : "Theme";
 }
+
+try {
+  var savedTheme = localStorage.getItem("ari-theme");
+  if (savedTheme === "light" || savedTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
+} catch (e) {}
 
 el("theme-btn").addEventListener("click", function () {
   var cur = document.documentElement.getAttribute("data-theme");
