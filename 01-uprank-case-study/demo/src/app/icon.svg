@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#16151a"/>
-  <!-- a ranked list: one clear winner, one middling, one rejected -->
-  <rect x="6" y="7.5"  width="16" height="4" rx="2" fill="#55b581"/>
-  <rect x="6" y="14"   width="11" height="4" rx="2" fill="#d9a441"/>
-  <rect x="6" y="20.5" width="6.5" height="4" rx="2" fill="#dd6a62"/>
-  <circle cx="25.5" cy="9.5" r="2" fill="#55b581"/>
+  <!-- Same ranked list as before, restated in the reference palette: black
+       ground, sharp corners, and the three verdict colours built the one way
+       that palette builds them — one channel at 246, the others near 144. -->
+  <rect width="32" height="32" fill="#000000"/>
+  <rect x="5" y="7"    width="18" height="4" fill="#9ff690"/>
+  <rect x="5" y="14"   width="12" height="4" fill="#f6d690"/>
+  <rect x="5" y="21"   width="7"  height="4" fill="#f69090"/>
+  <rect x="25" y="7.5" width="3"  height="3" fill="#9ff690"/>
 </svg>

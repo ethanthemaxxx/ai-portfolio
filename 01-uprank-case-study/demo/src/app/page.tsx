@@ -79,6 +79,13 @@ const VERDICT_TEXT: Record<string, string> = {
   review: 'Review',
 };
 
+const STATS: Array<{ n: string; l: string }> = [
+  { n: '0', l: 'model calls' },
+  { n: '0', l: 'bytes sent' },
+  { n: '5', l: 'sub-scores' },
+  { n: '72', l: 'parity scorings' },
+];
+
 export default function Page() {
   const [text, setText] = useState(SAMPLES[0]!.text);
   const [niche, setNiche] = useState<NicheKey>('ai_automation');
@@ -108,182 +115,344 @@ export default function Page() {
 
   return (
     <>
-      <div className="banner">
-        <b>Live demo of a personal tool — nothing you paste leaves your browser.</b> The
-        scoring engine is pure TypeScript running client-side: no server call, no database,
-        no analytics, nothing stored. Not affiliated with Upwork. The full app is a local
-        single-user tool; this page is its ranking engine, unchanged, with its text in English.
+      <a className="skip-link" href="#tool">
+        Skip to the tool
+      </a>
+
+      <div className="notice">
+        <p className="notice__in">
+          <b>Live demo — nothing you paste leaves your browser.</b>
+          <span>
+            The scoring engine is pure TypeScript running client-side: no server call, no
+            database, no analytics, nothing stored. Not affiliated with Upwork.
+          </span>
+        </p>
       </div>
 
-      <div className="wrap">
-        <header style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p className="eyebrow">Portfolio piece · Decision engines · Full-stack + AI</p>
-          <h1>Score a job post the way a rule engine would, not the way a model would.</h1>
-          <p className="lede">
-            Paste any Upwork job post. You get a 0–100 score, the five sub-scores it is made
-            of, a plain reason for each one, the scam signals it found, and an apply / maybe /
-            skip verdict. <b>There is no language model anywhere in this.</b> That is the
-            argument the case study makes: a score you cannot audit is a score you will not
-            trust, and the same post has to produce the same score or the ranked list stops
-            being stable.
-          </p>
+      <nav className="nav" aria-label="Primary">
+        <div className="nav__in">
+          <a className="nav__brand" href="#top">
+            <span className="nav__mark" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 10.5L5.5 6.5L8 9L12 3.5" stroke="#9ff690" strokeWidth="1.6" />
+              </svg>
+            </span>
+            UpRank
+          </a>
+          <div className="nav__links">
+            <a href="#tool">The tool</a>
+            <a href="#breakdown">How it scores</a>
+            <a href="#parser">The parser</a>
+            <a href="#notes">Honest notes</a>
+          </div>
+          <a className="btn btn--primary nav__cta" href="#tool">
+            Score a post
+          </a>
+        </div>
+      </nav>
+
+      <main id="top">
+        {/* ------------------------------------------------------------- hero */}
+        <header className="hero">
+          <div className="hero__art" aria-hidden="true">
+            <span className="hero__glow" />
+            <span className="slabs slabs--l">
+              <span className="slabs__bloom" />
+              <span className="slabs__col" />
+            </span>
+            <span className="slabs slabs--r">
+              <span className="slabs__bloom" />
+              <span className="slabs__col" />
+            </span>
+          </div>
+          <div className="shell hero__in">
+            <p className="eyebrow">Portfolio piece · Decision engines</p>
+            <h1>Score a job post the way a rule engine would, not the way a model would.</h1>
+            <p className="lede">
+              Paste any Upwork job post. You get a 0–100 score, the five sub-scores it is made
+              of, a plain reason for each one, the scam signals it found, and an apply / maybe /
+              skip verdict. <b>There is no language model anywhere in this.</b> A score you
+              cannot audit is a score you will not trust, and the same post has to produce the
+              same score or the ranked list stops being stable.
+            </p>
+            <div className="cta-row">
+              <a className="btn btn--primary" href="#tool">
+                Try it now
+              </a>
+              <a className="btn btn--ghost" href="#notes">
+                What is real here
+              </a>
+            </div>
+            <div className="stats">
+              {STATS.map((s) => (
+                <div className="stat" key={s.l}>
+                  <span className="stat__n">{s.n}</span>
+                  <span className="stat__l">{s.l}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </header>
 
-        <div className="card">
-          <div className="row">
-            <div className="grow" style={{ flexBasis: '100%' }}>
-              <label htmlFor="post">Job post — paste one, or edit these</label>
-              <textarea
-                id="post"
-                rows={12}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                spellCheck={false}
-                placeholder="Paste the whole post: title, description, budget, client stats, proposal count…"
-              />
+        {/* ------------------------------------------------------------- tool */}
+        <section className="section" id="tool">
+          <div className="shell">
+            <div className="section__head">
+              <p className="eyebrow">The tool</p>
+              <h2>Paste a post. Watch every point get accounted for.</h2>
+              <p className="lede">
+                Edit the text and the score moves as you type — there is nothing to submit,
+                because there is nowhere to submit it to.
+              </p>
             </div>
-          </div>
-          <div className="row">
-            <div className="grow" style={{ maxWidth: 280 }}>
-              <label htmlFor="niche">Your niche</label>
-              <select id="niche" value={niche} onChange={(e) => setNiche(e.target.value as NicheKey)}>
-                {Object.values(NICHES).map((n) => (
-                  <option key={n.key} value={n.key}>
-                    {n.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grow">
-              <label>Try one</label>
-              <div className="samples">
-                {SAMPLES.map((s) => (
-                  <button key={s.label} className="ghost" onClick={() => load(s)}>
-                    {s.label}
-                  </button>
-                ))}
+
+            <div className="card card--glow">
+              <div className="field">
+                <label className="micro" htmlFor="post">
+                  Job post — paste one, or edit these
+                </label>
+                <textarea
+                  id="post"
+                  rows={12}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  spellCheck={false}
+                  placeholder="Paste the whole post: title, description, budget, client stats, proposal count…"
+                />
               </div>
-            </div>
-          </div>
-          <p className="note">{NICHES[niche].tagline}</p>
-        </div>
-
-        <div className="cols">
-          <div className="card">
-            <div className={`score ${scored.recommendation}`}>
-              <span className="num">{scored.score}</span>
-              <span style={{ display: 'flex', flexDirection: 'column' }}>
-                <span className="verdict">{VERDICT_TEXT[scored.recommendation]}</span>
-                <span className="of">out of 100 · scored in this browser</span>
-              </span>
-            </div>
-
-            <h3>Where the points came from</h3>
-            <div className="bars">
-              {(Object.keys(scored.breakdown) as (keyof ScoreBreakdown)[]).map((k) => {
-                const max = SUB_SCORE_MAX[k];
-                const pts = scored.breakdown[k];
-                return (
-                  <div className="bar" key={k}>
-                    <span className="name">{BAR_LABEL[k]}</span>
-                    <span className="track">
-                      <span className="fill" style={{ width: `${(pts / max) * 100}%` }} />
-                    </span>
-                    <span className="val">
-                      {pts}/{max}
-                    </span>
+              <div className="row">
+                <div className="field" style={{ flex: '0 1 280px' }}>
+                  <label className="micro" htmlFor="niche">
+                    Your niche
+                  </label>
+                  <select
+                    id="niche"
+                    value={niche}
+                    onChange={(e) => setNiche(e.target.value as NicheKey)}
+                  >
+                    {Object.values(NICHES).map((n) => (
+                      <option key={n.key} value={n.key}>
+                        {n.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <span className="micro" id="samples-label">
+                    Try one
+                  </span>
+                  <div className="chips" role="group" aria-labelledby="samples-label">
+                    {SAMPLES.map((s) => (
+                      <button
+                        key={s.label}
+                        type="button"
+                        className="btn btn--chip"
+                        aria-pressed={text === s.text}
+                        onClick={() => load(s)}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              </div>
+              <p className="note">{NICHES[niche].tagline}</p>
             </div>
 
-            <h3>Why — one line per component</h3>
-            <ul className="reasons">
-              {scored.reasons.map((r, i) => (
-                <li key={`${i}-${r.slice(0, 20)}`}>{r}</li>
-              ))}
-            </ul>
+            <div className="cols" style={{ marginTop: 16 }} id="breakdown">
+              <div className={`card card--verdict-${scored.recommendation}`}>
+                <div
+                  className={`verdict verdict--${scored.recommendation}`}
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <span className="verdict__n">{scored.score}</span>
+                  <span className="verdict__t">
+                    <span className="verdict__w">{VERDICT_TEXT[scored.recommendation]}</span>
+                    <span className="verdict__s">out of 100 · scored in this browser</span>
+                  </span>
+                </div>
 
-            {scored.redFlags.length > 0 ? (
-              <div className="flags">
-                <h3>
-                  {scored.redFlags.length} red flag{scored.redFlags.length === 1 ? '' : 's'}
-                </h3>
-                <ul>
-                  {scored.redFlags.map((f) => (
-                    <li key={f}>{f}</li>
+                <h3 className="micro">Where the points came from</h3>
+                <div className="bars">
+                  {(Object.keys(scored.breakdown) as (keyof ScoreBreakdown)[]).map((k) => {
+                    const max = SUB_SCORE_MAX[k];
+                    const pts = scored.breakdown[k];
+                    return (
+                      <div className="bar" key={k}>
+                        <span className="bar__n">{BAR_LABEL[k]}</span>
+                        <span className="bar__t">
+                          <span className="bar__f" style={{ width: `${(pts / max) * 100}%` }} />
+                        </span>
+                        <span className="bar__v">
+                          {pts}/{max}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <h3 className="micro">Why — one line per component</h3>
+                <ul className="reasons">
+                  {scored.reasons.map((r, i) => (
+                    <li key={`${i}-${r.slice(0, 20)}`}>{r}</li>
                   ))}
                 </ul>
-              </div>
-            ) : null}
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div className="card">
-              <h2>What the parser actually extracted</h2>
-              <p className="note">
-                This is the honest weak point, and the case study says so: it is regex over an
-                English post format. A field it cannot find stays <i>null</i>, and the engine
-                scores null as <b>unknown</b> — neutral — rather than guessing. Delete a line
-                above and watch a field go null and the score move.
-              </p>
-              <div className="parsed">
-                {fields.map(([k, v]) => (
-                  <div className="p" key={k}>
-                    <code>{k}</code>
-                    <span className="v" data-null={v === null || v === '' || v === 'unknown'}>
-                      {v === null || v === '' ? 'null' : String(v)}
-                    </span>
+                {scored.redFlags.length > 0 ? (
+                  <div className="flags">
+                    <h3 className="micro">
+                      {scored.redFlags.length} red flag{scored.redFlags.length === 1 ? '' : 's'}
+                    </h3>
+                    <ul>
+                      {scored.redFlags.map((f) => (
+                        <li key={f}>{f}</li>
+                      ))}
+                    </ul>
                   </div>
-                ))}
+                ) : null}
+              </div>
+
+              <div className="stack">
+                <div className="card" id="parser">
+                  <h3>What the parser actually extracted</h3>
+                  <p className="note">
+                    This is the honest weak point, and the case study says so: it is regex over
+                    an English post format. A field it cannot find stays <i>null</i>, and the
+                    engine scores null as <b>unknown</b> — neutral — rather than guessing. Delete
+                    a line above and watch a field go null and the score move.
+                  </p>
+                  <div className="parsed">
+                    {fields.map(([k, v]) => (
+                      <div className="parsed__r" key={k}>
+                        <code className="parsed__k">{k}</code>
+                        <span
+                          className="parsed__v"
+                          data-null={v === null || v === '' || v === 'unknown'}
+                        >
+                          {v === null || v === '' ? 'null' : String(v)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card">
+                  <h3>Where the model does belong</h3>
+                  <p className="note">
+                    In the full app, Claude writes the proposal draft and rewrites the profile
+                    overview — tasks where the output is prose, there is no single right answer,
+                    variation is a feature, and a human reads every word before it goes anywhere.
+                    Text generation earns the API call. Scoring does not, and it also costs
+                    nothing and runs instantly this way.
+                  </p>
+                  <p className="note">
+                    The tool never submits anything to Upwork. There is no code path that sends a
+                    proposal — absent, not disabled — and job data enters by manual paste or the
+                    official read-only API. Automation may prepare and assist; a human decides
+                    and sends.
+                  </p>
+                </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="card">
-              <h2>Where the model does belong</h2>
-              <p className="note">
-                In the full app, Claude writes the proposal draft and rewrites the profile
-                overview — tasks where the output is prose, there is no single right answer,
-                variation is a feature, and a human reads every word before it goes anywhere.
-                Text generation earns the API call. Scoring does not, and it also costs
-                nothing and runs instantly this way.
-              </p>
-              <p className="note">
-                The tool never submits anything to Upwork. There is no code path that sends a
-                proposal — absent, not disabled — and job data enters by manual paste or the
-                official read-only API. Automation may prepare and assist; a human decides and
-                sends.
-              </p>
+        {/* ------------------------------------------------------------ notes */}
+        <section className="section section--tight" id="notes">
+          <div className="shell">
+            <div className="section__head">
+              <p className="eyebrow">Honest notes</p>
+              <h2>What is real, what is not, and the bug left in on purpose.</h2>
+            </div>
+            <div className="trio">
+              <article className="card card--invert">
+                <h3 className="micro">What is real</h3>
+                <p className="note">
+                  The parser and the scoring engine are the source app&apos;s, copied unchanged
+                  except for translating the strings a person reads. A parity script in the repo
+                  runs both implementations over the same posts and compares score,
+                  recommendation, sub-score breakdown and red-flag count — <b>72 scorings, zero
+                  differences.</b>
+                </p>
+                <span className="card__idx" aria-hidden="true">01</span>
+              </article>
+              <article className="card card--invert">
+                <h3 className="micro">What is not</h3>
+                <p className="note">
+                  The scoring weights are hand-tuned judgement and have never been validated
+                  against real win rates, because there is not enough outcome data to validate
+                  them with. They are <b>a defensible starting point, not a proven model</b> —
+                  and a portfolio that claimed otherwise would be worth less.
+                </p>
+                <span className="card__idx" aria-hidden="true">02</span>
+              </article>
+              <article className="card card--invert">
+                <h3 className="micro">A weakness this demo will show you</h3>
+                <p className="note">
+                  Load <i>Off your niche</i> — a watercolour illustration job, nothing to do with
+                  AI automation. It scores in the fifties and comes back <i>Maybe</i>, because{' '}
+                  <code>fit</code> is the only sub-score that collapses while pay, client and
+                  competition all stay strong. Fit is worth 25 of 100, so a well-paid job from a
+                  good client survives being completely wrong for you. The honest fix is not a
+                  bigger fit weight, it is a gate: below a fit floor the verdict should be{' '}
+                  <i>skip</i> whatever the other components say. <b>That is a real bug, found by
+                  using the thing, and it is left visible here rather than tuned away before you
+                  saw it.</b>
+                </p>
+                <span className="card__idx" aria-hidden="true">03</span>
+              </article>
             </div>
           </div>
-        </div>
+        </section>
+      </main>
 
-        <div className="foot">
-          <p>
-            <b>What is real here:</b> the parser and the scoring engine are the source app&apos;s,
-            copied unchanged except for translating the strings a person reads. A parity script
-            in the repo runs both implementations over the same posts and compares score,
-            recommendation, sub-score breakdown and red-flag count — 72 scorings, zero
-            differences.
-          </p>
-          <p>
-            <b>What is not:</b> the scoring weights are hand-tuned judgement and have never been
-            validated against real win rates, because there is not enough outcome data to
-            validate them with. They are a defensible starting point, not a proven model — and
-            a portfolio that claimed otherwise would be worth less.
-          </p>
-          <p>
-            <b>A weakness this demo will show you.</b> Load <i>Off your niche</i> — a watercolour
-            illustration job, with nothing to do with AI automation. It scores in the fifties and
-            comes back <i>Maybe</i>, because <code>fit</code> is the only sub-score that collapses
-            while pay, client and competition all stay strong. Fit is worth 25 of 100, so a
-            well-paid job from a good client survives being completely wrong for you. The honest
-            fix is not a bigger fit weight, it is a gate: below a fit floor the verdict should be
-            <i>skip</i> whatever the other components say. That is a real bug, found by using the
-            thing, and it is left visible here rather than tuned away before you saw it.
-          </p>
+      <footer className="foot">
+        <div className="foot__in">
+          <div className="foot__brand">
+            <a className="nav__brand" href="#top">
+              <span className="nav__mark" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 10.5L5.5 6.5L8 9L12 3.5" stroke="#9ff690" strokeWidth="1.6" />
+                </svg>
+              </span>
+              UpRank
+            </a>
+            <p className="note" style={{ maxWidth: '38ch' }}>
+              The ranking engine of a local, single-user job-triage tool — unchanged, with its
+              text in English, running in your browser.
+            </p>
+          </div>
+
+          <nav className="foot__col" aria-label="On this page">
+            <p className="micro">On this page</p>
+            <a href="#tool">The tool</a>
+            <a href="#breakdown">How it scores</a>
+            <a href="#parser">The parser</a>
+            <a href="#notes">Honest notes</a>
+          </nav>
+
+          <div className="foot__col">
+            <p className="micro">Privacy</p>
+            <span>No server call</span>
+            <span>No database</span>
+            <span>No analytics</span>
+            <span>Nothing stored</span>
+          </div>
+
+          <div className="foot__col">
+            <p className="micro">Engine</p>
+            <span>Pure TypeScript</span>
+            <span>Deterministic</span>
+            <span>5 sub-scores</span>
+            <span>No LLM</span>
+          </div>
         </div>
-      </div>
+        <p className="foot__bar">
+          Not affiliated with Upwork. Automation may prepare and assist; a human decides and
+          sends.
+        </p>
+      </footer>
     </>
   );
 }
