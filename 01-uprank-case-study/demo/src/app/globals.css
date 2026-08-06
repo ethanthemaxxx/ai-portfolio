@@ -93,10 +93,26 @@
   --prose: 626px;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* The reference's own easing, read out of its stylesheet. Every reveal,
+     roll and hover on this page uses it, which is most of why the motion
+     feels like one hand made it. */
+  --ease-motion: cubic-bezier(0.44, 0, 0.56, 1);
+  --dur-reveal: 0.8s;
+  --dur-roll:   0.42s;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* Lenis' own stylesheet, inlined. `scroll-behavior: auto` is not optional:
+   native smooth scrolling and Lenis fight each other for the scroll position
+   and the result is a page that stutters on every anchor click. When Lenis is
+   not running — reduced motion, or JS off — the rule above still stands and
+   anchors scroll smoothly the native way. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
 
 body {
   margin: 0;
@@ -132,6 +148,19 @@ body {
 
 .shell { max-width: var(--page); margin: 0 auto; padding-inline: clamp(16px, 5vw, 32px); }
 .shell--wide { max-width: var(--wide); }
+.shell--narrow { max-width: 836px; }
+
+/* --- the strip under the hero: a shimmering label over a running ticker,
+       which is the reference's "Trusted by…" band, one section down. ------ */
+.section--strip {
+  padding-block: clamp(36px, 5vw, 56px);
+  border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: var(--s-5);
+}
+.strip__h {
+  text-align: center; font-size: 13px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; margin: 0;
+}
 
 /* Micro-label. Cabin 500 uppercase — the reference uses it for every
    section eyebrow, every button and every field label, at 14/1.1. */
@@ -332,8 +361,8 @@ code {
 .hero::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px) 0 0 / 96px 100%,
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px) 0 0 / 100% 96px;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px) 0 0 / 96px 100%,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px) 0 0 / 100% 96px;
   mask-image: radial-gradient(62% 62% at 50% 40%, #000 0%, transparent 100%);
   -webkit-mask-image: radial-gradient(62% 62% at 50% 40%, #000 0%, transparent 100%);
 }
@@ -587,12 +616,180 @@ select {
   font-size: 12.5px; color: var(--ink-50);
 }
 
-/* ============================================================== motion === */
+/* ============================================================== motion ===
+   Values taken off the live reference mid-animation, not invented. Elements
+   awaiting reveal sit at opacity .001 — not 0 — because that is what the
+   reference does, and it keeps the element rasterised so the first frame of
+   the transition is not a repaint. */
+
+.motion [data-reveal] {
+  opacity: 0.001;
+  will-change: transform, opacity;
+  /* border-color rides along so a revealed card can still warm on hover —
+     without it, this rule would replace .card's transition wholesale and the
+     hover would snap. */
+  transition:
+    opacity var(--dur-reveal) var(--ease-motion),
+    transform var(--dur-reveal) var(--ease-motion),
+    border-color 0.4s var(--ease-motion);
+}
+.motion [data-reveal='up']    { transform: translateY(60px); }
+.motion [data-reveal='up-sm'] { transform: translateY(30px); }
+.motion [data-reveal='scale'] { transform: scale(0.8); }
+.motion [data-reveal='none']  { transform: none; }
+/* Once it has arrived, stop paying for the compositor layer. */
+.motion [data-reveal].is-in   { opacity: 1; transform: none; will-change: auto; }
+
+/* --- split text — per-character stagger on the hero line ---------------- */
+.split { opacity: 1; }
+.split__word { display: inline-block; white-space: nowrap; }
+.split__sp { display: inline-block; width: 0.28em; }
+.split__ch { display: inline-block; }
+.motion .split__ch {
+  opacity: 0.001;
+  transform: translateY(0.42em);
+  transition:
+    opacity 0.5s var(--ease-motion),
+    transform 0.5s var(--ease-motion);
+}
+.motion .split.is-in .split__ch { opacity: 1; transform: none; }
+
+/* --- caret — the reference blinks at exactly 800ms, 1 → 0, no alternate - */
+@keyframes blink { 0% { opacity: 1; } 100% { opacity: 0; } }
+.caret {
+  display: inline-block; width: 1px; height: 1.05em; margin-left: 2px;
+  background: var(--accent); vertical-align: text-bottom;
+  animation: blink 0.8s ease infinite;
+}
+
+/* --- shimmer — background-position 200% → -100%, linear, forever -------- */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -100% center; }
+}
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--ink-50) 0%, var(--ink-50) 42%,
+    var(--ink) 50%,
+    var(--ink-50) 58%, var(--ink-50) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* --- roll — the 2-copy label mask on every button ----------------------- */
+.roll {
+  display: grid; overflow: hidden;
+  line-height: 1.15;
+}
+.roll__a, .roll__b {
+  grid-area: 1 / 1;
+  transition: transform var(--dur-roll) var(--ease-motion);
+}
+.motion .roll__b { transform: translateY(105%); }
+
+/* The reference's primary button carries an "Icon Wrap" — a black square on
+   the lit side holding two stacked copies of the icon, which roll with the
+   label rather than separately. Its padding goes asymmetric to make room:
+   8px 24px 8px 8px. */
+.btn--icon { padding-left: 8px; gap: 12px; }
+.btn__icon {
+  width: 26px; height: 26px; flex: none;
+  background: var(--ink-invert);
+  display: grid; place-items: center;
+  /* The square is black and sits inside a green button, so the glyph cannot
+     inherit the button's colour — it would be black on black. It takes the
+     accent instead, which is what the reference does. */
+  color: var(--accent);
+}
+.btn--ghost .btn__icon { background: var(--surface-2); color: var(--accent); }
+.btn__icon .roll { line-height: 0; }
+.btn:hover .roll__a, .btn:focus-visible .roll__a { transform: translateY(-105%); }
+.btn:hover .roll__b, .btn:focus-visible .roll__b { transform: translateY(0); }
+
+/* --- ticker — track duplicated once, translated exactly -50% ------------ */
+@keyframes ticker { to { transform: translateX(-50%); } }
+.ticker {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.ticker__track {
+  display: flex; gap: var(--s-3); width: max-content;
+  margin: 0; padding: 0; list-style: none;
+  animation: ticker 44s linear infinite;
+}
+.ticker:hover .ticker__track,
+.ticker:focus-within .ticker__track { animation-play-state: paused; }
+.ticker__item {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--black); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 9px 16px;
+  font-size: 13px; color: var(--ink-70); white-space: nowrap;
+}
+.ticker__dot { width: 5px; height: 5px; flex: none; background: var(--skip); }
+
+/* --- accordion — grid-template-rows 0fr → 1fr, nothing measured in JS --- */
+.acc { border-top: 1px solid var(--line); }
+.acc__row { border-bottom: 1px solid var(--line); }
+.acc__h { margin: 0; font: inherit; }
+.acc__btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-4); padding: 20px 4px; background: none; border: 0; cursor: pointer;
+  font-family: var(--display); font-size: clamp(16px, 2vw, 19px); font-weight: 400;
+  letter-spacing: -0.012em; color: var(--ink); text-align: left; line-height: 1.3;
+  transition: color 0.4s var(--ease-motion);
+}
+.acc__btn:hover { color: var(--accent); }
+.acc__sign {
+  position: relative; width: 14px; height: 14px; flex: none;
+  transition: transform 0.4s var(--ease-motion);
+}
+.acc__sign::before, .acc__sign::after {
+  content: ''; position: absolute; inset: 0; margin: auto;
+  background: currentColor;
+}
+.acc__sign::before { width: 14px; height: 1.5px; }
+.acc__sign::after  { width: 1.5px; height: 14px; transition: opacity 0.3s var(--ease-motion); }
+.acc__row.is-open .acc__sign { transform: rotate(180deg); }
+.acc__row.is-open .acc__sign::after { opacity: 0; }
+.acc__row.is-open .acc__btn { color: var(--accent); }
+.acc__panel {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.42s var(--ease-motion);
+}
+.acc__row.is-open .acc__panel { grid-template-rows: 1fr; }
+.acc__inner { overflow: hidden; }
+.acc__inner .note { padding: 0 4px 22px; max-width: 68ch; }
+
+/* --- hover: the hairline warms toward the accent -------------------------
+   No lift. The reference's only hover transitions are `color 0.4s` and the
+   button roll — its cards do not move, and a translate here would fight the
+   transform the reveal owns. */
+.cols .card:hover { border-color: var(--line-accent); }
+
+/* --- nav: the border only appears once the page has left the top -------- */
+.nav { border-bottom-color: transparent; transition: border-color 0.4s var(--ease-motion); }
+.nav.is-stuck { border-bottom-color: var(--line); }
+.nav__links a.is-active { color: var(--accent); }
+
+/* --- bars fill from zero when the panel arrives ------------------------- */
+.motion [data-reveal] .bar__f { transition: width 0.9s 0.15s var(--ease-motion); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  /* Nothing may stay invisible just because its transition was cancelled. */
+  [data-reveal], .split__ch { opacity: 1 !important; transform: none !important; }
+  .roll__b { transform: none; }
+  .roll__b { display: none; }
+  .caret { animation: none; opacity: 1; }
+  .shimmer { animation: none; background: none; color: var(--ink-60); }
 }

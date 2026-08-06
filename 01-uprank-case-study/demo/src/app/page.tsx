@@ -5,6 +5,18 @@ import { parseJob } from '../engine/parseJob.ts';
 import { scoreJob, SUB_SCORE_MAX } from '../engine/scoring.ts';
 import { NICHES } from '../engine/niches.ts';
 import type { NicheKey, ScoreBreakdown } from '../engine/types.ts';
+import {
+  Accordion,
+  CountUp,
+  Reveal,
+  RevealProvider,
+  Roll,
+  RollIcon,
+  SmoothScroll,
+  SplitText,
+  Ticker,
+  useNavSpy,
+} from './motion.tsx';
 
 /* Everything on this page runs in the browser. There is no API route, no
  * database and no network call — which is not a shortcut, it is the honest
@@ -79,16 +91,71 @@ const VERDICT_TEXT: Record<string, string> = {
   review: 'Review',
 };
 
-const STATS: Array<{ n: string; l: string }> = [
-  { n: '0', l: 'model calls' },
-  { n: '0', l: 'bytes sent' },
-  { n: '5', l: 'sub-scores' },
-  { n: '72', l: 'parity scorings' },
+const STATS: Array<{ n: number; suffix?: string; l: string }> = [
+  { n: 0, l: 'model calls' },
+  { n: 0, l: 'bytes sent' },
+  { n: 5, l: 'sub-scores' },
+  { n: 72, l: 'parity scorings' },
 ];
+
+/* The nine scam rules the engine actually runs, copied from RED_FLAG_RULES in
+ * src/engine/scoring.ts. Not marketing copy — this is the list. */
+const RED_FLAG_LABELS = [
+  'Asks for a free test / unpaid work',
+  'Pushes the chat off Upwork (WhatsApp/Telegram)',
+  'Tries to move contact off the platform',
+  'Mentions payment in crypto / gift cards',
+  'Unrealistic earnings promise ($X/day)',
+  "Generic 'easy and quick' work (low value / possible bait)",
+  "Marked 'urgent' (can pressure price and timeline)",
+  "Offers 'revenue share' / commission instead of pay",
+  "Asks you to start cheap on a 'long term' promise",
+];
+
+const FAQ = [
+  {
+    q: 'Is there a language model anywhere in this?',
+    a: 'No. The parser is regex and the scorer is arithmetic over the fields it found — both pure TypeScript functions. Nothing on this page calls an API, and there is no key to configure, because there is nothing to authenticate against.',
+  },
+  {
+    q: 'What happens to the job post I paste?',
+    a: 'Nothing leaves your browser. There is no server route to send it to, no database behind it and no analytics on the page. Close the tab and it is gone.',
+  },
+  {
+    q: 'Why should scoring be rules rather than a model?',
+    a: 'Because the same post has to produce the same score, or the ranked list stops being stable and you cannot trust yesterday’s triage. A rule engine also tells you which rule fired and what it was worth. A score you cannot audit is a score you will not act on.',
+  },
+  {
+    q: 'What does the parser do when it cannot find a field?',
+    a: 'It leaves it null, and the engine scores null as unknown — neutral — rather than guessing. Delete a line from the post above and watch a field go null and the score move.',
+  },
+  {
+    q: 'Does the tool submit proposals to Upwork?',
+    a: 'No, and not because a switch is turned off — there is no code path that sends one. Job data enters by manual paste or the official read-only API. Automation may prepare and assist; a human decides and sends.',
+  },
+];
+
+const NAV = [
+  { id: 'tool', label: 'The tool' },
+  { id: 'breakdown', label: 'How it scores' },
+  { id: 'parser', label: 'The parser' },
+  { id: 'notes', label: 'Honest notes' },
+  { id: 'faq', label: 'FAQ' },
+];
+const NAV_IDS = NAV.map((n) => n.id);
+
+const Mark = () => (
+  <span className="nav__mark" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M2 10.5L5.5 6.5L8 9L12 3.5" stroke="#9ff690" strokeWidth="1.6" />
+    </svg>
+  </span>
+);
 
 export default function Page() {
   const [text, setText] = useState(SAMPLES[0]!.text);
   const [niche, setNiche] = useState<NicheKey>('ai_automation');
+  const { active, stuck } = useNavSpy(NAV_IDS);
 
   // Pure functions, so there is nothing to await and nothing to cache.
   const { parsed, scored } = useMemo(() => {
@@ -114,7 +181,9 @@ export default function Page() {
   ];
 
   return (
-    <>
+    <RevealProvider>
+      <SmoothScroll />
+
       <a className="skip-link" href="#tool">
         Skip to the tool
       </a>
@@ -129,24 +198,27 @@ export default function Page() {
         </p>
       </div>
 
-      <nav className="nav" aria-label="Primary">
+      <nav className={`nav${stuck ? ' is-stuck' : ''}`} aria-label="Primary">
         <div className="nav__in">
           <a className="nav__brand" href="#top">
-            <span className="nav__mark" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 10.5L5.5 6.5L8 9L12 3.5" stroke="#9ff690" strokeWidth="1.6" />
-              </svg>
-            </span>
+            <Mark />
             UpRank
           </a>
           <div className="nav__links">
-            <a href="#tool">The tool</a>
-            <a href="#breakdown">How it scores</a>
-            <a href="#parser">The parser</a>
-            <a href="#notes">Honest notes</a>
+            {NAV.map((n) => (
+              <a
+                key={n.id}
+                href={`#${n.id}`}
+                className={active === n.id ? 'is-active' : undefined}
+                aria-current={active === n.id ? 'true' : undefined}
+              >
+                {n.label}
+              </a>
+            ))}
           </div>
-          <a className="btn btn--primary nav__cta" href="#tool">
-            Score a post
+          <a className="btn btn--primary btn--icon nav__cta" href="#tool">
+            <RollIcon />
+            <Roll>Score a post</Roll>
           </a>
         </div>
       </nav>
@@ -166,50 +238,79 @@ export default function Page() {
             </span>
           </div>
           <div className="shell hero__in">
-            <p className="eyebrow">Portfolio piece · Decision engines</p>
-            <h1>Score a job post the way a rule engine would, not the way a model would.</h1>
-            <p className="lede">
+            <Reveal as="p" variant="up-sm" className="eyebrow">
+              Portfolio piece · Decision engines
+            </Reveal>
+
+            <SplitText
+              text="Score a job post the way a rule engine would, not the way a model would."
+              stagger={14}
+            />
+
+            <Reveal as="p" variant="up" delay={120} className="lede">
               Paste any Upwork job post. You get a 0–100 score, the five sub-scores it is made
               of, a plain reason for each one, the scam signals it found, and an apply / maybe /
               skip verdict. <b>There is no language model anywhere in this.</b> A score you
               cannot audit is a score you will not trust, and the same post has to produce the
               same score or the ranked list stops being stable.
-            </p>
-            <div className="cta-row">
-              <a className="btn btn--primary" href="#tool">
-                Try it now
+            </Reveal>
+
+            <Reveal variant="up" delay={220} className="cta-row">
+              <a className="btn btn--primary btn--icon" href="#tool">
+                <RollIcon />
+                <Roll>Try it now</Roll>
               </a>
               <a className="btn btn--ghost" href="#notes">
-                What is real here
+                <Roll>What is real here</Roll>
               </a>
-            </div>
-            <div className="stats">
+            </Reveal>
+
+            <Reveal variant="scale" delay={300} className="stats">
               {STATS.map((s) => (
                 <div className="stat" key={s.l}>
-                  <span className="stat__n">{s.n}</span>
+                  <span className="stat__n">
+                    <CountUp to={s.n} />
+                  </span>
                   <span className="stat__l">{s.l}</span>
                 </div>
               ))}
-            </div>
+            </Reveal>
           </div>
         </header>
+
+        {/* ----------------------------------------------------------- ticker */}
+        <section className="section--strip" aria-labelledby="strip-h">
+          <div className="shell">
+            <Reveal as="p" variant="up-sm" className="strip__h shimmer" id="strip-h">
+              Nine scam rules, run against every post you paste
+            </Reveal>
+          </div>
+          <Reveal variant="up-sm" delay={100}>
+            <Ticker items={RED_FLAG_LABELS} />
+          </Reveal>
+        </section>
 
         {/* ------------------------------------------------------------- tool */}
         <section className="section" id="tool">
           <div className="shell">
             <div className="section__head">
-              <p className="eyebrow">The tool</p>
-              <h2>Paste a post. Watch every point get accounted for.</h2>
-              <p className="lede">
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                The tool
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                Paste a post. Watch every point get accounted for.
+              </Reveal>
+              <Reveal as="p" variant="up" delay={160} className="lede">
                 Edit the text and the score moves as you type — there is nothing to submit,
                 because there is nowhere to submit it to.
-              </p>
+              </Reveal>
             </div>
 
-            <div className="card card--glow">
+            <Reveal variant="scale" className="card card--glow">
               <div className="field">
                 <label className="micro" htmlFor="post">
                   Job post — paste one, or edit these
+                  <span className="caret" aria-hidden="true" />
                 </label>
                 <textarea
                   id="post"
@@ -250,17 +351,17 @@ export default function Page() {
                         aria-pressed={text === s.text}
                         onClick={() => load(s)}
                       >
-                        {s.label}
+                        <Roll>{s.label}</Roll>
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
               <p className="note">{NICHES[niche].tagline}</p>
-            </div>
+            </Reveal>
 
             <div className="cols" style={{ marginTop: 16 }} id="breakdown">
-              <div className={`card card--verdict-${scored.recommendation}`}>
+              <Reveal variant="up-sm" className={`card card--verdict-${scored.recommendation}`}>
                 <div
                   className={`verdict verdict--${scored.recommendation}`}
                   aria-live="polite"
@@ -311,10 +412,10 @@ export default function Page() {
                     </ul>
                   </div>
                 ) : null}
-              </div>
+              </Reveal>
 
               <div className="stack">
-                <div className="card" id="parser">
+                <Reveal variant="up-sm" delay={90} className="card" id="parser">
                   <h3>What the parser actually extracted</h3>
                   <p className="note">
                     This is the honest weak point, and the case study says so: it is regex over
@@ -335,9 +436,9 @@ export default function Page() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </Reveal>
 
-                <div className="card">
+                <Reveal variant="up-sm" delay={160} className="card">
                   <h3>Where the model does belong</h3>
                   <p className="note">
                     In the full app, Claude writes the proposal draft and rewrites the profile
@@ -352,7 +453,7 @@ export default function Page() {
                     official read-only API. Automation may prepare and assist; a human decides
                     and sends.
                   </p>
-                </div>
+                </Reveal>
               </div>
             </div>
           </div>
@@ -362,11 +463,15 @@ export default function Page() {
         <section className="section section--tight" id="notes">
           <div className="shell">
             <div className="section__head">
-              <p className="eyebrow">Honest notes</p>
-              <h2>What is real, what is not, and the bug left in on purpose.</h2>
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                Honest notes
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                What is real, what is not, and the bug left in on purpose.
+              </Reveal>
             </div>
             <div className="trio">
-              <article className="card card--invert">
+              <Reveal as="article" variant="up" className="card card--invert">
                 <h3 className="micro">What is real</h3>
                 <p className="note">
                   The parser and the scoring engine are the source app&apos;s, copied unchanged
@@ -376,8 +481,8 @@ export default function Page() {
                   differences.</b>
                 </p>
                 <span className="card__idx" aria-hidden="true">01</span>
-              </article>
-              <article className="card card--invert">
+              </Reveal>
+              <Reveal as="article" variant="up" delay={110} className="card card--invert">
                 <h3 className="micro">What is not</h3>
                 <p className="note">
                   The scoring weights are hand-tuned judgement and have never been validated
@@ -386,8 +491,8 @@ export default function Page() {
                   and a portfolio that claimed otherwise would be worth less.
                 </p>
                 <span className="card__idx" aria-hidden="true">02</span>
-              </article>
-              <article className="card card--invert">
+              </Reveal>
+              <Reveal as="article" variant="up" delay={220} className="card card--invert">
                 <h3 className="micro">A weakness this demo will show you</h3>
                 <p className="note">
                   Load <i>Off your niche</i> — a watercolour illustration job, nothing to do with
@@ -401,8 +506,25 @@ export default function Page() {
                   saw it.</b>
                 </p>
                 <span className="card__idx" aria-hidden="true">03</span>
-              </article>
+              </Reveal>
             </div>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------------- faq */}
+        <section className="section section--tight" id="faq">
+          <div className="shell shell--narrow">
+            <div className="section__head">
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                FAQ
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                The questions this demo gets asked.
+              </Reveal>
+            </div>
+            <Reveal variant="up-sm" delay={140}>
+              <Accordion items={FAQ} />
+            </Reveal>
           </div>
         </section>
       </main>
@@ -411,11 +533,7 @@ export default function Page() {
         <div className="foot__in">
           <div className="foot__brand">
             <a className="nav__brand" href="#top">
-              <span className="nav__mark" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M2 10.5L5.5 6.5L8 9L12 3.5" stroke="#9ff690" strokeWidth="1.6" />
-                </svg>
-              </span>
+              <Mark />
               UpRank
             </a>
             <p className="note" style={{ maxWidth: '38ch' }}>
@@ -426,10 +544,11 @@ export default function Page() {
 
           <nav className="foot__col" aria-label="On this page">
             <p className="micro">On this page</p>
-            <a href="#tool">The tool</a>
-            <a href="#breakdown">How it scores</a>
-            <a href="#parser">The parser</a>
-            <a href="#notes">Honest notes</a>
+            {NAV.map((n) => (
+              <a key={n.id} href={`#${n.id}`}>
+                {n.label}
+              </a>
+            ))}
           </nav>
 
           <div className="foot__col">
@@ -453,6 +572,6 @@ export default function Page() {
           sends.
         </p>
       </footer>
-    </>
+    </RevealProvider>
   );
 }

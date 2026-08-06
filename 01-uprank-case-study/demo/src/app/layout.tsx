@@ -38,7 +38,32 @@ export const viewport = { themeColor: '#000000' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${ui.variable} ${mono.variable}`}>
+    // suppressHydrationWarning is required, not cosmetic: the script below
+    // adds a class to <html> before React hydrates, so the server markup and
+    // the live DOM genuinely differ by design. Without it React reports a
+    // mismatch and abandons hydrating this subtree — which leaves every ref
+    // callback unattached, so nothing ever registers with the reveal observer
+    // and the page stays blank.
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${display.variable} ${ui.variable} ${mono.variable}`}
+    >
+      <head>
+        {/* Runs before first paint. Every rule that hides an element for a
+            scroll reveal is scoped to html.motion, so this class is what arms
+            the whole system — and its absence is what makes the page safe.
+            JS off, JS blocked, or a hydration error before the observer
+            exists, and the visitor simply gets the page, fully visible,
+            instead of a black rectangle. Reduced-motion never arms it. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)" +
+              "document.documentElement.classList.add('motion')}catch(e){}",
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
