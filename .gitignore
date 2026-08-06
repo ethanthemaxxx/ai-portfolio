@@ -4,6 +4,7 @@ node_modules/
 out/
 dist/
 .vercel/
+*.tsbuildinfo
 
 # Secrets. Nothing that authenticates anything belongs in this repo — the demo
 # runs without keys on purpose.

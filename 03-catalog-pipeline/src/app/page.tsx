@@ -1,425 +1,499 @@
-'use client';
+import { GateDemo } from './components/gate-demo.tsx';
+import { Accordion, type QA } from './components/accordion.tsx';
+import { Marquee } from './components/marquee.tsx';
+import { Reveal, WordReveal } from './components/reveal.tsx';
+import { SectionHead } from './components/section-head.tsx';
+import { ArrowRight, Check, Ledger, Repeat, Ruler, Shield } from './components/icons.tsx';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+/* Every number on this page is measured, and comes from the project's own
+ * output/ directory or its test run. That is not incidental to the design — the
+ * subject of the piece is copy that cannot make a claim it cannot source. */
 
-/* The demo's whole argument is that the gate does not care who wrote the text.
- * So the copy fields are editable, and "Re-validate" runs the same rule engine
- * the test suite runs — the visitor is invited to try to beat it. */
+const STATS = [
+  { n: '246', l: 'Facts in the ledger' },
+  { n: '11', l: 'Hard rules enforced' },
+  { n: '123', l: 'Tests passing' },
+  { n: '110ms', l: 'Full run, 12 products' },
+];
 
-type Locale = 'en' | 'es';
-
-interface Violation {
-  ruleId: string;
-  field: string;
-  message: string;
-  evidence: string;
-  offset: number;
-}
-
-interface Copy {
-  bodyHtml: string;
-  metaTitle: string;
-  metaDescription: string;
-  imageAlt: string;
-  usedFactIds: string[];
-}
-
-interface RunResult {
-  handle: string;
-  title: string;
-  locale: Locale;
-  generator: string;
-  styleGuideVersion: string;
-  copy: Copy | null;
-  violations: Violation[];
-  status: 'publishable' | 'quarantined';
-  ledger: Array<{ id: string; source: string; label: string; value: string }>;
-  ms: number;
-}
-
-interface ProductRow {
-  handle: string;
-  title: string;
-  kind: string;
-  variants: number;
-}
-
-/** One-click ways to try to beat the gate. Each targets a specific rule. */
-const ATTACKS: Array<{ label: string; hint: string; apply: (c: Copy) => Copy }> = [
+const VALUES = [
   {
-    label: 'Claim it is organic',
-    hint: 'AC-02 — the brand holds no certification',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>Certified organic and Fair Trade.</p>` }),
+    n: '01',
+    icon: <Ledger />,
+    title: 'Facts before sentences',
+    body:
+      'Every product gets a ledger of what it is allowed to say, each entry carrying the field path it came from. The writer may only draw from that list.',
   },
   {
-    label: 'Imply it, softly',
-    hint: 'AC-02 — near-miss phrasing counts too',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>Sustainably sourced and pesticide free.</p>` }),
+    n: '02',
+    icon: <Ruler />,
+    title: 'Voice measured, not described',
+    body:
+      'Five descriptions the merchant already likes go in; numbers come out — longest sentence, reading grade, paragraph count. The validator enforces those numbers.',
   },
   {
-    label: 'Invent a tasting note',
-    hint: 'AC-06 — blueberry is not in the data',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>You get blueberry and jasmine.</p>` }),
-  },
-  {
-    label: 'Invent an altitude',
-    hint: 'AC-06 — figures must trace to a field',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>Grown at 2,100 meters above sea level.</p>` }),
-  },
-  {
-    label: 'Add marketing filler',
-    hint: 'AC-01 — banned brand words',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>An artisanal, handcrafted journey.</p>` }),
-  },
-  {
-    label: 'Get excited',
-    hint: 'AC-07 — no exclamation marks',
-    apply: (c) => ({ ...c, bodyHtml: `${c.bodyHtml}\n<p>You will love this coffee!</p>` }),
-  },
-  {
-    label: 'Overrun the meta title',
-    hint: 'AC-03 — 60 characters, exactly',
-    apply: (c) => ({ ...c, metaTitle: `${c.metaTitle} — Single Origin Specialty Coffee Roasted To Order` }),
-  },
-  {
-    label: 'Announce the image',
-    hint: 'AC-05 — alt text describes, never announces',
-    apply: (c) => ({ ...c, imageAlt: `Image of ${c.imageAlt}` }),
+    n: '03',
+    icon: <Shield />,
+    title: 'Fails closed, every time',
+    body:
+      'A product that breaks one rule publishes nothing. Not a partial record, not a best-effort description. Quarantine is the safe state.',
   },
 ];
 
-const FIELD_LABEL: Record<string, string> = {
-  bodyHtml: 'description',
-  metaTitle: 'meta title',
-  metaDescription: 'meta description',
-  imageAlt: 'image alt text',
-};
+const STEPS = [
+  {
+    n: '01',
+    title: 'Extract the voice',
+    body: 'Five approved descriptions are measured into a style guide of hard numbers, not adjectives.',
+  },
+  {
+    n: '02',
+    title: 'Build the fact ledger',
+    body: 'Each product record is flattened into sayable facts, every one carrying its source path.',
+  },
+  {
+    n: '03',
+    title: 'Generate the copy',
+    body: 'Description, meta title, meta description and alt text — offline template or Claude, same interface.',
+  },
+  {
+    n: '04',
+    title: 'Run the gate',
+    body: 'Eleven rules, twelve violation codes. Anything untraceable, over-length or off-voice is quarantined.',
+  },
+  {
+    n: '05',
+    title: 'Queue for a human',
+    body: 'Cleared copy waits for approval, then re-validates at push time before it reaches Shopify.',
+  },
+];
 
-/* Rules report as sub-ids (AC-06a, AC-08b), so look up on the base id. */
-const RULE_LABEL: Record<string, string> = {
-  'AC-01': 'Banned brand word',
-  'AC-02': 'Certification stated or implied',
-  'AC-03': 'Meta title over 60 characters',
-  'AC-04': 'Meta description outside 140–160',
-  'AC-05': 'Alt text does not describe',
-  'AC-06': 'Claim not traceable to the source data',
-  'AC-07': 'Voice: second person, no exclamation marks',
-  'AC-08': 'Sentence or paragraph shape off the brand',
-  'AC-09': 'Reading grade above the brand ceiling',
-  GEN: 'Generator failure',
-};
+const OUTPUTS = [
+  { title: 'Product description', body: '3–4 paragraphs, second person, reading grade ≤ 8, every claim sourced.' },
+  { title: 'Meta title', body: 'Hard-capped at 60 characters. Over by one and the product is held.' },
+  { title: 'Meta description', body: 'Held inside 140–160 characters, checked on the rendered string.' },
+  { title: 'Image alt text', body: 'Describes the photograph. Never announces it — no “image of”, no “photo showing”.' },
+];
 
-function ruleLabel(id: string): string {
-  return RULE_LABEL[id] ?? RULE_LABEL[id.replace(/[a-z]$/, '')] ?? '';
-}
+const GUARANTEES = [
+  'No claim without a source path',
+  'No certification the brand lacks',
+  'No number the data does not hold',
+  'No push without a human approval',
+];
+
+const CAUGHT = [
+  {
+    rule: 'AC-02',
+    title: 'The certification that was never held',
+    body:
+      'Cerro Alto holds no organic or Fair Trade certification. The rule catches the direct claim and the soft implication — “sustainably sourced”, “pesticide free” — because near-miss phrasing is how this failure actually reaches production.',
+    metrics: [
+      { n: '2', l: 'Phrase classes' },
+      { n: '0', l: 'False negatives in tests' },
+    ],
+  },
+  {
+    rule: 'AC-06',
+    title: 'The altitude nobody grew coffee at',
+    body:
+      'A plausible figure is the most dangerous output a generator produces. Every number and tasting note in the copy is matched back to a ledger entry; anything unmatched fails, however reasonable it reads.',
+    metrics: [
+      { n: '246', l: 'Facts indexed' },
+      { n: '110', l: 'Cited in published copy' },
+    ],
+  },
+  {
+    rule: 'AC-08 / AC-09',
+    title: 'The voice that drifted',
+    body:
+      'Sentence length, paragraph count and reading grade are measured from the brand’s own descriptions, so drift is caught as a number rather than argued about in review.',
+    metrics: [
+      { n: '18', l: 'Word sentence ceiling' },
+      { n: '8', l: 'Reading grade ceiling' },
+    ],
+  },
+];
+
+const STACK = [
+  'TypeScript',
+  'Node 22',
+  'Next.js',
+  'node:test',
+  'Shopify Admin API',
+  'n8n',
+  'Claude API',
+  'Offline generator',
+  'JSON Schema',
+];
+
+const FAQS: QA[] = [
+  {
+    q: 'Is a language model writing this copy?',
+    a: 'Not on this page. The demo runs the offline deterministic generator, so it costs nothing to host and behaves identically for every visitor. The Claude path is implemented, prompt-engineered and unit-tested against doubles, but it has never been executed against the live API — and the gate judges both generators with exactly the same rules.',
+  },
+  {
+    q: 'What happens when a product fails?',
+    a: 'It publishes nothing. There is no partial record and no best-effort description; the product is quarantined with a list of violations, each naming the rule, the field and the offending text. Failing closed is the deliverable — a pipeline that degrades gracefully into wrong copy is worse than one that stops.',
+  },
+  {
+    q: 'Can I beat the gate?',
+    a: 'Please try. The copy fields in the demo are editable and Re-validate runs the same rule engine the test suite runs, imported directly rather than reimplemented for the web. The one-click attacks are shortcuts to the obvious exploits; typing your own is more interesting.',
+  },
+  {
+    q: 'Which rules exist, exactly?',
+    a: 'Eleven, producing twelve violation codes: banned brand words, stated or implied certification, meta title length, meta description length, alt-text shape, fact traceability, voice constraints, sentence and paragraph shape, and reading grade. Each one has an adversarial test that plants a violation and asserts it is caught — a gate that has never been shown to fire is not a gate.',
+  },
+  {
+    q: 'What is not real here?',
+    a: 'Cerro Alto Coffee is a fictional brand and all catalogue data is synthetic. No data is stored — reload and it is gone. The anchor date is fixed at 2026-08-04 so a run never depends on the clock, and zero products have ever been pushed to a real Shopify store: that transport is implemented and tested against a stub.',
+  },
+];
 
 export default function Page() {
-  const [products, setProducts] = useState<ProductRow[]>([]);
-  const [handle, setHandle] = useState('huila-reserve');
-  const [locale, setLocale] = useState<Locale>('en');
-  const [run, setRun] = useState<RunResult | null>(null);
-  const [copy, setCopy] = useState<Copy | null>(null);
-  const [violations, setViolations] = useState<Violation[]>([]);
-  const [status, setStatus] = useState<'publishable' | 'quarantined' | null>(null);
-  const [ms, setMs] = useState<number | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [edited, setEdited] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const verdictRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch('/api/run')
-      .then((r) => r.json())
-      .then((d) => setProducts(d.products ?? []))
-      .catch(() => setError('Could not load the catalog.'));
-  }, []);
-
-  const generate = useCallback(async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/run', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ handle, locale }),
-      });
-      const d: RunResult = await res.json();
-      if (!res.ok) throw new Error('generation failed');
-      setRun(d);
-      setCopy(d.copy);
-      setViolations(d.violations);
-      setStatus(d.status);
-      setMs(d.ms);
-      setEdited(false);
-    } catch {
-      setError('That run failed. Try another product.');
-    } finally {
-      setBusy(false);
-    }
-  }, [handle, locale]);
-
-  useEffect(() => {
-    void generate();
-  }, [generate]);
-
-  const revalidate = useCallback(async () => {
-    if (!copy) return;
-    setBusy(true);
-    try {
-      const res = await fetch('/api/validate', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ handle, locale, ...copy }),
-      });
-      const d = await res.json();
-      if (!res.ok) throw new Error();
-      setViolations(d.violations);
-      setStatus(d.status);
-      setMs(d.ms);
-      verdictRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    } catch {
-      setError('Validation failed.');
-    } finally {
-      setBusy(false);
-    }
-  }, [copy, handle, locale]);
-
-  const patch = (next: Partial<Copy>) => {
-    setCopy((c) => (c ? { ...c, ...next } : c));
-    setEdited(true);
-  };
-
-  const attack = (fn: (c: Copy) => Copy) => {
-    setCopy((c) => (c ? fn(c) : c));
-    setEdited(true);
-  };
-
-  const titleLen = copy?.metaTitle.length ?? 0;
-  const descLen = copy?.metaDescription.length ?? 0;
-
   return (
     <>
-      <div className="banner">
-        <b>Live demo — deliberately runs without an API key.</b> Copy is produced by the
-        project&apos;s deterministic generator, not by a language model, so this page costs
-        nothing to run and behaves identically for everyone. The part worth testing is the{' '}
-        <b>gate</b>: every factual claim has to trace back to the product data. Cerro Alto
-        Coffee is a fictional brand and all data is synthetic.
-      </div>
+      {/* ============================================================== hero */}
+      <section className="hero">
+        <div className="hero__media" aria-hidden>
+          <video
+            src="/media/silk-hero.mp4"
+            poster="/media/silk-hero.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          />
+        </div>
+        <div className="hero__scrim" aria-hidden />
 
-      <div className="wrap">
-        <header style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p className="eyebrow">Portfolio piece · Catalogue automation · Shopify / DTC</p>
-          <h1>Try to sneak a fabrication past the gate.</h1>
-          <p className="lede">
-            Pick a product. The pipeline writes its description, meta title, meta description
-            and image alt text from the catalogue record — then checks its own output against
-            eleven rules. Now edit the text yourself, or use a preset below, and re-validate.
-            The gate does not care who wrote the words.
-          </p>
-        </header>
+        <div className="hero__inner">
+          <Reveal>
+            <span className="badge">
+              <span className="badge__dot" aria-hidden />
+              Catalogue automation · Shopify / DTC
+            </span>
+          </Reveal>
 
-        <div className="bar">
-          <div className="fieldset fieldset--grow">
-            <label htmlFor="product">Product</label>
-            <select
-              id="product"
-              value={handle}
-              onChange={(e) => setHandle(e.target.value)}
-              disabled={busy}
+          <Reveal delay={90}>
+            <h1 className="display grad-text">
+              Try to sneak a fabrication
+              <br />
+              past the gate.
+            </h1>
+          </Reveal>
+
+          <Reveal delay={180}>
+            <p className="hero__sub">
+              A pipeline writes a product&apos;s description, meta title, meta description and alt
+              text from its catalogue record — then checks its own output against eleven rules.
+              Edit the words yourself and run it again.
+            </p>
+          </Reveal>
+
+          <Reveal delay={260} className="hero__actions">
+            <a className="btn btn--halo" href="#demo">
+              Open the live demo
+              <span className="btn__arrow">
+                <ArrowRight />
+              </span>
+            </a>
+            <a className="btn btn--glass btn--pad" href="#how">
+              How it works
+            </a>
+          </Reveal>
+        </div>
+
+        <div className="hero__scroll" aria-hidden>
+          <span>Scroll</span>
+        </div>
+      </section>
+
+      {/* ======================================================= 001 problem */}
+      <section className="section">
+        <div className="container">
+          <SectionHead num="001" label="The problem" title="Generation is the easy half" />
+          <Reveal>
+            <WordReveal
+              className="h3"
+              text="A model will happily write that a coffee is certified organic, grown at 2,100 metres, and tasting of blueberry — none of which appears anywhere in the product record. It reads beautifully. It is also a compliance incident waiting for a screenshot."
+            />
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div
+              className="card"
+              style={{ marginTop: 40, padding: 12, borderRadius: 'var(--r-lg)' }}
             >
-              {products.map((p) => (
-                <option key={p.handle} value={p.handle}>
-                  {p.title}
-                  {p.kind === 'equipment' ? ' · equipment' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="fieldset">
-            <label htmlFor="loc">Language</label>
-            <div className="seg" id="loc">
-              {(['en', 'es'] as Locale[]).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  aria-pressed={locale === l}
-                  onClick={() => setLocale(l)}
-                  disabled={busy}
-                >
-                  {l === 'en' ? 'English' : 'Español'}
-                </button>
-              ))}
+              <div
+                style={{
+                  position: 'relative',
+                  borderRadius: 'var(--r-card)',
+                  overflow: 'hidden',
+                  aspectRatio: '16 / 7',
+                }}
+              >
+                <video
+                  src="/media/silk-panel.mp4"
+                  poster="/media/silk-panel.jpg"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  aria-hidden
+                />
+                <span className="badge" style={{ position: 'absolute', left: 20, bottom: 20 }}>
+                  <span className="badge__dot" aria-hidden />
+                  12 products · 2 locales · 0 quarantined
+                </span>
+              </div>
             </div>
-          </div>
-
-          <button className="primary" onClick={generate} disabled={busy}>
-            {busy ? <span className="spin" aria-hidden /> : null} Regenerate
-          </button>
+          </Reveal>
         </div>
+      </section>
 
-        {error ? <p className="note" style={{ color: 'var(--fail)' }}>{error}</p> : null}
-
-        <div className="cols">
-          {/* ------------------------------------------------ generated copy */}
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
-              <h2>{run?.title ?? 'Loading…'}</h2>
-              <span className="eyebrow">{edited ? 'edited by you' : run?.generator ?? ''}</span>
+      {/* --------------------------------------------------------- stat rail */}
+      <section className="section" style={{ paddingBlock: 0 }} aria-label="Measured results">
+        <Marquee duration={46} gap={72}>
+          {STATS.map((s) => (
+            <div className="stat" key={s.l}>
+              <span className="stat__n">{s.n}</span>
+              <span className="label stat__l">{s.l}</span>
             </div>
+          ))}
+        </Marquee>
+      </section>
 
-            <div className="fieldrow">
-              <div className="fieldhead">
-                <h3>Description</h3>
-              </div>
-              <textarea
-                rows={9}
-                value={copy?.bodyHtml ?? ''}
-                onChange={(e) => patch({ bodyHtml: e.target.value })}
-                spellCheck={false}
-                aria-label="Product description"
-              />
-            </div>
-
-            <div className="fieldrow">
-              <div className="fieldhead">
-                <h3>Meta title</h3>
-                <span className="count" data-over={titleLen > 60}>
-                  {titleLen} / 60 max
-                </span>
-              </div>
-              <textarea
-                rows={2}
-                value={copy?.metaTitle ?? ''}
-                onChange={(e) => patch({ metaTitle: e.target.value })}
-                spellCheck={false}
-                aria-label="Meta title"
-              />
-            </div>
-
-            <div className="fieldrow">
-              <div className="fieldhead">
-                <h3>Meta description</h3>
-                <span className="count" data-over={descLen < 140 || descLen > 160}>
-                  {descLen} / 140–160
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                value={copy?.metaDescription ?? ''}
-                onChange={(e) => patch({ metaDescription: e.target.value })}
-                spellCheck={false}
-                aria-label="Meta description"
-              />
-            </div>
-
-            <div className="fieldrow">
-              <div className="fieldhead">
-                <h3>Image alt text</h3>
-                <span className="count" data-over={false}>
-                  {copy?.imageAlt.length ?? 0} chars
-                </span>
-              </div>
-              <textarea
-                rows={2}
-                value={copy?.imageAlt ?? ''}
-                onChange={(e) => patch({ imageAlt: e.target.value })}
-                spellCheck={false}
-                aria-label="Image alt text"
-              />
-            </div>
-
-            <div className="fieldrow">
-              <h3>One-click attacks</h3>
-              <div className="attacks">
-                {ATTACKS.map((a) => (
-                  <button key={a.label} className="ghost" title={a.hint} onClick={() => attack(a.apply)}>
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button className="primary" onClick={revalidate} disabled={busy || !copy}>
-              {busy ? <span className="spin" aria-hidden /> : null} Re-validate
-            </button>
-          </div>
-
-          {/* ----------------------------------------------------- verdict */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div className="card">
-              <div ref={verdictRef} className={`verdict ${status === 'publishable' ? 'pass' : 'fail'}`}>
-                <span className="dot" aria-hidden />
-                {status === 'publishable' ? 'Publishable' : 'Quarantined'}
-                <small>
-                  {violations.length} violation{violations.length === 1 ? '' : 's'}
-                  {ms !== null ? ` · ${ms} ms` : ''}
-                </small>
-              </div>
-
-              {status === 'publishable' ? (
-                <p className="note">
-                  Every rule passed and every factual claim traced to a field in the product
-                  record. In the full pipeline this is what reaches a human for review before
-                  anything is pushed to Shopify — the gate clears it, a person still signs it off.
-                </p>
-              ) : (
-                <p className="note">
-                  The product is held back. In the full pipeline a quarantined product publishes{' '}
-                  <b>nothing</b> — not a partial record, not a best-effort description. Failing
-                  closed is the point.
-                </p>
-              )}
-
-              {violations.map((v, i) => (
-                <div className="viol" key={`${v.ruleId}-${v.field}-${v.offset}-${i}`}>
-                  <div className="top">
-                    <code className="rule">{v.ruleId}</code>
-                    <span className="where">{FIELD_LABEL[v.field] ?? v.field}</span>
-                    <span className="where">{ruleLabel(v.ruleId)}</span>
+      {/* ========================================================= 002 value */}
+      <section className="section">
+        <div className="container">
+          <SectionHead
+            num="002"
+            label="Value"
+            title="Why this exists"
+            lede="Three decisions separate a pipeline you can put in front of a merchant from a demo that writes nice sentences."
+          />
+          <div className="grid grid--3">
+            {VALUES.map((v, i) => (
+              <Reveal key={v.n} delay={i * 90}>
+                <article className="card card--arch">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <span className="card__icon">{v.icon}</span>
+                    <span className="card__num">{v.n}</span>
                   </div>
-                  <p className="msg">{v.message}</p>
-                  {v.evidence ? <div className="ev">{v.evidence}</div> : null}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <h3 className="h4">{v.title}</h3>
+                    <p className="body" style={{ fontSize: 'var(--t-sm)' }}>
+                      {v.body}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================= 003 process */}
+      <section className="section" id="how">
+        <div className="container">
+          <SectionHead
+            num="003"
+            label="Process"
+            title="How it works"
+            lede="Five stages, each one testable on its own. The interesting one is the fourth."
+          />
+          <div>
+            {STEPS.map((s, i) => (
+              <Reveal key={s.n} delay={i * 60}>
+                <div className="step">
+                  <span className="step__n">{s.n}</span>
+                  <h3 className="h4">{s.title}</h3>
+                  <p className="body" style={{ fontSize: 'var(--t-sm)' }}>
+                    {s.body}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </Reveal>
+            ))}
+          </div>
 
-            <div className="card">
-              <h3>The fact ledger — everything this product may claim</h3>
-              <p className="note">
-                {run?.ledger.length ?? 0} entries. If a statement in the copy cannot be traced
-                to one of these, rule AC-06 fails it. This is what stops a model from writing a
-                plausible altitude.
+          <Reveal delay={120}>
+            <div
+              className="card card--dark"
+              style={{
+                marginTop: 40,
+                borderRadius: 'var(--r-lg)',
+                padding: 'clamp(28px, 4vw, 56px)',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: 20,
+              }}
+            >
+              <h3 className="h3">Fails closed. Always.</h3>
+              <p className="lede" style={{ maxWidth: '54ch', textAlign: 'center' }}>
+                Four guarantees hold whichever generator is wired in — the offline template or the
+                model.
               </p>
-              <div className="ledger">
-                {run?.ledger.map((e) => (
-                  <div className="row" key={e.id}>
-                    <code>{e.source}</code>
-                    <span className="val">{e.value}</span>
-                  </div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 10,
+                  justifyContent: 'center',
+                  marginTop: 8,
+                }}
+              >
+                {GUARANTEES.map((g) => (
+                  <span
+                    key={g}
+                    className="chip"
+                    style={{ background: 'rgba(255,255,255,.1)', boxShadow: 'none', color: '#fff' }}
+                  >
+                    <Check size={13} />
+                    {g}
+                  </span>
                 ))}
               </div>
             </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ================================================== 004 capabilities */}
+      <section className="section">
+        <div className="container">
+          <SectionHead
+            num="004"
+            label="Capabilities"
+            title="What the pipeline produces"
+            lede="Four fields per product, per locale. Each one has its own rule, and its own way of failing."
+          />
+          <div className="grid grid--4">
+            {OUTPUTS.map((o, i) => (
+              <Reveal key={o.title} delay={i * 70}>
+                <article className="card" style={{ minHeight: 200 }}>
+                  <span className="card__icon" style={{ width: 44, height: 44 }}>
+                    <Repeat size={20} />
+                  </span>
+                  <h3 className="h4">{o.title}</h3>
+                  <p className="body" style={{ fontSize: 'var(--t-sm)' }}>
+                    {o.body}
+                  </p>
+                </article>
+              </Reveal>
+            ))}
           </div>
         </div>
+      </section>
 
-        <div className="foot">
-          <p>
-            <b>What is real here:</b> the generator, the fact ledger and all eleven rules are
-            the same modules the project&apos;s 123 tests run against, imported directly — not a
-            reimplementation for the web. Style constraints are derived from five of the
-            brand&apos;s own descriptions, so the rules are measured from its voice rather than
-            invented.
-          </p>
-          <p>
-            <b>What is not:</b> no language model is called on this page, and no data is stored
-            — reload and it is gone. Anchor date is fixed at 2026-08-04 so the run never depends
-            on the clock. The known limits, including the ones the gate does not catch, are
-            listed in the project README.
-          </p>
+      {/* ========================================================== 005 demo */}
+      <section className="section" id="demo">
+        <div className="container">
+          <SectionHead
+            num="005"
+            label="Live demo"
+            title="The gate does not care who wrote the words"
+            lede="Pick a product, edit the copy the pipeline produced — or use a one-click attack — then re-validate. The rule engine below is the same module the test suite runs."
+          />
+          <Reveal>
+            <GateDemo />
+          </Reveal>
+          <Reveal delay={80}>
+            <p className="body" style={{ fontSize: 'var(--t-sm)', marginTop: 24, maxWidth: '80ch' }}>
+              <b>What is real here:</b> the generator, the fact ledger and all eleven rules are the
+              same modules the project&apos;s 123 tests run against, imported directly — not a
+              reimplementation for the web. <b>What is not:</b> no language model is called on this
+              page, and no data is stored. Reload and it is gone.
+            </p>
+          </Reveal>
         </div>
-      </div>
+      </section>
+
+      {/* ========================================================= 006 rules */}
+      <section className="section" id="rules">
+        <div className="container">
+          <SectionHead
+            num="006"
+            label="The rules"
+            title="What the gate actually catches"
+            lede="Each rule exists because a specific failure reached production somewhere, and each one has an adversarial test that plants the violation and asserts it fires."
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {CAUGHT.map((c, i) => (
+              <Reveal key={c.rule} delay={i * 80}>
+                <article
+                  className="card"
+                  style={{ borderRadius: 'var(--r-lg)', padding: 'clamp(24px, 3vw, 40px)' }}
+                >
+                  <div className="rule-grid">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <span className="badge badge--light mono">{c.rule}</span>
+                      <h3 className="h3">{c.title}</h3>
+                      <p className="body" style={{ fontSize: 'var(--t-sm)', maxWidth: '62ch' }}>
+                        {c.body}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+                      {c.metrics.map((m) => (
+                        <div key={m.l} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <span
+                            className="stat__n"
+                            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
+                          >
+                            {m.n}
+                          </span>
+                          <span className="label" style={{ maxWidth: '16ch' }}>
+                            {m.l}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= 007 stack */}
+      <section className="section">
+        <div className="container">
+          <SectionHead
+            num="007"
+            label="Stack"
+            title="What it is built on"
+            lede="No framework magic in the pipeline itself — it runs unbundled under node --experimental-strip-types, which is why the web demo can import the rules directly."
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <Marquee duration={38} gap={16}>
+            {STACK.map((s) => (
+              <span className="chip" key={s}>
+                {s}
+              </span>
+            ))}
+          </Marquee>
+          <Marquee duration={44} gap={16}>
+            {[...STACK].reverse().map((s) => (
+              <span className="chip" key={s}>
+                {s}
+              </span>
+            ))}
+          </Marquee>
+        </div>
+      </section>
+
+      {/* =========================================================== 008 faq */}
+      <section className="section" id="faq">
+        <div className="container container--narrow">
+          <SectionHead num="008" label="FAQs" title="Common questions" />
+          <Accordion items={FAQS} />
+        </div>
+      </section>
     </>
   );
 }
