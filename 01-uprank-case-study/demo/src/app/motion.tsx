@@ -18,9 +18,7 @@
    =========================================================================== */
 
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -100,6 +98,22 @@ export function SmoothScroll() {
  * the teardown is silently dropped — which leaves the whole page sitting at
  * opacity .001 forever. Module scope has no such lifecycle. */
 
+/* The observer notifies React; it does NOT touch classList.
+ *
+ * It used to call `el.classList.add('is-in')`, and that was a real bug with a
+ * visible symptom. React owns the className attribute. The moment a revealed
+ * element re-rendered with a *different* className string — the verdict card
+ * does exactly that, since its class carries the recommendation
+ * (`card card--verdict-apply` → `card--verdict-skip`) — React rewrote the
+ * attribute from its own last known value and wiped `is-in` with it. The card
+ * dropped back to opacity .001 and, because the observer had already
+ * unobserved it, never came back: picking a sample made the score panel
+ * disappear.
+ *
+ * So the class is now React state. Anything React re-renders can no longer
+ * fight it, whatever the className is built from. */
+
+const revealCallbacks = new WeakMap<Element, () => void>();
 let sharedIO: IntersectionObserver | null = null;
 
 function getObserver(): IntersectionObserver | null {
@@ -109,8 +123,9 @@ function getObserver(): IntersectionObserver | null {
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
-          e.target.classList.add('is-in');
           sharedIO?.unobserve(e.target);
+          revealCallbacks.get(e.target)?.();
+          revealCallbacks.delete(e.target);
         }
       },
       // Fire a little before the element's top edge arrives, so the motion
@@ -121,21 +136,37 @@ function getObserver(): IntersectionObserver | null {
   return sharedIO;
 }
 
-const RevealCtx = createContext<((el: Element | null) => (() => void) | void) | null>(null);
+/** Returns a ref to attach and whether the element has been revealed yet. */
+function useReveal() {
+  // Seeded false, never from REDUCED: that constant is false on the server and
+  // true in a reduced-motion browser, so seeding from it makes the first client
+  // render disagree with the server markup and React discards the class during
+  // hydration. Reduced motion flips it in an effect instead, after hydration
+  // has settled.
+  const [inView, setInView] = useState(false);
 
-export function RevealProvider({ children }: { children: ReactNode }) {
-  const register = useCallback((el: Element | null) => {
-    if (!el) return;
-    if (REDUCED) {
-      el.classList.add('is-in');
-      return;
-    }
-    const io = getObserver();
-    io?.observe(el);
-    return () => io?.unobserve(el);
+  useEffect(() => {
+    if (REDUCED) setInView(true);
   }, []);
 
-  return <RevealCtx.Provider value={register}>{children}</RevealCtx.Provider>;
+  const ref = useCallback((el: Element | null) => {
+    if (!el || REDUCED) return;
+    revealCallbacks.set(el, () => setInView(true));
+    const io = getObserver();
+    io?.observe(el);
+    return () => {
+      io?.unobserve(el);
+      revealCallbacks.delete(el);
+    };
+  }, []);
+
+  return { ref, inView };
+}
+
+/* Kept as a wrapper so the page's structure reads the same; the reveal state
+ * lives per-element now, so there is nothing left to put on a context. */
+export function RevealProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }
 
 type RevealVariant = 'up' | 'up-sm' | 'scale';
@@ -154,12 +185,12 @@ export function Reveal({
   as?: 'div' | 'section' | 'header' | 'article' | 'p' | 'h1' | 'h2' | 'h3' | 'span' | 'li';
   className?: string;
 } & Record<string, unknown>) {
-  const register = useContext(RevealCtx);
+  const { ref, inView } = useReveal();
   return (
     <Tag
-      ref={register as never}
+      ref={ref as never}
       data-reveal={variant}
-      className={className}
+      className={`${className}${inView ? ' is-in' : ''}`}
       style={delay ? ({ transitionDelay: `${delay}ms` } as React.CSSProperties) : undefined}
       {...rest}
     >
@@ -187,12 +218,17 @@ export function SplitText({
   stagger?: number;
   as?: 'h1' | 'h2' | 'p';
 }) {
-  const register = useContext(RevealCtx);
+  const { ref, inView } = useReveal();
   const words = useMemo(() => text.split(' '), [text]);
   let i = -1;
 
   return (
-    <Tag ref={register as never} className={`split ${className}`} data-reveal="none" aria-label={text}>
+    <Tag
+      ref={ref as never}
+      className={`split ${className}${inView ? ' is-in' : ''}`}
+      data-reveal="none"
+      aria-label={text}
+    >
       {words.map((word, w) => (
         <span className="split__word" key={`${w}-${word}`} aria-hidden="true">
           {[...word].map((ch, c) => {
