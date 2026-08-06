@@ -17,6 +17,15 @@ import {
   Ticker,
   useNavSpy,
 } from './motion.tsx';
+import {
+  CtaBand,
+  IconGrid,
+  PRIVACY_FEATURES,
+  Process,
+  STEPS,
+  Tabs,
+  type TabItem,
+} from './sections.tsx';
 
 /* Everything on this page runs in the browser. There is no API route, no
  * database and no network call — which is not a shortcut, it is the honest
@@ -135,10 +144,93 @@ const FAQ = [
   },
 ];
 
+/* Every threshold below is read off src/engine/scoring.ts. If a number here
+ * disagrees with the engine, the engine is right and this is a bug. */
+const SUBSCORES: TabItem[] = [
+  {
+    key: 'pay',
+    label: 'Pay',
+    max: 25,
+    blurb:
+      'Hourly rate or fixed budget, whichever the post declares. A post with no budget line is not punished — it scores neutral, because absent is not the same as low.',
+    rules: [
+      ['Hourly ≥ $60/h · fixed ≥ $3,000', '25'],
+      ['Hourly ≥ $40/h · fixed ≥ $1,000', '21'],
+      ['Hourly ≥ $25/h · fixed ≥ $400', '15'],
+      ['Hourly under $25/h', '7'],
+      ['Fixed $150–$400', '9'],
+      ['Fixed under $150', '4'],
+      ['No budget found', '10 (neutral)'],
+    ],
+  },
+  {
+    key: 'client',
+    label: 'Client',
+    max: 20,
+    blurb:
+      'Payment verification, lifetime spend and hire rate. Starts at a neutral 6 and moves in both directions, so an unverified new client is not the same as no data at all.',
+    rules: [
+      ['Base, before any signal', '6'],
+      ['Payment verified', '+6'],
+      ['Payment not verified', '−2'],
+      ['Spent $10,000 or more', '+6'],
+      ['Spent $1,000–$10,000', '+4'],
+      ['Spent under $1,000', '+1'],
+      ['Hire rate 70% or better', '+2'],
+      ['Hire rate under 30%', '−2'],
+    ],
+  },
+  {
+    key: 'fit',
+    label: 'Fit',
+    max: 25,
+    blurb:
+      'Keyword overlap between the post and the niche you picked. This is the sub-score with the known bug: it is the only one that collapses when a job is wrong for you, and 25 of 100 is not enough to force a skip on its own.',
+    rules: [
+      ['Each niche keyword matched', '+3.5, capped at 16'],
+      ['Each high-value keyword', '+2, capped at 5'],
+      ['Each profile skill matched', '+2, capped at 4'],
+      ['No niche signal at all', '0'],
+    ],
+  },
+  {
+    key: 'intent',
+    label: 'Intent',
+    max: 15,
+    blurb:
+      'How much the post reads like someone who has decided to hire. Length is a crude proxy and is treated as one — it moves the score, it does not decide it.',
+    rules: [
+      ['Base', '4'],
+      ['Description over 600 characters', '+4'],
+      ['Description over 250 characters', '+2'],
+      ['Description under 250 characters', '−2'],
+      ['Names deliverables, scope or milestones', '+3'],
+      ['Long-term, ongoing, retainer or monthly', '+3'],
+      ['Names a budget, timeline or start date', '+1'],
+    ],
+  },
+  {
+    key: 'competition',
+    label: 'Competition',
+    max: 15,
+    blurb:
+      'Proposal count, which is the one number on an Upwork post that tells you what your odds actually are. Unknown scores mid, not bad.',
+    rules: [
+      ['5 proposals or fewer', '15'],
+      ['6–10 proposals', '12'],
+      ['11–20 proposals', '8'],
+      ['21–40 proposals', '4'],
+      ['More than 40 proposals', '2'],
+      ['Count not found', '8 (neutral)'],
+    ],
+  },
+];
+
 const NAV = [
   { id: 'tool', label: 'The tool' },
   { id: 'breakdown', label: 'How it scores' },
   { id: 'parser', label: 'The parser' },
+  { id: 'subscores', label: 'Sub-scores' },
   { id: 'notes', label: 'Honest notes' },
   { id: 'faq', label: 'FAQ' },
 ];
@@ -228,14 +320,7 @@ export default function Page() {
         <header className="hero">
           <div className="hero__art" aria-hidden="true">
             <span className="hero__glow" />
-            <span className="slabs slabs--l">
-              <span className="slabs__bloom" />
-              <span className="slabs__col" />
-            </span>
-            <span className="slabs slabs--r">
-              <span className="slabs__bloom" />
-              <span className="slabs__col" />
-            </span>
+            <span className="hero__slabs" />
           </div>
           <div className="shell hero__in">
             <Reveal as="p" variant="up-sm" className="eyebrow">
@@ -288,6 +373,24 @@ export default function Page() {
           <Reveal variant="up-sm" delay={100}>
             <Ticker items={RED_FLAG_LABELS} />
           </Reveal>
+        </section>
+
+        {/* ---------------------------------------------------------- process */}
+        <section className="section section--tight" id="process">
+          <div className="shell">
+            <div className="section__head">
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                Process
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                Three steps, and you can watch every one of them.
+              </Reveal>
+              <Reveal as="p" variant="up" delay={160} className="lede">
+                Clear stages, predictable output, nothing hidden behind a call you cannot see.
+              </Reveal>
+            </div>
+            <Process steps={STEPS} />
+          </div>
         </section>
 
         {/* ------------------------------------------------------------- tool */}
@@ -459,6 +562,42 @@ export default function Page() {
           </div>
         </section>
 
+        {/* -------------------------------------------------------- sub-scores */}
+        <section className="section section--tight" id="subscores">
+          <div className="shell">
+            <div className="section__head">
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                Sub-scores
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                Every threshold, written down.
+              </Reveal>
+              <Reveal as="p" variant="up" delay={160} className="lede">
+                Five components, 100 points between them. These are the actual numbers the
+                engine runs — not a description of them.
+              </Reveal>
+            </div>
+            <Reveal variant="up-sm" delay={120}>
+              <Tabs items={SUBSCORES} />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ----------------------------------------------------------- privacy */}
+        <section className="section section--tight" id="guarantees">
+          <div className="shell">
+            <div className="section__head">
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                Guarantees
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                What running client-side actually buys you.
+              </Reveal>
+            </div>
+            <IconGrid features={PRIVACY_FEATURES} />
+          </div>
+        </section>
+
         {/* ------------------------------------------------------------ notes */}
         <section className="section section--tight" id="notes">
           <div className="shell">
@@ -525,6 +664,33 @@ export default function Page() {
             <Reveal variant="up-sm" delay={140}>
               <Accordion items={FAQ} />
             </Reveal>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- cta band */}
+        <section className="section section--tight">
+          <div className="shell">
+            <CtaBand>
+              <Reveal as="p" variant="up-sm" className="eyebrow">
+                Try it
+              </Reveal>
+              <Reveal as="h2" variant="up" delay={80}>
+                Paste a post and see where every point came from.
+              </Reveal>
+              <Reveal as="p" variant="up" delay={140} className="lede">
+                No sign-up, no key, nothing sent anywhere. Edit the text and the score moves
+                as you type.
+              </Reveal>
+              <Reveal variant="up" delay={200} className="cta-row">
+                <a className="btn btn--primary btn--icon" href="#tool">
+                  <RollIcon />
+                  <Roll>Score a post</Roll>
+                </a>
+                <a className="btn btn--ghost" href="#notes">
+                  <Roll>Read the honest notes</Roll>
+                </a>
+              </Reveal>
+            </CtaBand>
           </div>
         </section>
       </main>

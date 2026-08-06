@@ -378,6 +378,29 @@ code {
   position: absolute; inset: auto -12% -48% -12%; height: 86%;
   background: radial-gradient(46% 52% at 50% 100%, rgba(159, 246, 144, 0.30) 0%, transparent 70%);
 }
+/* The stacked-glass columns are now a rendered asset rather than a gradient
+   imitation of one — same subject as the reference's hero art, generated for
+   this page. AVIF first, WebP behind it; 24KB and 46KB respectively, so it
+   costs less than the CSS version cost in compositor layers. */
+.hero__slabs {
+  position: absolute; inset: 0;
+  background-image: image-set(url('/hero-slabs.avif') type('image/avif'),
+                              url('/hero-slabs.webp') type('image/webp'));
+  /* Fit the width, never cover. The render is 21:9 with a deliberately empty
+     middle; `cover` crops the sides on a shorter viewport, which walks the
+     columns inward until they crowd the headline. */
+  background-size: 100% auto;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  /* Fade the render into the page rather than letting it end on a hard edge. */
+  mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 84%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 84%, transparent 100%);
+  /* Ambience, not subject. At full strength the lit slabs read brighter than
+     the headline and the eye goes to the corners first. */
+  opacity: 0.5;
+}
+@media (max-width: 900px) { .hero__slabs { opacity: 0.28; } }
+
 .slabs {
   position: absolute; bottom: -4%;
   width: clamp(54px, 5.5vw, 88px); height: 62%;
@@ -615,6 +638,104 @@ select {
   border-top: 1px solid var(--line);
   font-size: 12.5px; color: var(--ink-50);
 }
+
+/* =============================================================== tabs === */
+
+.tabs { display: flex; flex-direction: column; }
+.tabs__bar {
+  display: flex; flex-wrap: wrap; gap: 2px;
+  border-bottom: 1px solid var(--line);
+}
+.tabs__btn {
+  position: relative; display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 16px; background: none; border: 0; cursor: pointer;
+  font-family: var(--ui); font-size: 12.5px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-50);
+  transition: color 0.4s var(--ease-motion);
+}
+.tabs__btn::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease-motion);
+}
+.tabs__btn:hover { color: var(--ink); }
+.tabs__btn.is-active { color: var(--accent); }
+.tabs__btn.is-active::after { transform: scaleX(1); }
+.tabs__max {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0;
+  color: var(--ink-40); font-variant-numeric: tabular-nums;
+}
+.tabs__btn.is-active .tabs__max { color: var(--accent); }
+
+.tabs__panel {
+  display: grid; gap: var(--s-5); padding-top: var(--s-5);
+  animation: tab-in 0.42s var(--ease-motion) both;
+}
+@media (min-width: 860px) { .tabs__panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); } }
+.tabs__panel:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@keyframes tab-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.tabs__lede { display: flex; flex-direction: column; gap: var(--s-3); }
+.tabs__lede .note { max-width: 46ch; }
+
+.rules { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); }
+.rules li {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4);
+  padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
+}
+.rules li:last-child { border-bottom: 0; }
+.rules li:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
+.rules__c { color: var(--ink-70); }
+.rules__p {
+  font-family: var(--mono); font-size: 12px; color: var(--accent);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================== icon grid === */
+
+.feats { display: grid; gap: var(--s-4); }
+@media (min-width: 640px) { .feats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 980px) { .feats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.feat { gap: var(--s-3); }
+.feat h3 { font-size: 19px; }
+.feat__icon {
+  width: 40px; height: 40px; flex: none;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-accent);
+  background: var(--accent-05);
+  color: var(--accent);
+}
+
+/* ============================================================ process === */
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); counter-reset: step; }
+@media (min-width: 860px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.step { gap: var(--s-3); }
+.step h3 { font-size: 22px; }
+.step__top { display: flex; align-items: center; justify-content: space-between; }
+.step__n {
+  font-family: var(--mono); font-size: 30px; line-height: 1;
+  letter-spacing: -0.05em; color: rgba(255, 255, 255, 0.13);
+}
+
+/* =========================================================== cta band === */
+
+.cta {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--line-accent);
+  padding: clamp(36px, 6vw, 72px) clamp(20px, 4vw, 48px);
+  text-align: center;
+}
+.cta__glow {
+  position: absolute; inset: -40% -10% auto -10%; height: 150%;
+  background: radial-gradient(42% 46% at 50% 0%, var(--accent-20) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta__in {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; gap: var(--s-5);
+}
+.cta__in .lede { margin-inline: auto; }
+.cta__in .cta-row { justify-content: center; }
 
 /* ============================================================== motion ===
    Values taken off the live reference mid-animation, not invented. Elements
