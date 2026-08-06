@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Run Inspector — speculative redesign</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="A speculative redesign of the run inspector for AI agent nodes in workflow automation tools. Interactive prototype, no sign-up.">
+<style>
+  /* Same tokens as the prototype, so landing and demo are one world. */
+  :root {
+    --bg: #eceef0; --surface: #ffffff; --line: #d6dbde;
+    --text: #12181b; --dim: #566065; --faint: #7d888d;
+    --accent: #0d6a62; --accent-bg: #e2f0ee; --on-accent: #ffffff;
+    --hold: #8c5a0e; --hold-bg: #f7eddc;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c1012; --surface: #141a1d; --line: #263135;
+      --text: #e7edef; --dim: #97a5aa; --faint: #74838a;
+      --accent: #46b9ad; --accent-bg: #102b2a; --on-accent: #06201e;
+      --hold: #d3a05c; --hold-bg: #241d10;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c1012; --surface: #141a1d; --line: #263135;
+    --text: #e7edef; --dim: #97a5aa; --faint: #74838a;
+    --accent: #46b9ad; --accent-bg: #102b2a; --on-accent: #06201e;
+    --hold: #d3a05c; --hold-bg: #241d10;
+  }
+  :root[data-theme="light"] {
+    --bg: #eceef0; --surface: #ffffff; --line: #d6dbde;
+    --text: #12181b; --dim: #566065; --faint: #7d888d;
+    --accent: #0d6a62; --accent-bg: #e2f0ee; --on-accent: #ffffff;
+    --hold: #8c5a0e; --hold-bg: #f7eddc;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 16px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .label {
+    background: var(--hold-bg); color: var(--text);
+    border-bottom: 1px solid var(--line);
+    padding: 10px clamp(16px, 4vw, 40px); font-size: 12.5px; line-height: 1.5;
+  }
+  .label b { font-weight: 650; }
+  .wrap {
+    max-width: 780px; margin: 0 auto;
+    padding: clamp(32px, 6vw, 64px) clamp(16px, 4vw, 40px) 72px;
+    display: flex; flex-direction: column; gap: 30px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  h1 {
+    margin: 0; font-size: clamp(28px, 6vw, 42px); line-height: 1.1;
+    letter-spacing: -0.03em; text-wrap: balance; font-weight: 680;
+  }
+  p { margin: 0; }
+  .lede { font-size: clamp(16px, 2.4vw, 18.5px); color: var(--dim); }
+  .cards { display: grid; gap: 14px; }
+  @media (min-width: 680px) { .cards { grid-template-columns: 1fr 1fr; } }
+  a.card {
+    display: flex; flex-direction: column; gap: 7px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px 22px; text-decoration: none; color: inherit;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  a.card .go { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  a.card h2 { margin: 0; font-size: 17px; letter-spacing: -0.015em; }
+  a.card p { font-size: 14px; color: var(--dim); }
+  .five { display: flex; flex-direction: column; gap: 10px; }
+  .five div { display: flex; gap: 12px; font-size: 14.5px; align-items: baseline; }
+  .five span:first-child {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    flex: none; width: 22px; padding-top: 2px;
+  }
+  .five b { font-weight: 640; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+  footer { font-size: 13px; color: var(--faint); display: flex; flex-direction: column; gap: 8px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="label">
+  <b>Speculative redesign — unaffiliated, unsolicited, not commissioned by anyone.</b>
+  An independent UX concept for the run-inspection screen of AI agent nodes in workflow
+  automation tools (n8n, Make, Zapier and similar). It uses no company's logo, brand or
+  product assets, and is not a product of, or endorsed by, any of them. Every number,
+  order, supplier and person shown is synthetic.
+</div>
+
+<div class="wrap">
+  <p class="eyebrow">Portfolio piece · Product design · AI interfaces</p>
+  <h1>What should a screen show you when the AI is confidently wrong?</h1>
+  <p class="lede">
+    An agent just ran against your real business data, and a purchase order is about to
+    go out. Three of four line items are right. On the fourth it wrote a fluent, specific,
+    completely false sentence about a supplier's lead time. A run that crashes is easy —
+    the interesting failure looks exactly like a success.
+  </p>
+
+  <div class="cards">
+    <a class="card" href="/prototype.html">
+      <span class="go">Open the prototype →</span>
+      <h2>Interactive prototype</h2>
+      <p>Press <b>Run workflow</b>. The streaming, the confidence, the tool calls, the failure and the human gate are all live — nothing is a screenshot.</p>
+    </a>
+    <a class="card" href="/explorations.html">
+      <span class="go">See the process →</span>
+      <h2>Discarded directions</h2>
+      <p>Three treatments for the trust layer, side by side on the same run — the percentage badge, the disclaimer banner, and the one that shipped.</p>
+    </a>
+  </div>
+
+  <hr>
+
+  <div class="five">
+    <p class="eyebrow">The five problems it answers</p>
+    <div><span>01</span><p><b>Streaming</b> — the wait is filled with a commitment, not a spinner. The agent publishes its plan before the first tool call, and the plan's last line is the limit of its own authority.</p></div>
+    <div><span>02</span><p><b>Confidence</b> — no uncalibrated "87% sure" badge. Every value is <i>verified</i>, <i>derived</i> or <i>assumed</i>, and only <i>assumed</i> gets colour.</p></div>
+    <div><span>03</span><p><b>Tool transparency</b> — one line per call, the real payload one click away.</p></div>
+    <div><span>04</span><p><b>Graceful failure</b> — the model is never asked to grade itself. A deterministic check re-reads the record and shows both values side by side.</p></div>
+    <div><span>05</span><p><b>Human-in-the-loop</b> — the pause goes <i>before</i> the irreversible step. Partial approval, editing with the original kept, and an expiry that defaults to <i>not sending</i>.</p></div>
+  </div>
+
+  <hr>
+
+  <footer>
+    <p><b>No sign-up, no data collected, nothing leaves your browser.</b> The prototype is a single self-contained HTML file — no build step, no dependencies, and zero network requests once loaded.</p>
+    <p>No usability testing was run on this design. There are no task-time or error-rate numbers anywhere in it, because none were measured — the case study argues from design reasoning and states what it would test first.</p>
+  </footer>
+</div>
+
+</body>
+</html>

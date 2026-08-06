@@ -11,14 +11,22 @@
     "test": "node --test --experimental-strip-types \"src/**/*.test.ts\"",
     "run:en": "node --experimental-strip-types src/cli/run.ts --locale en --date 2026-08-04",
     "run:es": "node --experimental-strip-types src/cli/run.ts --locale es --date 2026-08-04",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "dependencies": {},
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "optionalDependencies": {
     "@anthropic-ai/sdk": "^0.70.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.8.0"
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0"
   }
 }

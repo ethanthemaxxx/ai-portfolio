@@ -8,3 +8,4 @@ node_modules/
 # are noise, and a client cloning the repo should never see them.
 ._*
 .DS_Store
+.vercel
