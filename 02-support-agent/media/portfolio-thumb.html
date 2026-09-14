@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cerro Alto — portfolio thumbnail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400&display=swap"
+    />
+    <style>
+      /*
+       * Source for the Upwork portfolio thumbnail. Rendered to PNG at 1200×900
+       * with headless Chrome; the recipe is in media/README.md.
+       *
+       * Composed for two viewing distances, because a portfolio thumbnail is
+       * read at both. At card size (~226px wide) only the wordmark, the display
+       * line and the shape of the chat card survive — so those carry the whole
+       * message on their own. At full size the widget is legible and shows the
+       * one turn worth showing: the agent declining to promise a refund it has
+       * no authority to promise.
+       *
+       * Tokens are copied from src/app/globals.css rather than imported, since
+       * this file has to render standalone in a headless browser with no build
+       * step. If the design system moves, this moves with it by hand.
+       */
+      :root {
+        --paper: #f9f9f9;
+        --surface: #fff;
+        --surface-sunk: #f6f6f6;
+        --ink: #181818;
+        --ink-muted: #686868;
+        --ink-faint: #707070;
+        --line: #ededed;
+        --line-strong: #e0e0e0;
+        --a-amber: #ffcc40;
+        --ok: #2f7d4a;
+        --warn: #9a6412;
+        --font-sans: 'Inter', -apple-system, sans-serif;
+        --font-display: 'Space Grotesk', 'Inter', sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      body {
+        width: 1200px;
+        height: 900px;
+        overflow: hidden;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        letter-spacing: -0.01em;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .frame {
+        position: relative;
+        width: 1200px;
+        height: 900px;
+        /*
+         * Measured, not guessed: at 72px padding the composition sat centred
+         * with 190px of air above and below, which is elegant at full size and
+         * wasteful at the ~226px the Upwork card actually renders. Tighter
+         * padding and a larger display line put more ink in the crop.
+         */
+        padding: 56px 60px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+        isolation: isolate;
+        overflow: hidden;
+      }
+
+      /* Same surveyed grid the hero uses, at the same two pitches. */
+      .grid-fine,
+      .grid-coarse,
+      .wash {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+      .grid-fine {
+        background-image: radial-gradient(circle, rgba(24, 24, 24, 0.11) 1px, transparent 1px);
+        background-size: 22px 22px;
+        -webkit-mask-image: radial-gradient(130% 100% at 32% 20%, #000 45%, transparent 92%);
+      }
+      .grid-coarse {
+        background-image:
+          linear-gradient(to right, rgba(24, 24, 24, 0.075) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(24, 24, 24, 0.075) 1px, transparent 1px);
+        background-size: 88px 88px;
+        -webkit-mask-image: radial-gradient(130% 100% at 32% 20%, #000 45%, transparent 92%);
+      }
+      .wash {
+        background: linear-gradient(160deg, transparent 30%, #eef3fa 72%, #dde7f4 100%);
+      }
+
+      /* ── left column ───────────────────────────────────────────────── */
+
+      .left {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font-family: var(--font-display);
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+      }
+      .wordmark span {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--ink);
+        color: #fff;
+        display: grid;
+        place-items: center;
+      }
+
+      .eyebrow {
+        font-size: 17px;
+        color: var(--ink-muted);
+      }
+      .eyebrow b {
+        font-weight: 400;
+        color: var(--ink-faint);
+      }
+
+      h1 {
+        font-size: 70px;
+        line-height: 1.03;
+        font-weight: 600;
+        letter-spacing: -0.035em;
+      }
+
+      .sub {
+        font-size: 21px;
+        line-height: 1.4;
+        color: var(--ink-muted);
+        letter-spacing: -0.02em;
+        max-width: 30ch;
+      }
+
+      .facts {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-top: 6px;
+      }
+      .fact {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-size: 15px;
+        letter-spacing: 0;
+        color: var(--ink-muted);
+      }
+      .fact i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ink);
+        flex: 0 0 auto;
+      }
+
+      /* ── the widget ────────────────────────────────────────────────── */
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 32px 70px -22px rgba(24, 24, 24, 0.24);
+        overflow: hidden;
+      }
+
+      .card__head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--ink);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+      }
+      .card__id strong {
+        display: block;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .card__id small {
+        font-size: 13px;
+        color: var(--ink-muted);
+      }
+      .mode {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        height: 28px;
+        padding: 0 13px;
+        border: 1px solid var(--line);
+        border-radius: 100px;
+        font-size: 13px;
+        color: var(--ink-muted);
+      }
+      .mode i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--a-amber);
+      }
+
+      .card__body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .bubble {
+        align-self: flex-end;
+        max-width: 88%;
+        padding: 12px 16px;
+        border-radius: 14px 14px 4px 14px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0;
+        color: var(--ink-muted);
+      }
+      .status svg {
+        color: var(--ok);
+      }
+
+      .answer {
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .cites {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13px;
+        color: var(--ink-faint);
+      }
+      .chip {
+        padding: 6px 13px;
+        border: 1px solid var(--line-strong);
+        border-radius: 100px;
+        font-size: 13px;
+        color: var(--ink);
+      }
+
+      .handoff {
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--a-amber);
+        border-radius: 11px;
+        padding: 15px 17px;
+        background: #fffbf0;
+      }
+      .handoff b {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--warn);
+        margin-bottom: 7px;
+      }
+      .handoff p {
+        font-size: 14.5px;
+        line-height: 1.5;
+        margin-bottom: 7px;
+      }
+      .handoff code {
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+        color: var(--ink-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="wash"></div>
+      <div class="grid-coarse"></div>
+      <div class="grid-fine"></div>
+
+      <div class="left">
+        <div class="wordmark">
+          <span>
+            <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="8" cy="8" rx="4.75" ry="6.25" transform="rotate(-38 8 8)" />
+              <path d="M5.4 10.6c1.4-1.1 1.9-2.4 1.3-3.6-.6-1.2-.1-2.5 1.3-3.6" />
+            </svg>
+          </span>
+          Cerro Alto
+        </div>
+
+        <div class="eyebrow"><b>[</b> RAG support agent <b>]</b></div>
+
+        <h1>Answers a customer can check</h1>
+
+        <p class="sub">
+          Grounded in the store’s own policies. Live order lookup. Escalation enforced in code, not
+          in a prompt.
+        </p>
+
+        <div class="facts">
+          <div class="fact"><i></i>252 tests · 251 pass · 1 skipped</div>
+          <div class="fact"><i></i>14/16 retrieval evals · k=6</div>
+          <div class="fact"><i></i>Both failures published, not rounded</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__head">
+          <div class="avatar">
+            <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="8" cy="8" rx="4.75" ry="6.25" transform="rotate(-38 8 8)" />
+              <path d="M5.4 10.6c1.4-1.1 1.9-2.4 1.3-3.6-.6-1.2-.1-2.5 1.3-3.6" />
+            </svg>
+          </div>
+          <div class="card__id">
+            <strong>Cerro Alto Coffee</strong>
+            <small>Support · Mon–Fri 9–5 ET</small>
+          </div>
+          <div class="mode"><i></i>Fixture mode</div>
+        </div>
+
+        <div class="card__body">
+          <div class="bubble">The kettle in CA-10250 is dead, I want a refund</div>
+
+          <div class="status">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.75 8.25 6.5 11l5.75-6" />
+            </svg>
+            Checking your order&nbsp;&nbsp;590 ms
+          </div>
+
+          <p class="answer">
+            A defective kettle is covered — we pay shipping both ways, and you don’t send the coffee
+            back. This order is over our $150 desk limit, so a supervisor signs it off rather than
+            me.
+          </p>
+
+          <div class="cites">From <span class="chip">Returns &amp; Refunds</span></div>
+
+          <div class="handoff">
+            <b>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2.75 12h8" />
+                <path d="M7.75 8.5 11.25 12l-3.5 3.5" />
+                <circle cx="17" cy="8.25" r="2.5" />
+                <path d="M13 19.25a4 4 0 0 1 8 0" />
+              </svg>
+              Passed to a person
+            </b>
+            <p>I’ve passed this to the team — they reply within one business day.</p>
+            <code>Ref ESC-4417</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
