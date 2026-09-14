@@ -21,3 +21,10 @@ dist/
 # Editor
 .idea/
 *.swp
+
+# Internal notes: pricing, positioning and platform copy. They stay on this
+# machine and never reach the public repository.
+/BRIEFS.md
+/UPWORK-ITEMS.md
+/LEEME-INTERNO.md
+/covers/
