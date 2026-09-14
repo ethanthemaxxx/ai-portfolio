@@ -7,6 +7,9 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="description" content="A speculative redesign of the run inspector for AI agent nodes in workflow automation tools. Interactive prototype, no sign-up.">
 <meta name="color-scheme" content="light dark">
+<!-- Set before first paint: the reveal system only hides content when it can
+     also guarantee something will show it again. -->
+<script>document.documentElement.className += " js";</script>
 <style>
 /* ============================================================================
    AGENT RUN INSPECTOR — case study landing.
@@ -47,9 +50,11 @@
   --rule:      rgba(0, 0, 0, .12);
   --rule-dash: rgba(0, 0, 0, .18);
 
-  /* the one accent */
-  --accent:     #ff3700;   /* marks, rules, large numerals — never small prose */
-  --accent-ink: #c42a00;   /* the same idea at prose contrast */
+  /* the one accent, in three weights for three backgrounds */
+  --accent:      #ff3700;  /* marks, rules, fills — never text */
+  --accent-ink:  #c42a00;  /* the same idea as text on the light canvas (4.97:1) */
+  --accent-dark: #ff6a45;  /* and as text on the dark inset (5.7:1) */
+  --on-accent:   #1a0600;  /* text sitting on an orange fill (5.4:1) */
 
   /* the dark inset — product surfaces sit in here */
   --dark:      #151619;
@@ -87,8 +92,10 @@
   --rule:      rgba(255, 255, 255, .13);
   --rule-dash: rgba(255, 255, 255, .16);
 
-  --accent:     #ff4a1a;
-  --accent-ink: #ff7a52;
+  --accent:      #ff4a1a;
+  --accent-ink:  #ff7a52;
+  --accent-dark: #ff7a52;
+  --on-accent:   #1a0600;
 
   --dark:      #131315;
   --dark-2:    #1c1c1f;
@@ -111,8 +118,10 @@
     --rule:      rgba(255, 255, 255, .13);
     --rule-dash: rgba(255, 255, 255, .16);
 
-    --accent:     #ff4a1a;
-    --accent-ink: #ff7a52;
+    --accent:      #ff4a1a;
+    --accent-ink:  #ff7a52;
+    --accent-dark: #ff7a52;
+    --on-accent:   #1a0600;
 
     --dark:      #131315;
     --dark-2:    #1c1c1f;
@@ -277,7 +286,9 @@ section { position: relative; z-index: 1; }
   font-family: var(--mono); font-size: 11px; font-weight: 500;
   letter-spacing: .14em; text-transform: uppercase; color: var(--faint);
 }
-.eyebrow i { font-style: normal; color: var(--accent); }
+/* The section numeral is text, so it takes the prose-contrast orange, not the
+   display orange. Same idea, 4.97:1 instead of 3.18:1. */
+.eyebrow i { font-style: normal; color: var(--accent-ink); }
 
 .sec__head { display: grid; gap: 18px; margin-bottom: clamp(36px, 5vw, 64px); }
 .sec__head h2 { font-size: clamp(32px, 5.4vw, 60px); }
@@ -347,6 +358,9 @@ section { position: relative; z-index: 1; }
 }
 .inset h3, .inset h2 { color: var(--on-dark); }
 .inset .eyebrow { color: var(--on-dark-2); }
+/* Inside the dark inset the prose orange drops to 3.17:1, so the numeral
+   switches to the lighter weight of the same accent. */
+.inset .eyebrow i { color: var(--accent-dark); }
 
 .claim {
   margin: 0; padding: 20px 22px;
@@ -356,7 +370,9 @@ section { position: relative; z-index: 1; }
   font-family: var(--serif); font-size: clamp(17px, 2.3vw, 24px);
   line-height: 1.35; letter-spacing: -0.02em; color: var(--on-dark);
 }
-.claim s { color: var(--accent); text-decoration-thickness: 1.5px; }
+/* Struck text on the dark inset: the lighter orange, since the display weight
+   only reaches 4.49:1 against #1f2024 and this is prose. */
+.claim s { color: var(--accent-dark); text-decoration-thickness: 1.5px; }
 
 .readout {
   display: grid; gap: 10px; margin-top: 18px;
@@ -446,7 +462,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
   text-transform: uppercase;
   border: 1px solid var(--rule); color: var(--faint);
 }
-.col--ship .col__tag { border-color: var(--accent); background: var(--accent); color: #fff; }
+/* Text on an orange fill goes dark, not white — white lands at 3.62:1. */
+.col--ship .col__tag { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 .col h3 { font-size: clamp(19px, 2vw, 23px); margin-bottom: 16px; }
 .col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .col li {
@@ -460,6 +477,140 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
   font-family: var(--mono); font-size: 11px; letter-spacing: .09em;
   text-transform: uppercase; color: var(--ink);
 }
+
+/* ============================================================================
+   MOTION SYSTEM
+
+   One reveal, one easing, one distance — reused everywhere. Elements enter by
+   rising 40px while fading in, on a cubic-bezier(.44, 0, .56, 1) curve, with a
+   stagger between siblings.
+
+   The `.js` guard matters more than it looks. A reveal system that sets
+   opacity:0 in CSS and clears it in JS renders a blank page whenever the
+   script does not run — no JS, a parse error, a crawler, a screenshot tool.
+   I hit exactly that failure while capturing the reference site: the page
+   photographed empty. So the hidden state is only ever applied on the .js
+   branch, which is set by an inline script before first paint.
+   ========================================================================== */
+
+.js .reveal { opacity: 0; transform: translateY(40px); }
+.js .reveal.is-in {
+  opacity: 1; transform: none;
+  transition: opacity .75s cubic-bezier(.44, 0, .56, 1) var(--d, 0ms),
+              transform .75s cubic-bezier(.44, 0, .56, 1) var(--d, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- icons ----------
+   Original glyphs on the reference's grid: 24px box, 1.5 stroke, round caps
+   and joins. Drawn for this piece's vocabulary — provenance, contradiction,
+   the gate — rather than the lead-capture set the template ships with. */
+
+.ico { width: 24px; height: 24px; flex: 0 0 auto; display: block; }
+.ico--lg { width: 34px; height: 34px; }
+.ico use { stroke: currentColor; }
+
+.ico-badge {
+  display: grid; place-items: center;
+  width: 52px; height: 52px; border-radius: var(--r-md);
+  background: var(--bg-2); color: var(--ink); margin-bottom: 4px;
+}
+.card--dark .ico-badge { background: rgba(255, 255, 255, .07); color: var(--on-dark); }
+
+/* ---------- marquee ----------
+   The template runs a client-logo belt here. This piece has no clients, so the
+   belt carries the vocabulary the design actually introduces. Duplicated track
+   for a seamless loop; paused on hover and for reduced-motion. */
+
+.belt {
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  overflow: hidden; padding: 18px 0; position: relative; z-index: 1;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.belt__track { display: flex; width: max-content; animation: belt 38s linear infinite; }
+.belt:hover .belt__track { animation-play-state: paused; }
+.belt__set { display: flex; align-items: center; gap: 44px; padding-right: 44px; }
+.belt__item {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--faint); white-space: nowrap;
+}
+.belt__item .ico { width: 17px; height: 17px; }
+.belt__item--on { color: var(--ink); }
+.belt__item--on .ico { color: var(--accent-ink); }
+@keyframes belt { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .belt__track { animation: none; } }
+
+/* ---------- the run timeline (their process rail, re-pointed) ---------- */
+
+.flow { display: grid; gap: 12px; counter-reset: flow; }
+@media (min-width: 900px) { .flow { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.flow__step {
+  position: relative; padding: 26px 24px 24px;
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.flow__when {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.flow__n {
+  font-family: var(--serif); font-size: 40px; font-weight: 600;
+  letter-spacing: -0.05em; line-height: 1; color: var(--ink); opacity: .16;
+  position: absolute; top: 18px; right: 22px;
+}
+.flow__step h3 { font-size: 20px; }
+.flow__step p { font-size: 14px; letter-spacing: -0.012em; }
+/* The connector only exists where the steps actually sit in a row. */
+@media (min-width: 900px) {
+  .flow__step:not(:last-child)::after {
+    content: ""; position: absolute; top: 50%; right: -12px; width: 12px;
+    border-top: 1px dashed var(--rule-dash);
+  }
+}
+
+/* ---------- the provenance readout (their animated bar chart, re-pointed) ---------- */
+
+.prov { display: grid; gap: 2px; margin-top: 22px; }
+.prov__row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: 10px 16px;
+  padding: 14px 16px; border: 1px solid var(--dark-rule);
+  background: rgba(255, 255, 255, .02);
+}
+.prov__row:first-child { border-radius: var(--r-sm) var(--r-sm) 0 0; }
+.prov__row:last-child  { border-radius: 0 0 var(--r-sm) var(--r-sm); }
+.prov__name { font-size: 14.5px; color: var(--on-dark); font-weight: 500; }
+.prov__qty {
+  font-family: var(--mono); font-size: 14px; color: var(--on-dark);
+  font-variant-numeric: tabular-nums;
+}
+.prov__row--bad .prov__qty { color: var(--accent-dark); text-decoration: line-through; }
+.prov__meter {
+  grid-column: 1 / -1; height: 3px; border-radius: 2px;
+  background: rgba(255, 255, 255, .1); overflow: hidden;
+}
+.prov__meter i {
+  display: block; height: 100%; width: 0; border-radius: 2px;
+  background: var(--st, #8ad3a4);
+  transition: width 1.1s cubic-bezier(.44, 0, .56, 1) var(--d, 0ms);
+}
+.is-in .prov__meter i { width: var(--w, 100%); }
+@media (prefers-reduced-motion: reduce) { .prov__meter i { transition: none; } }
+.prov__tag {
+  grid-column: 1 / -1; justify-self: start;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--st, #8ad3a4);
+}
+
+/* ---------- counters ---------- */
+
+.facts dd .num { font-variant-numeric: tabular-nums; }
 
 /* ---------- honest limits (accordion) ---------- */
 
@@ -482,6 +633,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
 }
 .qa details[open] summary::after { content: "–"; }
 .qa summary:hover { color: var(--accent-ink); }
+.qa__body { overflow: hidden; }
 .qa p { padding: 0 46px 24px 39px; font-size: 15px; letter-spacing: -0.015em; max-width: 78ch; }
 .qa p + p { padding-top: 0; margin-top: -10px; }
 
@@ -520,6 +672,46 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
 </style>
 </head>
 <body>
+
+<!-- ==========================================================================
+     ICON SET — original glyphs, drawn on a 24px grid with a 1.5 stroke and
+     round caps, matching the reference's icon conventions. The concepts are
+     this piece's own: a value traced to a record, a value computed, a gap the
+     model filled, a claim the record contradicts, a gate that holds.
+     ========================================================================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <g id="i-stream" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6h15M3 11h10M3 16h6"/><path d="M17 14v6"/>
+  </g>
+  <g id="i-verified" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16 9.8"/>
+  </g>
+  <g id="i-derived" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 5h3a4 4 0 0 1 4 4v10"/><path d="M20 5h-3a4 4 0 0 0-4 4v1"/><circle cx="12" cy="20" r="1.6"/>
+  </g>
+  <g id="i-assumed" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12h5"/><path d="M16 12h5"/><path d="M11 12h.01M12.5 12h.01"/><circle cx="12" cy="12" r="4.2" stroke-dasharray="2.4 2.6"/>
+  </g>
+  <g id="i-contradicted" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v18"/><path d="M8.5 8L5.5 11l3 3"/><path d="M15.5 8l3 3-3 3"/>
+  </g>
+  <g id="i-tool" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 5l-5 7 5 7"/><path d="M16 5l5 7-5 7"/><path d="M13.5 4l-3 16"/>
+  </g>
+  <g id="i-gate" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12h6"/><path d="M15 12h6"/><rect x="9.5" y="6.5" width="5" height="11" rx="1.4"/>
+  </g>
+  <g id="i-record" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 3h7l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+    <path d="M13 3v5h5"/><path d="M8.5 13h7M8.5 17h4"/>
+  </g>
+  <g id="i-clock" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M12 6.8V12l3.4 2"/>
+  </g>
+  <g id="i-inspect" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8L21 21"/><path d="M8.5 11h5"/>
+  </g>
+</defs></svg>
 
 <div class="rails" aria-hidden="true"><div></div></div>
 
@@ -574,13 +766,46 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
     </div>
   </section>
 
-  <!-- ===================== FACT STRIP ===================== -->
-  <dl class="wrap facts">
-    <div><dt>Prototype</dt><dd>Live</dd></div>
-    <div><dt>Sign-up</dt><dd>None</dd></div>
-    <div><dt>Network requests</dt><dd>Zero</dd></div>
-    <div><dt>Smallest viewport</dt><dd>375px</dd></div>
+  <!-- ===================== FACT STRIP =====================
+       The template counts up fabricated results here ("4× output", "98%
+       retention"). This piece has no measured numbers by design and says so
+       twice, so the counters run on things that are actually countable and
+       verifiable by reading the source. -->
+  <dl class="wrap facts reveal">
+    <div><dt>Problems answered</dt><dd><span class="num" data-to="5">5</span></dd></div>
+    <div><dt>Directions drawn</dt><dd><span class="num" data-to="3">3</span></dd></div>
+    <div><dt>Network requests</dt><dd><span class="num" data-to="0">0</span></dd></div>
+    <div><dt>Smallest viewport</dt><dd><span class="num" data-to="375">375</span><span aria-hidden="true">px</span></dd></div>
   </dl>
+
+  <!-- ===================== VOCABULARY BELT =====================
+       Where the template runs a client-logo belt. No clients exist here, so it
+       carries the vocabulary the design introduces — and marks which of the
+       four states is the one that needs a human. -->
+  <div class="belt" aria-hidden="true">
+    <div class="belt__track">
+      <div class="belt__set">
+        <span class="belt__item"><svg class="ico"><use href="#i-verified"/></svg>Verified</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-derived"/></svg>Derived</span>
+        <span class="belt__item belt__item--on"><svg class="ico"><use href="#i-assumed"/></svg>Assumed</span>
+        <span class="belt__item belt__item--on"><svg class="ico"><use href="#i-contradicted"/></svg>Contradicted</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-stream"/></svg>Plan first</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-tool"/></svg>Tool call</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-gate"/></svg>Human gate</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-record"/></svg>The record</span>
+      </div>
+      <div class="belt__set">
+        <span class="belt__item"><svg class="ico"><use href="#i-verified"/></svg>Verified</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-derived"/></svg>Derived</span>
+        <span class="belt__item belt__item--on"><svg class="ico"><use href="#i-assumed"/></svg>Assumed</span>
+        <span class="belt__item belt__item--on"><svg class="ico"><use href="#i-contradicted"/></svg>Contradicted</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-stream"/></svg>Plan first</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-tool"/></svg>Tool call</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-gate"/></svg>Human gate</span>
+        <span class="belt__item"><svg class="ico"><use href="#i-record"/></svg>The record</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ===================== 001 / THE PROBLEM ===================== -->
   <section class="wrap sec" id="problem">
@@ -594,8 +819,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
       </p>
     </div>
 
-    <div class="inset">
-      <span class="eyebrow"><i>The run wrote</i></span>
+    <div class="inset reveal">
+      <span class="eyebrow"><svg class="ico" style="width:16px;height:16px"><use href="#i-stream"/></svg><i>The run wrote</i></span>
       <p class="claim" style="margin-top:16px">
         &ldquo;Volcán Dark ships from Cooperativa Tolima in <s>14 days</s>, so the 120&nbsp;kg lands
         before you run dry on day 17.&rdquo;
@@ -604,7 +829,38 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
         <div><span>The run wrote</span><b>lead_time_days = 14</b></div>
         <div><span>The record says</span><b>lead_time_days = 28</b></div>
       </div>
-      <p style="margin-top:20px; max-width:64ch; font-size:15px; letter-spacing:-.015em">
+
+      <!-- The template animates a growth bar chart here. Same component, honest
+           payload: the four line items of the draft order and what each one's
+           number is actually standing on. -->
+      <div class="prov">
+        <div class="prov__row" style="--st:#8ad3a4">
+          <span class="prov__name">Huila Reserve</span>
+          <span class="prov__qty">60 kg</span>
+          <span class="prov__meter" style="--w:100%; --d:0ms"><i></i></span>
+          <span class="prov__tag">Verified · supplier record</span>
+        </div>
+        <div class="prov__row" style="--st:#8ad3a4">
+          <span class="prov__name">Java Lot 7</span>
+          <span class="prov__qty">45 kg</span>
+          <span class="prov__meter" style="--w:100%; --d:120ms"><i></i></span>
+          <span class="prov__tag">Derived · 90-day velocity</span>
+        </div>
+        <div class="prov__row" style="--st:#e0b25e">
+          <span class="prov__name">Sereno Decaf</span>
+          <span class="prov__qty">30 kg</span>
+          <span class="prov__meter" style="--w:46%; --d:240ms"><i></i></span>
+          <span class="prov__tag">Assumed · 19 days of history</span>
+        </div>
+        <div class="prov__row prov__row--bad" style="--st:#ff6a45">
+          <span class="prov__name">Volcán Dark</span>
+          <span class="prov__qty">120 kg</span>
+          <span class="prov__meter" style="--w:22%; --d:360ms"><i></i></span>
+          <span class="prov__tag">Contradicted · lead time</span>
+        </div>
+      </div>
+
+      <p style="margin-top:22px; max-width:64ch; font-size:15px; letter-spacing:-.015em">
         The supplier record the run itself read says 28. The model was not hedging. There is no
         signal inside its output that separates this sentence from the three true ones — which is
         why asking the model how confident it feels cannot be the answer.
@@ -624,7 +880,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
     </div>
 
     <div class="grid-3">
-      <article class="card">
+      <article class="card reveal">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-stream"/></svg></span>
         <span class="card__n">01</span>
         <h3>Streaming</h3>
         <p>
@@ -632,7 +889,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
           the first tool call, and the plan&rsquo;s last line is <b>the limit of its own authority</b>.
         </p>
       </article>
-      <article class="card">
+      <article class="card reveal">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-assumed"/></svg></span>
         <span class="card__n">02</span>
         <h3>Confidence</h3>
         <p>
@@ -640,7 +898,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
           <em>derived</em> or <em>assumed</em> — and only <em>assumed</em> gets colour.
         </p>
       </article>
-      <article class="card">
+      <article class="card reveal">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-tool"/></svg></span>
         <span class="card__n">03</span>
         <h3>Tool transparency</h3>
         <p>
@@ -648,7 +907,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
           evidence on demand.
         </p>
       </article>
-      <article class="card">
+      <article class="card reveal">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-contradicted"/></svg></span>
         <span class="card__n">04</span>
         <h3>Graceful failure</h3>
         <p>
@@ -656,7 +916,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
           and shows both values side by side.
         </p>
       </article>
-      <article class="card">
+      <article class="card reveal">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-gate"/></svg></span>
         <span class="card__n">05</span>
         <h3>Human-in-the-loop</h3>
         <p>
@@ -664,7 +925,8 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
           original kept, and an expiry that defaults to <b>not sending</b>.
         </p>
       </article>
-      <article class="card" style="background:var(--dark); border-color:var(--dark)">
+      <article class="card card--dark reveal" style="background:var(--dark); border-color:var(--dark)">
+        <span class="ico-badge"><svg class="ico ico--lg"><use href="#i-inspect"/></svg></span>
         <span class="card__n" style="color:var(--accent)">→</span>
         <h3 style="color:var(--on-dark)">See it run</h3>
         <p style="color:var(--on-dark-2)">
@@ -678,16 +940,58 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
     </div>
   </section>
 
+  <!-- ===================== 003 / THE RUN, STEP BY STEP =====================
+       The template's four-step process rail, re-pointed at what actually
+       happens inside one run — which is the thing this case study has to
+       explain before any of the five decisions make sense. -->
+  <section class="wrap sec" id="run">
+    <div class="sec__head">
+      <span class="eyebrow"><i>003/</i> One run, start to stop</span>
+      <h2>Where the screen has to speak.</h2>
+      <p>
+        Four moments. At each one the operator asks a different question, and the old screen
+        answered none of them.
+      </p>
+    </div>
+
+    <div class="flow">
+      <article class="flow__step reveal">
+        <span class="flow__n">01</span>
+        <span class="flow__when"><svg class="ico" style="width:13px;height:13px;vertical-align:-2px;display:inline-block;margin-right:5px"><use href="#i-clock"/></svg>0.0 – 0.9s</span>
+        <h3>Plan committed</h3>
+        <p>Before any tool runs, the agent states what it will do — and where it will stop.</p>
+      </article>
+      <article class="flow__step reveal">
+        <span class="flow__n">02</span>
+        <span class="flow__when"><svg class="ico" style="width:13px;height:13px;vertical-align:-2px;display:inline-block;margin-right:5px"><use href="#i-clock"/></svg>0.9 – 3.4s</span>
+        <h3>Tools called</h3>
+        <p>Stock, velocity and supplier terms, one readable line per call, payload on demand.</p>
+      </article>
+      <article class="flow__step reveal">
+        <span class="flow__n">03</span>
+        <span class="flow__when"><svg class="ico" style="width:13px;height:13px;vertical-align:-2px;display:inline-block;margin-right:5px"><use href="#i-clock"/></svg>3.4 – 4.1s</span>
+        <h3>Check re-reads</h3>
+        <p>A deterministic pass compares each written value against the record it cites.</p>
+      </article>
+      <article class="flow__step reveal">
+        <span class="flow__n">04</span>
+        <span class="flow__when"><svg class="ico" style="width:13px;height:13px;vertical-align:-2px;display:inline-block;margin-right:5px"><use href="#i-clock"/></svg>Then it stops</span>
+        <h3>Gate holds</h3>
+        <p>The purchase order does not leave. Expiry defaults to <b>not sending</b>.</p>
+      </article>
+    </div>
+  </section>
+
   <!-- ===================== 003 / WHAT'S HERE ===================== -->
   <section class="wrap sec">
     <div class="sec__head">
-      <span class="eyebrow"><i>003/</i> What&rsquo;s here</span>
+      <span class="eyebrow"><i>004/</i> What&rsquo;s here</span>
       <h2>Two surfaces, both real.</h2>
       <p>The working prototype, and the reasoning that produced it — including what got thrown away.</p>
     </div>
 
     <div class="links">
-      <a class="link" href="/prototype.html">
+      <a class="link reveal" href="/prototype.html">
         <h3>Interactive prototype</h3>
         <p>
           The full run, end to end: the plan, the streaming prose, the tool calls with their real
@@ -696,7 +1000,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
         </p>
         <span class="link__go">Open it <s aria-hidden="true">↗</s></span>
       </a>
-      <a class="link" href="/explorations.html">
+      <a class="link reveal" href="/explorations.html">
         <h3>Discarded directions</h3>
         <p>
           Three treatments for the trust layer on the same run — the percentage badge, the
@@ -711,7 +1015,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
   <!-- ===================== 004 / DIRECTIONS ===================== -->
   <section class="wrap sec" id="directions">
     <div class="sec__head">
-      <span class="eyebrow"><i>004/</i> The decision</span>
+      <span class="eyebrow"><i>005/</i> The decision</span>
       <h2>Three ways to show doubt.</h2>
       <p>
         One question, asked of each: does it give the operator a reason to catch the false lead time?
@@ -719,7 +1023,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
     </div>
 
     <div class="compare">
-      <div class="col">
+      <div class="col reveal">
         <span class="col__tag">Discarded</span>
         <h3>Confidence score</h3>
         <ul>
@@ -729,7 +1033,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
         </ul>
         <p class="col__v">Verdict — the false claim sits inside the 87%</p>
       </div>
-      <div class="col">
+      <div class="col reveal">
         <span class="col__tag">Discarded</span>
         <h3>Persistent disclaimer</h3>
         <ul>
@@ -739,7 +1043,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
         </ul>
         <p class="col__v">Verdict — a constant warning carries no information</p>
       </div>
-      <div class="col col--ship">
+      <div class="col col--ship reveal">
         <span class="col__tag">Shipped</span>
         <h3>Provenance per claim</h3>
         <ul>
@@ -755,7 +1059,7 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
   <!-- ===================== 005 / LIMITS ===================== -->
   <section class="wrap sec" id="limits">
     <div class="sec__head">
-      <span class="eyebrow"><i>005/</i> Honest limits</span>
+      <span class="eyebrow"><i>006/</i> Honest limits</span>
       <h2>What this is not.</h2>
       <p>The parts a case study usually leaves out, stated before you have to ask.</p>
     </div>
@@ -842,8 +1146,26 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
 
 <script>
 "use strict";
-/* Theme toggle. Cycles system → light → dark and remembers the choice, so the
-   three pages of the case study stay in one world as you move between them. */
+
+/* ============================================================================
+   MOTION — reimplemented from the reference's behaviour, not its code.
+
+   The template runs React + Framer Motion. That bundle cannot be reused here:
+   it needs a build step and a runtime, and this page's stated property is that
+   it ships as one self-contained file with no dependencies. So the three
+   behaviours worth having were rebuilt directly:
+
+     reveal   IntersectionObserver, rise 40px + fade, staggered per group
+     count    number ramps to its value once, on entry
+     details  the accordion animates height instead of snapping
+
+   Every one of them is a no-op under prefers-reduced-motion, and every one
+   leaves the content fully readable if it never runs at all.
+   ========================================================================== */
+
+var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- theme: one choice across the three pages ---------- */
 (function () {
   var root = document.documentElement;
   var btn = document.getElementById("theme-btn");
@@ -852,11 +1174,230 @@ a.link:hover .link__go s { transform: translate(2px, -2px); }
     if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
   } catch (e) {}
   btn.addEventListener("click", function () {
-    var now = root.getAttribute("data-theme");
-    var next = now === "dark" ? "light" : "dark";
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
     try { localStorage.setItem("ari-theme", next); } catch (e) {}
   });
+})();
+
+/* ---------- reveal on entry ----------
+   Siblings inside one container stagger by 90ms so a grid resolves as a wave
+   rather than a slab. Each element is shown once and then forgotten: this is
+   an entrance, not a scroll-linked effect that re-fires on the way back up.
+
+   TWO INDEPENDENT TRIGGERS, ON PURPOSE.
+
+   An IntersectionObserver is the efficient path, but it is not a guarantee.
+   Construct one while the viewport is still zero-sized — a hidden tab, a
+   headless capture, a pane that lays out before it is measured — and it can
+   settle into a state where it never reports an intersection again. Content
+   whose visibility depends on that observer is then invisible permanently.
+
+   That is not hypothetical: it is what happened to the reference site when I
+   tried to screenshot it, and to this page on its first deploy. So the
+   observer is backed by a manual sweep on load, scroll and resize. The sweep
+   is cheap (it runs only over elements not yet shown, throttled to a frame,
+   and unbinds itself once none are left) and it cannot get stuck, because it
+   re-derives the answer from getBoundingClientRect every time. */
+(function () {
+  var items = [].slice.call(document.querySelectorAll(".reveal"));
+  if (!items.length) return;
+
+  function show(el) { el.classList.add("is-in"); }
+
+  if (REDUCED) { items.forEach(show); return; }
+
+  // Stagger siblings within each container.
+  var groups = new Map();
+  items.forEach(function (el) {
+    var parent = el.parentElement;
+    if (!groups.has(parent)) groups.set(parent, 0);
+    el.style.setProperty("--d", (groups.get(parent) * 90) + "ms");
+    groups.set(parent, groups.get(parent) + 1);
+  });
+
+  var pending = items.slice();
+
+  function drop(el) {
+    var i = pending.indexOf(el);
+    if (i > -1) pending.splice(i, 1);
+  }
+
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    if (!vh) return false;               // zero viewport: decide nothing yet
+    return r.top < vh * 0.92 && r.bottom > 0;
+  }
+
+  var queued = false;
+  function sweep() {
+    queued = false;
+    for (var i = pending.length - 1; i >= 0; i--) {
+      if (inView(pending[i])) { show(pending[i]); pending.splice(i, 1); }
+    }
+    if (!pending.length) unbind();
+  }
+  function onEvent() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(sweep);
+  }
+  function unbind() {
+    window.removeEventListener("scroll", onEvent);
+    window.removeEventListener("resize", onEvent);
+    window.removeEventListener("load", onEvent);
+    document.removeEventListener("visibilitychange", onVisible);
+  }
+
+  /* THE LAST RESORT, AND WHY IT DOES NOT USE requestAnimationFrame.
+
+     In a document that is never painted — a restored background tab, a social
+     preview renderer, a print job, some crawlers — rAF callbacks are never
+     invoked and IntersectionObserver reports nothing. Both of the paths above
+     are therefore dead in exactly the case where content silently disappears.
+     setTimeout still runs there, so the final guarantee is built on it: if the
+     page has not been shown by the time this fires, reveal everything outright.
+     Nobody is watching an animation in a hidden document anyway. */
+  function onVisible() { if (!document.hidden) sweep(); }
+  document.addEventListener("visibilitychange", onVisible);
+
+  setTimeout(function () {
+    if (!pending.length) return;
+    if (document.hidden) { pending.slice().forEach(show); pending.length = 0; unbind(); }
+    else sweep();
+  }, 1200);
+
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        show(en.target); drop(en.target); io.unobserve(en.target);
+      });
+      if (!pending.length) unbind();
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
+    items.forEach(function (el) { io.observe(el); });
+  }
+
+  window.addEventListener("scroll", onEvent, { passive: true });
+  window.addEventListener("resize", onEvent);
+  window.addEventListener("load", onEvent);
+  onEvent();
+})();
+
+/* ---------- counters ----------
+   The markup already contains the final number, so a reader without JS sees
+   the true value and a crawler indexes it. The ramp only ever replaces a
+   number with the same number. */
+(function () {
+  var nums = [].slice.call(document.querySelectorAll(".num[data-to]"));
+  if (!nums.length || REDUCED) return;
+
+  function ramp(el) {
+    var to = parseInt(el.getAttribute("data-to"), 10);
+    if (!isFinite(to) || to === 0) return;   // "0 network requests" has nowhere to climb from
+    var dur = 900, t0 = null;
+    function frame(t) {
+      if (t0 === null) t0 = t;
+      var p = Math.min((t - t0) / dur, 1);
+      // easeOutCubic — fast commit, soft landing, same family as the reveal
+      el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* Same reasoning as the reveal: the observer is the efficient path, a manual
+     sweep is the guarantee. A counter that never fires would leave the true
+     number on screen anyway — the markup carries it — so this is about the
+     animation running, not about correctness of what is read. */
+  var pending = nums.slice(), queued = false;
+
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    return vh ? (r.top < vh * 0.85 && r.bottom > 0) : false;
+  }
+  function sweep() {
+    queued = false;
+    for (var i = pending.length - 1; i >= 0; i--) {
+      if (inView(pending[i])) { ramp(pending[i]); pending.splice(i, 1); }
+    }
+    if (!pending.length) {
+      window.removeEventListener("scroll", onEvent);
+      window.removeEventListener("resize", onEvent);
+      window.removeEventListener("load", onEvent);
+    }
+  }
+  function onEvent() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(sweep);
+  }
+
+  window.addEventListener("scroll", onEvent, { passive: true });
+  window.addEventListener("resize", onEvent);
+  window.addEventListener("load", onEvent);
+  onEvent();
+})();
+
+/* ---------- accordion ----------
+   <details> is the right element — it is keyboard-driven and announced
+   correctly for free. The only thing added is the height transition, which
+   native <details> does not give you. Closing is deferred until the animation
+   finishes so the panel does not vanish before it has collapsed. */
+(function () {
+  var list = [].slice.call(document.querySelectorAll(".qa details"));
+  if (!list.length) return;
+
+  list.forEach(function (d) {
+    var summary = d.querySelector("summary");
+    var body = document.createElement("div");
+    body.className = "qa__body";
+    while (summary.nextSibling) body.appendChild(summary.nextSibling);
+    d.appendChild(body);
+
+    if (REDUCED) return;
+
+    summary.addEventListener("click", function (ev) {
+      ev.preventDefault();
+
+      // One panel at a time — the section is a list of answers, not a form.
+      if (!d.open) {
+        list.forEach(function (o) { if (o !== d && o.open) collapse(o); });
+      }
+      d.open ? collapse(d) : expand(d);
+    });
+  });
+
+  function bodyOf(d) { return d.querySelector(".qa__body"); }
+
+  function expand(d) {
+    var b = bodyOf(d);
+    d.open = true;
+    b.style.height = "0px";
+    b.style.overflow = "hidden";
+    var target = b.scrollHeight;
+    b.animate(
+      [{ height: "0px", opacity: 0 }, { height: target + "px", opacity: 1 }],
+      { duration: 340, easing: "cubic-bezier(.44, 0, .56, 1)" }
+    ).onfinish = function () {
+      b.style.height = ""; b.style.overflow = "";
+    };
+  }
+
+  function collapse(d) {
+    var b = bodyOf(d);
+    var from = b.scrollHeight;
+    b.style.overflow = "hidden";
+    b.animate(
+      [{ height: from + "px", opacity: 1 }, { height: "0px", opacity: 0 }],
+      { duration: 280, easing: "cubic-bezier(.44, 0, .56, 1)" }
+    ).onfinish = function () {
+      d.open = false;
+      b.style.height = ""; b.style.overflow = "";
+    };
+  }
 })();
 </script>
 
